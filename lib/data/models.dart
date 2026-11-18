@@ -22,12 +22,30 @@ class Shop {
   });
 }
 
+/// A vehicle a part fits. [model] null means every model of that brand.
+/// [brandId] matches `VehicleBrand.id` in `data/vehicles.dart`.
+class Fitment {
+  final String brandId;
+  final String? model;
+
+  const Fitment(this.brandId, [this.model]);
+}
+
 class Part {
   final String id;
   final String name;
+
+  /// The part serial number (OEM number). Universal: it identifies the part
+  /// whatever the brand of the car.
   final String oem;
   final String category;
   final String fits;
+
+  /// Other serial numbers of the same part (aftermarket cross-references).
+  final List<String> altSerials;
+
+  /// Vehicles this part fits. Empty means universal (fits most cars).
+  final List<Fitment> fitments;
 
   const Part({
     required this.id,
@@ -35,6 +53,8 @@ class Part {
     required this.oem,
     required this.category,
     required this.fits,
+    this.altSerials = const [],
+    this.fitments = const [],
   });
 }
 

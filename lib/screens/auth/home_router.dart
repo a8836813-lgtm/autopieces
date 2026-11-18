@@ -3,13 +3,13 @@ import 'package:material_ui/material_ui.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
 import '../client_shell.dart';
+import '../shop_shell.dart';
 import 'role_select_screen.dart';
 
 /// Decides which home screen a logged-in user sees.
 ///
-/// Client goes to the existing [ClientShell].
-/// TODO: point [UserRole.shop] to your existing "shop mode" screen and
-/// [UserRole.mechanic] to the mechanic dashboard once it exists.
+/// Client goes to [ClientShell], shop owner to [ShopShell].
+/// TODO: point [UserRole.mechanic] to the mechanic dashboard once it exists.
 Widget homeForUser(AppUser user) {
   switch (user.role) {
     case UserRole.client:
@@ -21,12 +21,7 @@ Widget homeForUser(AppUser user) {
         message: 'Next: publish repair reports and manage your profile.',
       );
     case UserRole.shop:
-      return RolePlaceholderScreen(
-        user: user,
-        title: 'Shop space',
-        message:
-            'Connect your existing shop mode here (stock list, scan, reservations).',
-      );
+      return const ShopShell();
   }
 }
 

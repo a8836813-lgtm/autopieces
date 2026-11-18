@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme.dart';
+import 'auth/home_router.dart';
 import 'shop_shell.dart';
 
 /// Client profile (demo) with a shortcut into the shop-owner mode.
@@ -110,6 +111,15 @@ class ProfileScreen extends StatelessWidget {
                 child: const Text('Open shop mode (demo)'),
               ),
             ],
+          ),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => logoutToRoleSelect(context),
+          icon: const Icon(Icons.logout),
+          label: const Text('Log out'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            foregroundColor: AppColors.warn,
           ),
         ),
       ],

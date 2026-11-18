@@ -1,11 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/repo.dart';
+import '../data/vehicles.dart';
+import '../models/search_query.dart';
 import '../theme.dart';
 import '../widgets/shop_slide_card.dart';
+import '../widgets/vehicle_quick_search.dart';
 import 'results_screen.dart';
 import 'scan_screen.dart';
 import 'shop_screen.dart';
+import 'vehicle_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,6 +55,33 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => const ScanScreen()),
     );
+  }
+
+  /// The client's saved car (demo): VW Golf 7. Used by the "Your car" button.
+  SearchQuery get _myCar => SearchQuery(
+        type: VehicleType.car,
+        brand: kCarBrands.firstWhere((b) => b.id == 'volkswagen'),
+        model: 'Golf 7',
+      );
+
+  void _showResults(SearchQuery query) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultsScreen(vehicleQuery: query),
+      ),
+    );
+  }
+
+  /// Full vehicle search (all brands, models, serial number). When the user
+  /// taps "Search parts" it returns a [SearchQuery] that opens the results.
+  Future<void> _openVehicleSearch(VehicleBrand? brand) async {
+    final query = await Navigator.of(context).push<SearchQuery>(
+      MaterialPageRoute<SearchQuery>(
+        builder: (_) => VehicleSearchScreen(initialBrand: brand),
+      ),
+    );
+    if (query == null || !mounted) return;
+    _showResults(query);
   }
 
   @override
@@ -138,9 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 14),
+        VehicleQuickSearch(
+          onSearch: _showResults,
+          onOpenFull: (brand, type) => _openVehicleSearch(brand),
+        ),
         const SizedBox(height: 10),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () => _showResults(_myCar),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
             alignment: Alignment.centerLeft,

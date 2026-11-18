@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../data/vehicles.dart';
 import '../models/search_query.dart';
 import '../widgets/vehicle_search_panel.dart';
 
@@ -13,7 +14,15 @@ import '../widgets/vehicle_search_panel.dart';
 /// Or pass [onSearch] to handle it directly.
 class VehicleSearchScreen extends StatelessWidget {
   final void Function(SearchQuery query)? onSearch;
-  const VehicleSearchScreen({super.key, this.onSearch});
+  final VehicleBrand? initialBrand;
+  final String? initialSerial;
+
+  const VehicleSearchScreen({
+    super.key,
+    this.onSearch,
+    this.initialBrand,
+    this.initialSerial,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +32,8 @@ class VehicleSearchScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           child: VehicleSearchPanel(
+            initialBrand: initialBrand,
+            initialSerial: initialSerial,
             onSearch: onSearch ?? (q) => Navigator.of(context).pop(q),
           ),
         ),

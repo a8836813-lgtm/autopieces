@@ -5,6 +5,7 @@ import '../data/repo.dart';
 import '../data/scan_mode.dart';
 import '../theme.dart';
 import '../utils.dart';
+import 'auth/home_router.dart';
 import 'scan_screen.dart';
 import 'stock_edit_screen.dart';
 
@@ -160,6 +161,13 @@ class _ShopShellState extends State<ShopShell> {
           '${shop.name} · Shop mode',
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Log out',
+            icon: const Icon(Icons.logout),
+            onPressed: () => logoutToRoleSelect(context),
+          ),
+        ],
       ),
       body: ListenableBuilder(
         listenable: repo,

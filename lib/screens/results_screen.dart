@@ -2,18 +2,21 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
 import '../data/repo.dart';
+import '../models/search_query.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/result_card.dart';
 
-/// Shops that have a part in stock. Opened either with a text [query]
-/// (a free search) or with an exact [part] (after a scan).
+/// Shops that have a part in stock. Opened with a text [query] (a free
+/// search), an exact [part] (after a scan), or a [vehicleQuery] (brand, model
+/// and/or part serial number chosen in the vehicle search).
 class ResultsScreen extends StatefulWidget {
   final String? query;
   final Part? part;
+  final SearchQuery? vehicleQuery;
 
-  const ResultsScreen({super.key, this.query, this.part})
-      : assert(query != null || part != null);
+  const ResultsScreen({super.key, this.query, this.part, this.vehicleQuery})
+      : assert(query != null || part != null || vehicleQuery != null);
 
   @override
   State<ResultsScreen> createState() => _ResultsScreenState();
@@ -80,7 +83,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Widget build(BuildContext context) {
     final repo = Repo.instance;
     final part = widget.part;
-    final title = part?.name ?? 'Results for “${widget.query}”';
+    final vehicleQuery = widget.vehicleQuery;
+    final title = part?.name ??
+        (vehicleQuery != null
+            ? vehicleQuery.description
+            : 'Results for “${widget.query}”');
 
     return Scaffold(
       appBar: AppBar(
@@ -100,11 +107,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   sort: _sort,
                   inStockOnly: _inStockOnly,
                 )
-              : repo.search(
-                  widget.query!,
-                  sort: _sort,
-                  inStockOnly: _inStockOnly,
-                );
+              : vehicleQuery != null
+                  ? repo.searchVehicle(
+                      vehicleQuery,
+                      sort: _sort,
+                      inStockOnly: _inStockOnly,
+                    )
+                  : repo.search(
+                      widget.query!,
+                      sort: _sort,
+                      inStockOnly: _inStockOnly,
+                    );
           final subtitle = part != null
               ? 'OEM ${part.oem} · ${part.fits}'
               : '${results.length} offers from local shops';

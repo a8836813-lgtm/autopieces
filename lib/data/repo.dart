@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/search_query.dart';
 import 'models.dart';
+import 'vehicles.dart';
 
 enum SortMode { bestMatch, nearest, cheapest }
 
@@ -76,6 +78,9 @@ class Repo extends ChangeNotifier {
       oem: '5Q0615301',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p2',
@@ -83,6 +88,9 @@ class Repo extends ChangeNotifier {
       oem: '5Q0615601',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p3',
@@ -90,6 +98,9 @@ class Repo extends ChangeNotifier {
       oem: '5Q0698151',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p4',
@@ -111,6 +122,9 @@ class Repo extends ChangeNotifier {
       oem: '04E115561H',
       category: 'Filters',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p7',
@@ -118,6 +132,9 @@ class Repo extends ChangeNotifier {
       oem: 'R16-5112',
       category: 'Rims',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p8',
@@ -132,6 +149,23 @@ class Repo extends ChangeNotifier {
       oem: '1K0615301',
       category: 'Brakes',
       fits: 'VW Golf 5 and 6',
+      fitments: [
+        Fitment('volkswagen', 'Golf 5'),
+        Fitment('volkswagen', 'Golf 6'),
+      ],
+    ),
+    // Demo truck part with a made-up serial number, so Trucks search shows
+    // something. Replace with real data later.
+    Part(
+      id: 'p10',
+      name: 'Air filter, heavy duty',
+      oem: 'DEMO-TRK-1001',
+      category: 'Filters',
+      fits: 'Volvo Trucks FH and FM',
+      fitments: [
+        Fitment('volvo_trucks', 'FH'),
+        Fitment('volvo_trucks', 'FM'),
+      ],
     ),
   ];
 
@@ -153,6 +187,7 @@ class Repo extends ChangeNotifier {
     StockItem(shopId: 's4', partId: 'p7', quantity: 2, price: 16500),
     StockItem(shopId: 's1', partId: 'p8', quantity: 7, price: 6200),
     StockItem(shopId: 's2', partId: 'p8', quantity: 4, price: 6400),
+    StockItem(shopId: 's1', partId: 'p10', quantity: 4, price: 11500),
   ];
 
   final List<Reservation> reservations = [];
@@ -273,12 +308,56 @@ class Repo extends ChangeNotifier {
         .where((t) => t.isNotEmpty)
         .toList();
     if (tokens.isEmpty) return [];
+    final serial = SearchQuery.normalizeSerial(query);
 
     final results = <SearchResult>[];
     for (final p in parts) {
       final hay = '${p.name} ${p.fits} ${p.oem} ${p.category}'.toLowerCase();
-      final matches = tokens.every((t) => hay.contains(t));
+      final matches = tokens.every((t) => hay.contains(t)) ||
+          (serial.length >= 4 && _serialMatches(p, serial));
       if (!matches) continue;
+      results.addAll(
+        resultsForPart(p.id,
+            sort: SortMode.bestMatch, inStockOnly: inStockOnly),
+      );
+    }
+    _sort(results, sort);
+    return results;
+  }
+
+  /// True when [serial] (already normalized) is part of the part's serial
+  /// number or of one of its other serial numbers.
+  bool _serialMatches(Part p, String serial) {
+    if (SearchQuery.normalizeSerial(p.oem).contains(serial)) return true;
+    return p.altSerials
+        .any((a) => SearchQuery.normalizeSerial(a).contains(serial));
+  }
+
+  /// Does this part fit the vehicle chosen in [q]? Parts with no fitment list
+  /// are universal and fit any car (but not trucks).
+  bool _fitsVehicle(Part p, SearchQuery q) {
+    final brand = q.brand;
+    if (brand == null) return true;
+    if (p.fitments.isEmpty) return brand.type == VehicleType.car;
+    return p.fitments.any(
+      (f) =>
+          f.brandId == brand.id &&
+          (q.model == null || f.model == null || f.model == q.model),
+    );
+  }
+
+  /// Search by part serial number and/or vehicle (brand and model).
+  /// When both are given, the part must match both.
+  List<SearchResult> searchVehicle(
+    SearchQuery q, {
+    SortMode sort = SortMode.bestMatch,
+    bool inStockOnly = true,
+  }) {
+    final serial = q.serial;
+    final results = <SearchResult>[];
+    for (final p in parts) {
+      if (serial != null && !_serialMatches(p, serial)) continue;
+      if (!_fitsVehicle(p, q)) continue;
       results.addAll(
         resultsForPart(p.id,
             sort: SortMode.bestMatch, inStockOnly: inStockOnly),

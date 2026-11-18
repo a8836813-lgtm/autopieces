@@ -30,7 +30,7 @@ const List<VehicleBrand> kCarBrands = [
   VehicleBrand('dacia', 'Dacia', VehicleType.car,
       ['Logan', 'Sandero', 'Duster', 'Dokker', 'Lodgy']),
   VehicleBrand('volkswagen', 'Volkswagen', VehicleType.car,
-      ['Golf 6', 'Golf 7', 'Golf 8', 'Polo', 'Passat', 'Tiguan', 'Caddy', 'Jetta']),
+      ['Golf 5', 'Golf 6', 'Golf 7', 'Golf 8', 'Polo', 'Passat', 'Tiguan', 'Caddy', 'Jetta']),
   VehicleBrand('hyundai', 'Hyundai', VehicleType.car,
       ['i10', 'i20', 'Accent', 'Elantra', 'Tucson', 'Santa Fe', 'Creta']),
   VehicleBrand('kia', 'Kia', VehicleType.car,

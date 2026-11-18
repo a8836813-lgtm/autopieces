@@ -9,7 +9,17 @@ import 'brand_logo.dart';
 /// Calls [onSearch] with a [SearchQuery] when the user taps the button.
 class VehicleSearchPanel extends StatefulWidget {
   final void Function(SearchQuery query) onSearch;
-  const VehicleSearchPanel({super.key, required this.onSearch});
+
+  /// Optional starting values (for example a brand tapped on the home screen).
+  final VehicleBrand? initialBrand;
+  final String? initialSerial;
+
+  const VehicleSearchPanel({
+    super.key,
+    required this.onSearch,
+    this.initialBrand,
+    this.initialSerial,
+  });
 
   @override
   State<VehicleSearchPanel> createState() => _VehicleSearchPanelState();
@@ -24,6 +34,17 @@ class _VehicleSearchPanelState extends State<VehicleSearchPanel> {
   String? _model;
   bool _showAll = false;
   String? _serialError;
+
+  @override
+  void initState() {
+    super.initState();
+    final brand = widget.initialBrand;
+    if (brand != null) {
+      _brand = brand;
+      _type = brand.type;
+    }
+    _serial.text = widget.initialSerial ?? '';
+  }
 
   @override
   void dispose() {
