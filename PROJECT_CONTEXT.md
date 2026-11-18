@@ -1,6 +1,6 @@
-# PROJECT_CONTEXT.md (version 4, 2026-11-18)
+# PROJECT_CONTEXT.md (version 5, 2026-11-18)
 
-> Replaces version 3. Upload to the Claude Project and start every new chat with:
+> Replaces version 4. Upload to the Claude Project and start every new chat with:
 > "Read PROJECT_CONTEXT.md, today we work on X."
 > End each session with: "Update PROJECT_CONTEXT.md: what we did, decisions, next task."
 > Sections marked **[PLACEHOLDER]** are reserved for the PHP and Supabase work: fill them in as decisions are made.
@@ -55,7 +55,7 @@ Graduation project (PFE) of Aymen (Master, Networks and Security, University of 
 ## 7. Flutter app (project `autopieces`)
 **Source of truth: GitHub, private repo `a8836813-lgtm/autopieces`.** Claude clones it, works on a separate branch and pushes; Aymen fetches and pulls in GitHub Desktop, tests, then merges into `main`. Keep the repo folder outside OneDrive. Never commit `.env`, keys or passwords.
 
-**Branches:** `main` (Aymen's working version), `feature/vehicle-search-wiring` (vehicle and serial search wired in), `feature/roles-and-polish` (all features of section 7.5, built on top of the previous branch).
+**Branches:** `main` (Aymen's original working version, untouched by Claude), `feature/vehicle-search-wiring` (vehicle and serial search wired in), `feature/roles-and-polish` (everything in 7.5 and the start of 7.6, built on top of the previous branch; this is the branch to test and continue on). Claude never pushes to `main`.
 
 **Status: written but never compiled by Claude** (Flutter is not available in the build environment). Aymen runs it on his Android phone and pastes errors back. Expect small errors on the first `flutter analyze`.
 
@@ -101,6 +101,25 @@ Home, results, multi-photo scan, confirm the part, mechanics and reports, profil
 - **Shop dashboard upgrade** (`screens/shop_shell.dart`, `add_part_screen.dart`): add a part by serial number (existing catalog part is found, a new part gets name, category and fitment), Insights tab (page views, calls, reservations, rating, low stock, reviews), "Confirm" then "Picked up" on reservations (stock drops by one).
 - **Polish:** Home and Profile show the logged-in user; "OEM" label renamed "Serial"; every Call click is logged (`Repo.logCall`, the future CONTACT_REVEALS lead); logout in Profile, shop mode and mechanic space.
 - **Data layer** (`data/models.dart`, `data/repo.dart`): `Review`, `Fitment`, `Shop.bearing`, `RepairReport.parts`, `Reservation.status/reviewed`; `Repo` has favorites, reviews, reservation lifecycle, stats counters, `addReport`, `addPart`, `partBySerial`, `searchVehicle`. All still in memory: this is what gets replaced by the PHP + Supabase API.
+
+### 7.6 Mechanic page redesign (futuristic) **IN PROGRESS**
+Request (2026-11-18): make the mechanic page much more appealing and futuristic, with as many features as possible.
+
+**Done (written, in `lib/`, not yet used by any screen):**
+- `theme_mechanic.dart`: dark neon palette `MechColors` (navy background, cyan, violet, lime, amber) and `buildMechanicTheme()`.
+- `widgets/mech_widgets.dart`: `GlowCard`, `NeonButton`, `PulseDot` (radar-style pulse), `AnimatedNumber` (count-up), `RingGauge` (animated glowing ring), `Sparkline` (self-drawing line chart), `GridBackdrop` (grid and glows), `MechSectionTitle`, `JobStepper` (Requested, Accepted, Working, Done).
+
+**Not done yet (planned design, build in this order):**
+1. **Data:** `JobRequest` model (client, car, problem, distance, price, slot, status New / Accepted / In progress / Done / Declined) and `Repo` methods: `jobs` (seed 5 to 6), `acceptJob`, `declineJob`, `startJob`, `finishJob` (adds the price to today's earnings), `mechanicAvailable`, `mechanicPro`, `weeklyEarnings` (7 days) and `weekEarnings`.
+2. **Rebuilt `mechanic_shell.dart`** (wrapped in the dark theme, 4 tabs):
+   - **Dashboard:** time-based greeting, availability switch with pulse dot, animated stat tiles (reports, jobs done, rating, week earnings), weekly earnings sparkline with change versus last week, three ring gauges (rating, response rate, completion rate, computed from real jobs), quick-action grid (New report, Diagnose, Estimate, Find a part, Scan a part with the existing camera scanner, Jobs), "Up next" schedule, and a tip pointing at the next locked badge.
+   - **Jobs:** New / Active / Done filter, job cards with stepper and Accept, Decline, Start, Mark as done.
+   - **Reports:** search box over own reports, restyled cards, New report button.
+   - **Profile:** level and XP bar (XP from reports, jobs and reviews), badges (First report, Storyteller, Top rated, 5-star, Trusted, Pro member), Pro plan card (demo upgrade, about 10 USD per month, simulated), reviews, log out.
+3. **`mechanic_diagnostic_screen.dart`:** OBD-II trouble code lookup (about 15 common codes with meaning and likely causes, in a new `data/obd_codes.dart`) and symptom search over existing repair reports. Label it a rule-based demo, not real AI.
+4. **`estimate_screen.dart`:** labor hours times rate, parts cost, discount percent, optional TVA 19%, total, copy summary.
+5. Restyle `report_edit_screen.dart` for the dark theme (field fill and border colors, wrap in `buildMechanicTheme()`).
+6. Small link to the client side: in `mechanics_screen.dart`, show "Premium" when the mechanic is Pro and "Available now" when the switch is on.
 
 ### 7.4 How to run
 1. Install Flutter and Android Studio (or a phone with USB debugging).
@@ -197,7 +216,8 @@ api/
 Alternative PFE topic: classic ML in the path, an LLM beside it to explain alerts and propose rules, with human approval. About 2-3 months for one person, roughly 0-50 USD. Not chosen.
 
 ## 12. Next steps
-0. Fetch branch `feature/roles-and-polish`, run the app, test all three roles, paste any errors, then merge into `main`.
+0. Fetch and pull branch `feature/roles-and-polish`, stop the app completely and run it again, test all three roles with the demo accounts, paste any errors, then merge into `main`. Aymen has not reported the result of this test yet.
+0b. Finish the mechanic page redesign (section 7.6, steps 1 to 6).
 1. Fix compile errors (always import `package:material_ui/material_ui.dart`), add brand logos to `assets/brands/`.
 2. Wire the results screen to `SearchQuery`; add part serial and fitment to the data.
 3. Decide the PHP and Supabase architecture (9.1), create the Supabase project, write the SQL schema from section 8.
@@ -220,3 +240,24 @@ Alternative PFE topic: classic ML in the path, an LLM beside it to explain alert
 ## 14. Session log
 - 2026-11-18: GitHub repo connected; vehicle and serial search wired into Home and Results; polish pass; mechanic dashboard, Saved tab (reservations and favorites), reviews, nearby map prototype, shop dashboard upgrade (branch `feature/roles-and-polish`). Not compiled yet.
 - 2026-11-17: login and sign-up by role (client, mechanic, shop owner); vehicle search with car and truck brands, models and universal serial number field; backend direction set to PHP + Supabase (placeholders added, architecture not yet chosen).
+- 2026-11-18 (later): found that `main.dart` still started on `VehicleSearchScreen` (a temporary test line committed by mistake), restored `RoleSelectScreen` as the start screen. Mechanic page futuristic redesign started: theme and widgets written (7.6), the rest still to do.
+
+## 15. Working with Claude and GitHub (how to continue in a new chat)
+**Does a new chat erase the repo?** No. The code is on GitHub, so it is never lost. What a new chat does not keep is Claude's memory of the conversation, and Claude has to attach the repo again at the start of each session. A short summary of the project and the repo name is also kept in Claude's memory, but this file is the reliable source.
+
+**Start every new chat with:**
+> Read PROJECT_CONTEXT.md from my GitHub repo a8836813-lgtm/autopieces (branch feature/roles-and-polish). Today we work on X.
+
+If Claude says it cannot access the repo: in claude.ai go to Settings, Connectors, GitHub, reconnect, allow the `autopieces` repository, then ask again. As a fallback, attach `PROJECT_CONTEXT.md` and a zip of the `lib` folder.
+
+**End every session with:** "Update PROJECT_CONTEXT.md: what we did, decisions, next task", then push it to the repo.
+
+**Get Claude's changes (GitHub Desktop):** Fetch origin, then Current branch, choose `feature/roles-and-polish` (first time), or Pull origin (later). Stop the app completely and run it again, not hot reload. Run `flutter pub get` when `pubspec.yaml` changed.
+
+**Rules and lessons**
+- Always import `package:material_ui/material_ui.dart`, never `package:flutter/material.dart`.
+- Claude cannot compile Flutter. Only Aymen can run the app. Paste errors back and Claude fixes them on the same branch.
+- Keep the repo folder outside OneDrive. Do not edit the same file as Claude without committing first.
+- Never commit `.env`, Supabase service key or database password.
+- "N unpushed commits" warnings from an automatic check were false alarms: compare the commit ids on GitHub instead.
+- Brand logos are not included: add PNGs named by brand id to `assets/brands/`.
