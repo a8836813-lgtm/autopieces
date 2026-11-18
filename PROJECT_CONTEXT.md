@@ -3,6 +3,7 @@
 > Replaces version 4. Upload to the Claude Project and start every new chat with:
 > "Read PROJECT_CONTEXT.md, today we work on X."
 > End each session with: "Update PROJECT_CONTEXT.md: what we did, decisions, next task."
+> **Standing rule: every update must include the links to the PHP files and the Supabase items touched or planned (section 9.7 and the session log). If there is nothing yet, write `none yet`, never skip it.**
 > Sections marked **[PLACEHOLDER]** are reserved for the PHP and Supabase work: fill them in as decisions are made.
 
 ## 1. The project in one paragraph
@@ -208,6 +209,41 @@ api/
 - API base URL setting: `TODO`.
 - Secure token storage (e.g. `flutter_secure_storage`): `TODO`.
 
+### 9.7 Backend links (UPDATE EVERY SESSION) **[PLACEHOLDER]**
+Rule: whenever a session touches the backend or the Flutter-to-backend link, update this table and add the same links to the session log. Use full GitHub links (branch `feature/roles-and-polish` unless merged) and mark status: `planned`, `written`, `tested`.
+
+**PHP (API between the app and the database)**
+| Item | Link or path | Status |
+|---|---|---|
+| PHP API folder | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend (not created yet) | planned |
+| Database connection (PDO to Supabase PostgreSQL) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/config/database.php | planned |
+| Auth endpoints (register, login, me) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/auth/ | planned |
+| Parts search endpoint | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/parts/search.php | planned |
+| Shops, inventory, reservations | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/shops/ | planned |
+| Mechanics, reports, jobs | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/mechanics/ | planned |
+| `.env.example` (no real keys) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/.env.example | planned |
+| Hosting / base URL of the PHP API | `TODO` | planned |
+
+**Supabase**
+| Item | Link or path | Status |
+|---|---|---|
+| Supabase project dashboard | `TODO` (paste the project URL here) | planned |
+| API URL (public, safe to write here) | `TODO` | planned |
+| SQL schema file (tables from section 8) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/supabase/schema.sql | planned |
+| Row Level Security policies | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/supabase/policies.sql | planned |
+| Seed data (demo shops, parts, fitments) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/supabase/seed.sql | planned |
+| Storage buckets (part photos, report photos) | `TODO` | planned |
+
+**Flutter side of the link**
+| Item | Link or path | Status |
+|---|---|---|
+| API base URL config | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/config/app_config.dart | planned |
+| HTTP client for the PHP API | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/services/api_client.dart | planned |
+| In-memory fake data to replace | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/data/repo.dart | exists (fake data) |
+| Mock login to replace | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/services/auth_service.dart | exists (mock) |
+
+Never write the Supabase service key, database password or any secret in this file or in GitHub. Public links and the public API URL are fine.
+
 ## 10. Costs
 - Prototype about 0 USD (Supabase free tier, local PHP, free tools). Optional domain 10-15 USD per year.
 - Real costs only with real users (server, SMS, catalog license, payments through CIB/Edahabia and SATIM).
@@ -238,8 +274,10 @@ Alternative PFE topic: classic ML in the path, an LLM beside it to explain alert
 - Is the demo on the same day as the defense?
 
 ## 14. Session log
+> Every entry must end with `Backend links:` followed by the PHP and Supabase links touched (or `none yet`).
 - 2026-11-18: GitHub repo connected; vehicle and serial search wired into Home and Results; polish pass; mechanic dashboard, Saved tab (reservations and favorites), reviews, nearby map prototype, shop dashboard upgrade (branch `feature/roles-and-polish`). Not compiled yet.
 - 2026-11-17: login and sign-up by role (client, mechanic, shop owner); vehicle search with car and truck brands, models and universal serial number field; backend direction set to PHP + Supabase (placeholders added, architecture not yet chosen).
+- 2026-11-18 (latest): added standing rule and the table 9.7 for PHP and Supabase links. Code placeholders (`backend/`, `supabase/`, `lib/config`, `lib/services/api_client.dart`) are still only planned. Backend links: none yet (see 9.7, all planned).
 - 2026-11-18 (later): found that `main.dart` still started on `VehicleSearchScreen` (a temporary test line committed by mistake), restored `RoleSelectScreen` as the start screen. Mechanic page futuristic redesign started: theme and widgets written (7.6), the rest still to do.
 
 ## 15. Working with Claude and GitHub (how to continue in a new chat)
@@ -250,7 +288,7 @@ Alternative PFE topic: classic ML in the path, an LLM beside it to explain alert
 
 If Claude says it cannot access the repo: in claude.ai go to Settings, Connectors, GitHub, reconnect, allow the `autopieces` repository, then ask again. As a fallback, attach `PROJECT_CONTEXT.md` and a zip of the `lib` folder.
 
-**End every session with:** "Update PROJECT_CONTEXT.md: what we did, decisions, next task", then push it to the repo.
+**End every session with:** "Update PROJECT_CONTEXT.md: what we did, decisions, next task, and the PHP and Supabase links", then push it to the repo.
 
 **Get Claude's changes (GitHub Desktop):** Fetch origin, then Current branch, choose `feature/roles-and-polish` (first time), or Pull origin (later). Stop the app completely and run it again, not hot reload. Run `flutter pub get` when `pubspec.yaml` changed.
 
