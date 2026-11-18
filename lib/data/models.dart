@@ -9,6 +9,10 @@ class Shop {
   final bool openNow;
   final String phone;
 
+  /// Direction from the client in degrees (0 = north). Used by the nearby
+  /// map until real GPS coordinates exist.
+  final double bearing;
+
   const Shop({
     required this.id,
     required this.name,
@@ -19,6 +23,7 @@ class Shop {
     required this.hours,
     required this.openNow,
     required this.phone,
+    this.bearing = 0,
   });
 }
 
@@ -102,13 +107,21 @@ class SearchResult {
 class Reservation {
   final SearchResult item;
   final DateTime createdAt;
-  String status; // 'Pending' or 'Confirmed'
+
+  /// 'Pending' -> 'Confirmed' -> 'Completed', or 'Cancelled' by the client.
+  String status;
+
+  /// True once the client has reviewed the shop for this reservation.
+  bool reviewed;
 
   Reservation({
     required this.item,
     DateTime? createdAt,
     this.status = 'Pending',
+    this.reviewed = false,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  bool get isActive => status == 'Pending' || status == 'Confirmed';
 }
 
 class Mechanic {
@@ -141,6 +154,7 @@ class RepairReport {
   final String diagnosis;
   final String workDone;
   final int cost;
+  final String parts;
 
   const RepairReport({
     required this.mechanicName,
@@ -150,5 +164,23 @@ class RepairReport {
     required this.diagnosis,
     required this.workDone,
     required this.cost,
+    this.parts = '',
   });
+}
+
+/// A rating and comment about a shop or a mechanic ([targetId]).
+class Review {
+  final String targetId;
+  final String author;
+  final int stars; // 1 to 5
+  final String comment;
+  final DateTime createdAt;
+
+  Review({
+    required this.targetId,
+    required this.author,
+    required this.stars,
+    required this.comment,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 }

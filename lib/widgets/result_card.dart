@@ -66,7 +66,7 @@ class ResultCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'OEM ${result.part.oem} · ${result.part.fits}',
+            'Serial ${result.part.oem} · ${result.part.fits}',
             style: const TextStyle(fontSize: 13, color: AppColors.muted),
           ),
           const SizedBox(height: 10),

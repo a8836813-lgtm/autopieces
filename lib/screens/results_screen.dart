@@ -27,6 +27,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   bool _inStockOnly = true;
 
   Future<void> _call(SearchResult r) async {
+    // Every contact reveal is logged: this is the lead the shop pays for.
+    Repo.instance.logCall(r.shop.id);
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -97,6 +99,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
+        actions: [
+          if (part != null)
+            ListenableBuilder(
+              listenable: repo,
+              builder: (context, _) {
+                final saved = repo.isFavoritePart(part.id);
+                return IconButton(
+                  tooltip: saved ? 'Remove from favorites' : 'Save part',
+                  icon: Icon(
+                    saved ? Icons.favorite : Icons.favorite_border,
+                    color: saved ? AppColors.orange : null,
+                  ),
+                  onPressed: () => repo.toggleFavoritePart(part.id),
+                );
+              },
+            ),
+        ],
       ),
       body: ListenableBuilder(
         listenable: repo,
@@ -119,7 +138,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       inStockOnly: _inStockOnly,
                     );
           final subtitle = part != null
-              ? 'OEM ${part.oem} · ${part.fits}'
+              ? 'Serial ${part.oem} · ${part.fits}'
               : '${results.length} offers from local shops';
 
           return ListView(
