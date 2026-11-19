@@ -115,8 +115,7 @@ class _ScanScreenState extends State<ScanScreen> {
       if (!mounted) return;
       setState(() => _identifying = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Could not identify the part. Try again.')),
+        const SnackBar(content: Text('Could not identify the part. Try again.')),
       );
     }
   }

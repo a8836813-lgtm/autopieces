@@ -4,7 +4,6 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
-import '../widgets/review_widgets.dart';
 
 /// Mechanics directory plus a searchable list of repair reports.
 class MechanicsScreen extends StatefulWidget {
@@ -92,29 +91,8 @@ class _MechanicCard extends StatelessWidget {
 
   const _MechanicCard({required this.mechanic});
 
-  Future<void> _rate(BuildContext context) async {
-    final sent = await showReviewSheet(
-      context,
-      title: 'Rate ${mechanic.name}',
-      onSubmit: (stars, comment) => Repo.instance.addReview(
-        targetId: mechanic.id,
-        stars: stars,
-        comment: comment,
-      ),
-    );
-    if (sent && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Thank you for your review')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final repo = Repo.instance;
-    final written = repo.reviewsFor(mechanic.id);
-    final avg = repo.averageStars(mechanic.id) ?? mechanic.rating;
-    final reportsCount = repo.reportsOf(mechanic.name).length;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -159,28 +137,14 @@ class _MechanicCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Row(
-            children: [
-              StarRow(stars: avg, size: 15),
-              const SizedBox(width: 6),
-              Text(
-                '${avg.toStringAsFixed(1)} · ${mechanic.reviews + written.length} reviews · ${mechanic.distanceKm.toStringAsFixed(1)} km',
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
+          Text(
+            'Rating ${mechanic.rating} · ${mechanic.reviews} reviews · ${mechanic.distanceKm.toStringAsFixed(1)} km',
+            style: const TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 2),
           Text(
-            '${mechanic.specialties} · $reportsCount published reports',
+            '${mechanic.specialties} · ${mechanic.reportsCount} published reports',
             style: const TextStyle(fontSize: 13, color: AppColors.muted),
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => _rate(context),
-              icon: const Icon(Icons.star_outline, size: 18),
-              label: const Text('Rate this mechanic'),
-            ),
           ),
         ],
       ),

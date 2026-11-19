@@ -9,10 +9,6 @@ class Shop {
   final bool openNow;
   final String phone;
 
-  /// Direction from the client in degrees (0 = north). Used by the nearby
-  /// map until real GPS coordinates exist.
-  final double bearing;
-
   const Shop({
     required this.id,
     required this.name,
@@ -23,34 +19,15 @@ class Shop {
     required this.hours,
     required this.openNow,
     required this.phone,
-    this.bearing = 0,
   });
-}
-
-/// A vehicle a part fits. [model] null means every model of that brand.
-/// [brandId] matches `VehicleBrand.id` in `data/vehicles.dart`.
-class Fitment {
-  final String brandId;
-  final String? model;
-
-  const Fitment(this.brandId, [this.model]);
 }
 
 class Part {
   final String id;
   final String name;
-
-  /// The part serial number (OEM number). Universal: it identifies the part
-  /// whatever the brand of the car.
   final String oem;
   final String category;
   final String fits;
-
-  /// Other serial numbers of the same part (aftermarket cross-references).
-  final List<String> altSerials;
-
-  /// Vehicles this part fits. Empty means universal (fits most cars).
-  final List<Fitment> fitments;
 
   const Part({
     required this.id,
@@ -58,8 +35,6 @@ class Part {
     required this.oem,
     required this.category,
     required this.fits,
-    this.altSerials = const [],
-    this.fitments = const [],
   });
 }
 
@@ -107,21 +82,13 @@ class SearchResult {
 class Reservation {
   final SearchResult item;
   final DateTime createdAt;
-
-  /// 'Pending' -> 'Confirmed' -> 'Completed', or 'Cancelled' by the client.
-  String status;
-
-  /// True once the client has reviewed the shop for this reservation.
-  bool reviewed;
+  String status; // 'Pending' or 'Confirmed'
 
   Reservation({
     required this.item,
     DateTime? createdAt,
     this.status = 'Pending',
-    this.reviewed = false,
   }) : createdAt = createdAt ?? DateTime.now();
-
-  bool get isActive => status == 'Pending' || status == 'Confirmed';
 }
 
 class Mechanic {
@@ -154,7 +121,6 @@ class RepairReport {
   final String diagnosis;
   final String workDone;
   final int cost;
-  final String parts;
 
   const RepairReport({
     required this.mechanicName,
@@ -164,23 +130,5 @@ class RepairReport {
     required this.diagnosis,
     required this.workDone,
     required this.cost,
-    this.parts = '',
   });
-}
-
-/// A rating and comment about a shop or a mechanic ([targetId]).
-class Review {
-  final String targetId;
-  final String author;
-  final int stars; // 1 to 5
-  final String comment;
-  final DateTime createdAt;
-
-  Review({
-    required this.targetId,
-    required this.author,
-    required this.stars,
-    required this.comment,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
 }

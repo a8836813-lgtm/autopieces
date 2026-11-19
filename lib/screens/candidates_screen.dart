@@ -155,8 +155,9 @@ class _CandidatesScreenState extends State<CandidatesScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            index == 0 ? AppColors.greenBg : AppColors.chipBg,
+                        color: index == 0
+                            ? AppColors.greenBg
+                            : AppColors.chipBg,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -181,7 +182,7 @@ class _CandidatesScreenState extends State<CandidatesScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Serial ${c.part.oem} · ${c.part.fits}',
+                  'OEM ${c.part.oem} · ${c.part.fits}',
                   style: const TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
                 const SizedBox(height: 6),

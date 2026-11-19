@@ -198,7 +198,7 @@ class AppDropdown extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
         isExpanded: true,
         decoration: _decoration(label, icon),
         items: [

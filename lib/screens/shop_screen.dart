@@ -4,78 +4,28 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
-import '../widgets/review_widgets.dart';
 
-/// A shop's public page: details, reviews and the parts it has in stock.
-class ShopScreen extends StatefulWidget {
+/// A shop's public page: details and the parts it has in stock.
+class ShopScreen extends StatelessWidget {
   final Shop shop;
 
   const ShopScreen({super.key, required this.shop});
 
   @override
-  State<ShopScreen> createState() => _ShopScreenState();
-}
-
-class _ShopScreenState extends State<ShopScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Counts as one view in the shop owner's Insights tab.
-    Repo.instance.logView(widget.shop.id);
-  }
-
-  Future<void> _writeReview(Reservation r) async {
-    final sent = await showReviewSheet(
-      context,
-      title: 'Rate ${widget.shop.name}',
-      onSubmit: (stars, comment) {
-        Repo.instance.addReview(
-          targetId: widget.shop.id,
-          stars: stars,
-          comment: comment,
-        );
-        Repo.instance.markReviewed(r);
-      },
-    );
-    if (sent && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Thank you for your review')),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final repo = Repo.instance;
-    final shop = widget.shop;
-    return ListenableBuilder(
-      listenable: repo,
-      builder: (context, _) {
-        final items = repo.stockOfShop(shop.id);
-        final reviews = repo.reviewsFor(shop.id);
-        final avg = repo.averageStars(shop.id) ?? shop.rating;
-        final favorite = repo.isFavoriteShop(shop.id);
-        final reviewable = repo.reviewableReservationAt(shop.id);
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              shop.name,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            actions: [
-              IconButton(
-                tooltip: favorite ? 'Remove from favorites' : 'Save shop',
-                icon: Icon(
-                  favorite ? Icons.favorite : Icons.favorite_border,
-                  color: favorite ? AppColors.orange : null,
-                ),
-                onPressed: () => repo.toggleFavoriteShop(shop.id),
-              ),
-            ],
-          ),
-          body: ListView(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          shop.name,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+      ),
+      body: ListenableBuilder(
+        listenable: repo,
+        builder: (context, _) {
+          final items = repo.stockOfShop(shop.id);
+          return ListView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
             children: [
               Container(
@@ -96,15 +46,9 @@ class _ShopScreenState extends State<ShopScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        StarRow(stars: avg),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${avg.toStringAsFixed(1)} · ${shop.distanceKm.toStringAsFixed(1)} km · ${shop.partsCount} parts',
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],
+                    Text(
+                      '${shop.distanceKm.toStringAsFixed(1)} km · Rating ${shop.rating} · ${shop.partsCount} parts',
+                      style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -182,35 +126,10 @@ class _ShopScreenState extends State<ShopScreen> {
                     ],
                   ),
                 ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Reviews (${reviews.length})',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  if (reviewable != null)
-                    TextButton.icon(
-                      onPressed: () => _writeReview(reviewable),
-                      icon: const Icon(Icons.star_outline, size: 18),
-                      label: const Text('Write a review'),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              if (reviews.isEmpty)
-                const Text(
-                  'No review yet. You can review a shop after you picked up a reserved part.',
-                  style: TextStyle(color: AppColors.muted),
-                ),
-              for (final r in reviews) ReviewTile(review: r),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

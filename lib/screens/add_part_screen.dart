@@ -21,8 +21,16 @@ class AddPartScreen extends StatefulWidget {
 
 class _AddPartScreenState extends State<AddPartScreen> {
   static const _categories = [
-    'Brakes', 'Tires', 'Rims', 'Engine', 'Battery', 'Filters',
-    'Suspension', 'Electrical', 'Body', 'Other',
+    'Brakes',
+    'Tires',
+    'Rims',
+    'Engine',
+    'Battery',
+    'Filters',
+    'Suspension',
+    'Electrical',
+    'Body',
+    'Other',
   ];
 
   final _serial = TextEditingController();
@@ -159,8 +167,8 @@ class _AddPartScreenState extends State<AddPartScreen> {
                     ),
                     Text(
                       'Serial ${found.oem} · ${found.fits}',
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.muted),
+                      style:
+                          const TextStyle(fontSize: 13, color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -182,7 +190,7 @@ class _AddPartScreenState extends State<AddPartScreen> {
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: _decoration('Category'),
                 items: [
                   for (final c in _categories)
@@ -217,7 +225,7 @@ class _AddPartScreenState extends State<AddPartScreen> {
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<VehicleBrand?>(
-                value: _brand,
+                initialValue: _brand,
                 isExpanded: true,
                 decoration: _decoration('Brand (leave empty if universal)'),
                 items: [
@@ -235,7 +243,7 @@ class _AddPartScreenState extends State<AddPartScreen> {
               if (_brand != null) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String?>(
-                  value: _model,
+                  initialValue: _model,
                   isExpanded: true,
                   decoration: _decoration('Model'),
                   items: [

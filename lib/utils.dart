@@ -1,4 +1,4 @@
-
+/// Formats an integer price with thousands separators, e.g. 7900 -> "7,900".
 String formatDzd(int value) {
   final s = value.toString();
   final buffer = StringBuffer();

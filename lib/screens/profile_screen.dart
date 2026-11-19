@@ -1,8 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../services/auth_service.dart';
 import '../theme.dart';
-import 'auth/home_router.dart';
 import 'shop_shell.dart';
 
 /// Client profile (demo) with a shortcut into the shop-owner mode.
@@ -24,10 +22,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = AuthService.instance.currentUser.value;
-    final name = user?.name ?? 'Aymen (demo client)';
-    final wilaya = user?.profile['wilaya'];
-    final place = (wilaya != null && wilaya.isNotEmpty) ? wilaya : 'Jijel';
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       children: [
@@ -37,33 +31,32 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _card(
-          child: Row(
+          child: const Row(
             children: [
               CircleAvatar(
                 radius: 26,
                 backgroundColor: AppColors.teal,
                 child: Text(
-                  name.isEmpty ? 'A' : name[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
+                  'A',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
-                      style: const TextStyle(
+                      'Aymen (demo client)',
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
-                      '$place · VW Golf 7, 2016',
-                      style: const TextStyle(
-                          fontSize: 13, color: AppColors.muted),
+                      'Jijel · VW Golf 7, 2016',
+                      style: TextStyle(fontSize: 13, color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -117,15 +110,6 @@ class ProfileScreen extends StatelessWidget {
                 child: const Text('Open shop mode (demo)'),
               ),
             ],
-          ),
-        ),
-        OutlinedButton.icon(
-          onPressed: () => logoutToRoleSelect(context),
-          icon: const Icon(Icons.logout),
-          label: const Text('Log out'),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            foregroundColor: AppColors.warn,
           ),
         ),
       ],
