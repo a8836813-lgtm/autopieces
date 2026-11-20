@@ -3,22 +3,26 @@ import 'package:material_ui/material_ui.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
 import '../client_shell.dart';
-import '../mechanic_shell.dart';
 import '../shop_shell.dart';
 import 'role_select_screen.dart';
 
 /// Decides which home screen a logged-in user sees.
 ///
-/// Client goes to [ClientShell], shop owner to [ShopShell] and mechanic to
-/// [MechanicShell].
+/// Client goes to the existing [ClientShell].
+/// Shop owners go to [ShopShell]. TODO: point [UserRole.mechanic] to the
+/// mechanic dashboard once it exists.
 Widget homeForUser(AppUser user) {
   switch (user.role) {
     case UserRole.client:
       return const ClientShell();
     case UserRole.mechanic:
-      return const MechanicShell();
+      return RolePlaceholderScreen(
+        user: user,
+        title: 'Mechanic space',
+        message: 'Next: publish repair reports and manage your profile.',
+      );
     case UserRole.shop:
-      return const ShopShell();
+      return const ShopShell(isHome: true);
   }
 }
 

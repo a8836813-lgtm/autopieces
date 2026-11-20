@@ -7,7 +7,9 @@ Everything runs on sample data inside the app. There is no backend yet.
 - **Home:** search bar, camera button, "Shops near you" slider, category tiles.
 - **Search results:** the shops that have the part in stock, with price, distance, stock level, rating and opening hours. Sort by best match, nearest or cheapest. Call and Reserve buttons.
 - **Multi-photo scan:** take 3 to 6 photos of a part, the app proposes the top 3 matches (mock scanner), the user confirms, and the shops list appears.
-- **Mechanics:** directory with ratings, and repair reports you can search by problem.
+- **Mechanics:** directory with verified badges, ratings, experience, open/closed status and specialties. Search by name, skill or service, filter by category, verified or open now, and sort by rating, distance or number of reports. Each mechanic has a profile page with services and starting prices, details, and their repair reports. You can call, or send an appointment request (service, date, time, note) and cancel it later.
+- **Repair reports:** search real problems mechanics already fixed. Filter by category, sort by most helpful, lowest cost or fastest fix. Each report expands to problem, diagnosis, work done, parts used, labor and parts cost, time and warranty, and can be marked helpful.
+- **Accounts:** the app starts on a role screen (client, mechanic, shop) with demo logins. Clients get the main app, shop owners go straight to shop mode, mechanics see a placeholder for now. Log out is in the Profile (clients) or the top bar (shops).
 - **Profile:** demo client profile and a payment method shown as a token only.
 - **Shop mode** (Profile, "Open shop mode"): stock list, scan a part from the shelf to update quantity, price and condition, and confirm reservations.
 
@@ -34,7 +36,7 @@ On an emulator or desktop without a camera, the scan screen lets you add demo ph
 - `lib/data/models.dart`: data classes (Shop, Part, StockItem, ...)
 - `lib/data/repo.dart`: sample data, search, sorting, reservations, stock updates. **This is the file to replace with real API calls later.**
 - `lib/services/part_scanner.dart`: scanner interface and the mock scanner. Replace the mock with a real TFLite model plus OCR.
-- `lib/screens/`: all screens. `lib/widgets/`: reusable cards.
+- `lib/screens/`: all screens (`mechanics_screen.dart`, `mechanic_detail_screen.dart` for the mechanics part). `lib/widgets/`: reusable cards (`mechanic_card.dart`, `report_card.dart`, `appointment_sheet.dart`, ...).
 
 ## Status
 Written without being compiled (no Flutter SDK was available where it was written). If `flutter analyze` or `flutter run` reports errors, paste them back and they can be fixed quickly.

@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'screens/client_shell.dart';
+import 'screens/auth/role_select_screen.dart';
 import 'theme.dart';
 
 void main() => runApp(const AutoPiecesApp());
@@ -14,7 +14,7 @@ class AutoPiecesApp extends StatelessWidget {
       title: 'AutoPièces',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      home: const ClientShell(),
+      home: const RoleSelectScreen(),
     );
   }
 }

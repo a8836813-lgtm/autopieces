@@ -1,4 +1,4 @@
-/// Formats an integer price with thousands separators, e.g. 7900 -> "7,900".
+
 String formatDzd(int value) {
   final s = value.toString();
   final buffer = StringBuffer();
@@ -13,4 +13,19 @@ String stockLabel(int quantity) {
   if (quantity <= 0) return 'Out of stock';
   if (quantity == 1) return 'Low stock · 1 unit';
   return 'In stock · $quantity units';
+}
+
+const _months = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+String formatDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';
+
+String formatTime(DateTime d) =>
+    '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+String formatDuration(double hours) {
+  final whole = hours == hours.roundToDouble();
+  return '${whole ? hours.toInt().toString() : hours.toString()} h';
 }

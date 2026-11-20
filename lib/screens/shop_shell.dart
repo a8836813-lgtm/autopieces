@@ -5,13 +5,18 @@ import '../data/repo.dart';
 import '../data/scan_mode.dart';
 import '../theme.dart';
 import '../utils.dart';
+import 'auth/home_router.dart';
 import 'scan_screen.dart';
 import 'stock_edit_screen.dart';
 
 /// Shop-owner mode: stock list, reservations, and a scan button to check or
 /// update stock without searching manually.
 class ShopShell extends StatefulWidget {
-  const ShopShell({super.key});
+  /// True when the shop owner logged in and this is their home screen
+  /// (shows a log out button instead of a back arrow).
+  final bool isHome;
+
+  const ShopShell({super.key, this.isHome = false});
 
   @override
   State<ShopShell> createState() => _ShopShellState();
@@ -156,10 +161,19 @@ class _ShopShellState extends State<ShopShell> {
     final shop = repo.shopById(Repo.myShopId);
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.isHome,
         title: Text(
           '${shop.name} · Shop mode',
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
+        actions: [
+          if (widget.isHome)
+            IconButton(
+              tooltip: 'Log out',
+              icon: const Icon(Icons.logout),
+              onPressed: () => logoutToRoleSelect(context),
+            ),
+        ],
       ),
       body: ListenableBuilder(
         listenable: repo,

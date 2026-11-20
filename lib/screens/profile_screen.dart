@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../services/auth_service.dart';
 import '../theme.dart';
+import 'auth/home_router.dart';
 import 'shop_shell.dart';
 
 /// Client profile (demo) with a shortcut into the shop-owner mode.
@@ -22,6 +24,10 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = AuthService.instance.currentUser.value;
+    final name = (user != null && user.name.trim().isNotEmpty)
+        ? user.name.trim()
+        : 'Demo client';
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       children: [
@@ -31,14 +37,14 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _card(
-          child: const Row(
+          child: Row(
             children: [
               CircleAvatar(
                 radius: 26,
                 backgroundColor: AppColors.teal,
                 child: Text(
-                  'A',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  name[0].toUpperCase(),
+                  style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
               SizedBox(width: 14),
@@ -47,8 +53,8 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Aymen (demo client)',
-                      style: TextStyle(
+                      name,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -110,6 +116,15 @@ class ProfileScreen extends StatelessWidget {
                 child: const Text('Open shop mode (demo)'),
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        OutlinedButton.icon(
+          onPressed: () => logoutToRoleSelect(context),
+          icon: const Icon(Icons.logout),
+          label: const Text('Log out'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
           ),
         ),
       ],

@@ -11,6 +11,10 @@ class AppColors {
   static const Color greenBg = Color(0xFFDDEFE3);
   static const Color warn = Color(0xFF7C2D12);
   static const Color chipBg = Color(0xFFECEAE4);
+  static const Color star = Color(0xFFD97706);
+  static const Color danger = Color(0xFFB91C1C);
+  static const Color dangerBg = Color(0xFFFBE4E4);
+  static const Color warnBg = Color(0xFFFDE7D9);
 }
 
 ThemeData buildTheme() {

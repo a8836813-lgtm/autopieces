@@ -4,8 +4,12 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
+import '../widgets/appointment_sheet.dart';
+import '../widgets/mechanic_card.dart';
+import '../widgets/report_card.dart';
+import 'mechanic_detail_screen.dart';
 
-/// Mechanics directory plus a searchable list of repair reports.
+/// Mechanics directory and searchable repair reports.
 class MechanicsScreen extends StatefulWidget {
   const MechanicsScreen({super.key});
 
@@ -14,202 +18,359 @@ class MechanicsScreen extends StatefulWidget {
 }
 
 class _MechanicsScreenState extends State<MechanicsScreen> {
-  final TextEditingController _controller = TextEditingController();
-  String _query = '';
+  final TextEditingController _mCtrl = TextEditingController();
+  final TextEditingController _rCtrl = TextEditingController();
+
+  int _tab = 0; // 0 = mechanics, 1 = repair reports
+  String _mQuery = '';
+  String _rQuery = '';
+  String? _mCategory;
+  String? _rCategory;
+  bool _verifiedOnly = false;
+  bool _openNowOnly = false;
+  MechanicSort _mSort = MechanicSort.topRated;
+  ReportSort _rSort = ReportSort.mostHelpful;
 
   @override
   void dispose() {
-    _controller.dispose();
+    _mCtrl.dispose();
+    _rCtrl.dispose();
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final repo = Repo.instance;
-    final reports = repo.searchReports(_query);
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.border),
-    );
+  OutlineInputBorder get _border => OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.border),
+      );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-      children: [
-        const Text(
-          'Mechanics near Jijel',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Within 15 km · sorted by rating',
-          style: TextStyle(fontSize: 14, color: AppColors.muted),
-        ),
-        const SizedBox(height: 12),
-        for (final m in repo.mechanics) _MechanicCard(mechanic: m),
-        const SizedBox(height: 20),
-        const Text(
-          'Repair reports',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Search real problems that mechanics already fixed.',
-          style: TextStyle(fontSize: 14, color: AppColors.muted),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _controller,
-          onChanged: (v) => setState(() => _query = v),
-          decoration: InputDecoration(
-            hintText: 'Describe a problem, e.g. grinding noise',
-            filled: true,
-            fillColor: Colors.white,
-            prefixIcon: const Icon(Icons.search),
-            contentPadding: const EdgeInsets.symmetric(vertical: 16),
-            border: border,
-            enabledBorder: border,
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (reports.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-              'No report matches this problem yet.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.muted),
-            ),
-          ),
-        for (final r in reports) _ReportCard(report: r),
-      ],
+  Widget _searchField({
+    required TextEditingController controller,
+    required String hint,
+    required ValueChanged<String> onChanged,
+  }) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: controller.text.isEmpty
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  controller.clear();
+                  onChanged('');
+                },
+              ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        border: _border,
+        enabledBorder: _border,
+      ),
     );
   }
-}
 
-class _MechanicCard extends StatelessWidget {
-  final Mechanic mechanic;
+  Widget _chipRow(List<Widget> chips) {
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          for (final c in chips)
+            Padding(padding: const EdgeInsets.only(right: 8), child: c),
+        ],
+      ),
+    );
+  }
 
-  const _MechanicCard({required this.mechanic});
+  Widget _categoryChips(String? selected, ValueChanged<String?> onSelected) {
+    return _chipRow([
+      ChoiceChip(
+        label: const Text('All'),
+        selected: selected == null,
+        onSelected: (_) => onSelected(null),
+      ),
+      for (final c in Repo.categories)
+        ChoiceChip(
+          label: Text(c),
+          selected: selected == c,
+          onSelected: (_) => onSelected(selected == c ? null : c),
+        ),
+    ]);
+  }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _count(int n, String singular, String plural) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 10),
+      child: Text(
+        '$n ${n == 1 ? singular : plural}',
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.muted,
+        ),
+      ),
+    );
+  }
+
+  Widget _empty(String message, VoidCallback onClear) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          const Icon(Icons.search_off, size: 40, color: AppColors.muted),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.muted),
+          ),
+          const SizedBox(height: 8),
+          TextButton(onPressed: onClear, child: const Text('Clear filters')),
+        ],
+      ),
+    );
+  }
+
+  void _openMechanic(Mechanic m) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => MechanicDetailScreen(mechanic: m),
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------ mechanics
+
+  Widget _requestsCard(Repo repo) {
+    final active =
+        repo.appointments.where((a) => a.status != 'Cancelled').toList();
+    if (active.isEmpty) return const SizedBox.shrink();
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.greenBg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  mechanic.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              if (mechanic.premium)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFDE7D9),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Premium',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.warn,
+          const Text(
+            'Your appointment requests',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.green,
+            ),
+          ),
+          for (final a in active)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${a.mechanic.name} · ${a.service}',
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '${formatDate(a.when)} at ${formatTime(a.when)} · Waiting for confirmation',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Rating ${mechanic.rating} · ${mechanic.reviews} reviews · ${mechanic.distanceKm.toStringAsFixed(1)} km',
-            style: const TextStyle(fontSize: 13),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${mechanic.specialties} · ${mechanic.reportsCount} published reports',
-            style: const TextStyle(fontSize: 13, color: AppColors.muted),
-          ),
+                  TextButton(
+                    onPressed: () => repo.cancelAppointment(a),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
-}
 
-class _ReportCard extends StatelessWidget {
-  final RepairReport report;
-
-  const _ReportCard({required this.report});
-
-  Widget _section(String label, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.muted,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(text, style: const TextStyle(fontSize: 14, height: 1.4)),
-        ],
-      ),
+  List<Widget> _mechanicsTab(Repo repo) {
+    final list = repo.searchMechanics(
+      query: _mQuery,
+      category: _mCategory,
+      verifiedOnly: _verifiedOnly,
+      openNowOnly: _openNowOnly,
+      sort: _mSort,
     );
+    return [
+      _requestsCard(repo),
+      const SizedBox(height: 16),
+      _searchField(
+        controller: _mCtrl,
+        hint: 'Search by name, skill or service',
+        onChanged: (v) => setState(() => _mQuery = v),
+      ),
+      const SizedBox(height: 12),
+      _categoryChips(_mCategory, (c) => setState(() => _mCategory = c)),
+      const SizedBox(height: 4),
+      _chipRow([
+        FilterChip(
+          label: const Text('Verified'),
+          avatar: const Icon(Icons.verified, size: 16),
+          selected: _verifiedOnly,
+          onSelected: (v) => setState(() => _verifiedOnly = v),
+        ),
+        FilterChip(
+          label: const Text('Open now'),
+          selected: _openNowOnly,
+          onSelected: (v) => setState(() => _openNowOnly = v),
+        ),
+        ChoiceChip(
+          label: const Text('Top rated'),
+          selected: _mSort == MechanicSort.topRated,
+          onSelected: (_) => setState(() => _mSort = MechanicSort.topRated),
+        ),
+        ChoiceChip(
+          label: const Text('Nearest'),
+          selected: _mSort == MechanicSort.nearest,
+          onSelected: (_) => setState(() => _mSort = MechanicSort.nearest),
+        ),
+        ChoiceChip(
+          label: const Text('Most reports'),
+          selected: _mSort == MechanicSort.mostReports,
+          onSelected: (_) => setState(() => _mSort = MechanicSort.mostReports),
+        ),
+      ]),
+      _count(list.length, 'mechanic', 'mechanics'),
+      if (list.isEmpty)
+        _empty('No mechanic matches these filters.', () {
+          _mCtrl.clear();
+          setState(() {
+            _mQuery = '';
+            _mCategory = null;
+            _verifiedOnly = false;
+            _openNowOnly = false;
+          });
+        }),
+      for (final m in list)
+        MechanicCard(
+          mechanic: m,
+          reportsCount: repo.reportsCountFor(m.id),
+          onTap: () => _openMechanic(m),
+          onCall: () => callMechanic(context, m),
+          onBook: () => showAppointmentSheet(context, m),
+        ),
+    ];
+  }
+
+  // -------------------------------------------------------------- reports
+
+  List<Widget> _reportsTab(Repo repo) {
+    final list = repo.searchReports(
+      _rQuery,
+      category: _rCategory,
+      sort: _rSort,
+    );
+    return [
+      const SizedBox(height: 16),
+      const Text(
+        'Search real problems that mechanics already fixed, with the real cost.',
+        style: TextStyle(fontSize: 14, color: AppColors.muted),
+      ),
+      const SizedBox(height: 12),
+      _searchField(
+        controller: _rCtrl,
+        hint: 'Describe a problem, e.g. grinding noise',
+        onChanged: (v) => setState(() => _rQuery = v),
+      ),
+      const SizedBox(height: 12),
+      _categoryChips(_rCategory, (c) => setState(() => _rCategory = c)),
+      const SizedBox(height: 4),
+      _chipRow([
+        ChoiceChip(
+          label: const Text('Most helpful'),
+          selected: _rSort == ReportSort.mostHelpful,
+          onSelected: (_) => setState(() => _rSort = ReportSort.mostHelpful),
+        ),
+        ChoiceChip(
+          label: const Text('Lowest cost'),
+          selected: _rSort == ReportSort.lowestCost,
+          onSelected: (_) => setState(() => _rSort = ReportSort.lowestCost),
+        ),
+        ChoiceChip(
+          label: const Text('Fastest fix'),
+          selected: _rSort == ReportSort.fastest,
+          onSelected: (_) => setState(() => _rSort = ReportSort.fastest),
+        ),
+      ]),
+      _count(list.length, 'report', 'reports'),
+      if (list.isEmpty)
+        _empty('No report matches this problem yet.', () {
+          _rCtrl.clear();
+          setState(() {
+            _rQuery = '';
+            _rCategory = null;
+          });
+        }),
+      for (final r in list)
+        ReportCard(
+          key: ValueKey(r.id),
+          report: r,
+          helpfulCount: repo.helpfulCountFor(r),
+          isHelpful: repo.isHelpful(r.id),
+          onHelpful: () => repo.toggleHelpful(r.id),
+          onMechanicTap: () => _openMechanic(repo.mechanicById(r.mechanicId)),
+        ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            report.title,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${report.car} · ${report.mechanicName}',
-            style: const TextStyle(fontSize: 13, color: AppColors.muted),
-          ),
-          _section('PROBLEM', report.problem),
-          _section('DIAGNOSIS', report.diagnosis),
-          _section('WORK DONE', report.workDone),
-          const SizedBox(height: 10),
-          Text(
-            'Labor and parts: ${formatDzd(report.cost)} DZD',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-          ),
-        ],
-      ),
+    return ListenableBuilder(
+      listenable: Repo.instance,
+      builder: (context, _) {
+        final repo = Repo.instance;
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          children: [
+            const Text(
+              'Mechanics near Jijel',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<int>(
+                segments: const [
+                  ButtonSegment<int>(
+                    value: 0,
+                    icon: Icon(Icons.build_outlined),
+                    label: Text('Mechanics'),
+                  ),
+                  ButtonSegment<int>(
+                    value: 1,
+                    icon: Icon(Icons.description_outlined),
+                    label: Text('Repair reports'),
+                  ),
+                ],
+                selected: {_tab},
+                onSelectionChanged: (s) => setState(() => _tab = s.first),
+              ),
+            ),
+            ...(_tab == 0 ? _mechanicsTab(repo) : _reportsTab(repo)),
+          ],
+        );
+      },
     );
   }
 }
