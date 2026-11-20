@@ -327,8 +327,8 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
           key: ValueKey(r.id),
           report: r,
           helpfulCount: repo.helpfulCountFor(r),
-          isHelpful: repo.isHelpful(r.id),
-          onHelpful: () => repo.toggleHelpful(r.id),
+          isHelpful: repo.isHelpful(r.key),
+          onHelpful: () => repo.toggleHelpful(r.key),
           onMechanicTap: () => _openMechanic(repo.mechanicById(r.mechanicId)),
         ),
     ];

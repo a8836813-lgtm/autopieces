@@ -9,6 +9,10 @@ class Shop {
   final bool openNow;
   final String phone;
 
+  /// Direction from the client in degrees (0 = north). Used by the nearby
+  /// map until real GPS coordinates exist.
+  final double bearing;
+
   const Shop({
     required this.id,
     required this.name,
@@ -19,15 +23,34 @@ class Shop {
     required this.hours,
     required this.openNow,
     required this.phone,
+    this.bearing = 0,
   });
+}
+
+/// A vehicle a part fits. [model] null means every model of that brand.
+/// [brandId] matches `VehicleBrand.id` in `data/vehicles.dart`.
+class Fitment {
+  final String brandId;
+  final String? model;
+
+  const Fitment(this.brandId, [this.model]);
 }
 
 class Part {
   final String id;
   final String name;
+
+  /// The part serial number (OEM number). Universal: it identifies the part
+  /// whatever the brand of the car.
   final String oem;
   final String category;
   final String fits;
+
+  /// Other serial numbers of the same part (aftermarket cross-references).
+  final List<String> altSerials;
+
+  /// Vehicles this part fits. Empty means universal (fits most cars).
+  final List<Fitment> fitments;
 
   const Part({
     required this.id,
@@ -35,6 +58,8 @@ class Part {
     required this.oem,
     required this.category,
     required this.fits,
+    this.altSerials = const [],
+    this.fitments = const [],
   });
 }
 
@@ -82,13 +107,21 @@ class SearchResult {
 class Reservation {
   final SearchResult item;
   final DateTime createdAt;
-  String status; // 'Pending' or 'Confirmed'
+
+  /// 'Pending' -> 'Confirmed' -> 'Completed', or 'Cancelled' by the client.
+  String status;
+
+  /// True once the client has reviewed the shop for this reservation.
+  bool reviewed;
 
   Reservation({
     required this.item,
     DateTime? createdAt,
     this.status = 'Pending',
+    this.reviewed = false,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  bool get isActive => status == 'Pending' || status == 'Confirmed';
 }
 
 /// One service a mechanic offers, with a starting price in DZD.
@@ -157,16 +190,22 @@ class Mechanic {
 }
 
 class RepairReport {
-  final String id;
-  final String mechanicId;
   final String mechanicName;
   final String title;
   final String car;
-  final String category;
-  final String date;
   final String problem;
   final String diagnosis;
   final String workDone;
+
+  /// Total cost in DZD (labor and parts).
+  final int cost;
+  final String parts;
+
+  // Optional details, used by the report cards.
+  final String id;
+  final String mechanicId;
+  final String category;
+  final String date;
   final int laborCost;
   final int partsCost;
   final double durationHours;
@@ -175,25 +214,45 @@ class RepairReport {
   final int helpful;
 
   const RepairReport({
-    required this.id,
-    required this.mechanicId,
     required this.mechanicName,
     required this.title,
     required this.car,
-    required this.category,
-    required this.date,
     required this.problem,
     required this.diagnosis,
     required this.workDone,
-    required this.laborCost,
-    required this.partsCost,
-    required this.durationHours,
-    required this.partsUsed,
-    required this.warrantyMonths,
+    required this.cost,
+    this.parts = '',
+    this.id = '',
+    this.mechanicId = '',
+    this.category = '',
+    this.date = '',
+    this.laborCost = 0,
+    this.partsCost = 0,
+    this.durationHours = 0,
+    this.partsUsed = const [],
+    this.warrantyMonths = 0,
     this.helpful = 0,
   });
 
-  int get cost => laborCost + partsCost;
+  /// Key used for "helpful" votes (reports written in the app have no id).
+  String get key => id.isNotEmpty ? id : '$mechanicName|$title';
+}
+
+/// A rating and comment about a shop or a mechanic ([targetId]).
+class Review {
+  final String targetId;
+  final String author;
+  final int stars; // 1 to 5
+  final String comment;
+  final DateTime createdAt;
+
+  Review({
+    required this.targetId,
+    required this.author,
+    required this.stars,
+    required this.comment,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 }
 
 /// An appointment the client asked a mechanic for (demo, kept in memory).

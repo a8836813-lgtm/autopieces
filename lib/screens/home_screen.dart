@@ -1,11 +1,17 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/repo.dart';
+import '../data/vehicles.dart';
+import '../models/search_query.dart';
+import '../services/auth_service.dart';
 import '../theme.dart';
 import '../widgets/shop_slide_card.dart';
+import '../widgets/vehicle_quick_search.dart';
+import 'nearby_map_screen.dart';
 import 'results_screen.dart';
 import 'scan_screen.dart';
 import 'shop_screen.dart';
+import 'vehicle_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,9 +59,40 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// The client's saved car (demo): VW Golf 7. Used by the "Your car" button.
+  SearchQuery get _myCar => SearchQuery(
+        type: VehicleType.car,
+        brand: kCarBrands.firstWhere((b) => b.id == 'volkswagen'),
+        model: 'Golf 7',
+      );
+
+  void _showResults(SearchQuery query) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultsScreen(vehicleQuery: query),
+      ),
+    );
+  }
+
+  /// Full vehicle search (all brands, models, serial number). When the user
+  /// taps "Search parts" it returns a [SearchQuery] that opens the results.
+  Future<void> _openVehicleSearch(VehicleBrand? brand) async {
+    final query = await Navigator.of(context).push<SearchQuery>(
+      MaterialPageRoute<SearchQuery>(
+        builder: (_) => VehicleSearchScreen(initialBrand: brand),
+      ),
+    );
+    if (query == null || !mounted) return;
+    _showResults(query);
+  }
+
   @override
   Widget build(BuildContext context) {
     final shops = Repo.instance.shops;
+    final user = AuthService.instance.currentUser.value;
+    final initial = (user != null && user.name.isNotEmpty)
+        ? user.name[0].toUpperCase()
+        : 'A';
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(color: AppColors.border),
@@ -75,9 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: AppColors.teal,
               ),
             ),
-            const CircleAvatar(
+            CircleAvatar(
               backgroundColor: AppColors.teal,
-              child: Text('A', style: TextStyle(color: Colors.white)),
+              child: Text(initial,
+                  style: const TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -138,9 +176,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 14),
+        VehicleQuickSearch(
+          onSearch: _showResults,
+          onOpenFull: (brand, type) => _openVehicleSearch(brand),
+        ),
         const SizedBox(height: 10),
         OutlinedButton(
-          onPressed: () {},
+          onPressed: () => _showResults(_myCar),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
             alignment: Alignment.centerLeft,
@@ -154,11 +197,26 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Text('Your car: VW Golf 7 · 2016'),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Shops near you',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Shops near you',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const NearbyMapScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.map_outlined, size: 18),
+              label: const Text('Map'),
+            ),
+          ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 4),
         SizedBox(
           height: 150,
           child: ListView.separated(

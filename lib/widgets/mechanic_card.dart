@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
+import '../data/repo.dart';
 import '../theme.dart';
 import 'pill.dart';
 import 'rating_stars.dart';
@@ -56,6 +57,9 @@ class MechanicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = mechanic;
+    final repo = Repo.instance;
+    final avg = repo.averageStars(m.id) ?? m.rating;
+    final reviewCount = m.reviews + repo.reviewsFor(m.id).length;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -107,10 +111,10 @@ class MechanicCard extends StatelessWidget {
                           const SizedBox(height: 3),
                           Row(
                             children: [
-                              RatingStars(rating: m.rating, size: 14),
+                              RatingStars(rating: avg, size: 14),
                               const SizedBox(width: 6),
                               Text(
-                                '${m.rating.toStringAsFixed(1)} (${m.reviews})',
+                                '${avg.toStringAsFixed(1)} ($reviewCount)',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,

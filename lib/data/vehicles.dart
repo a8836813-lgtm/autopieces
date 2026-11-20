@@ -8,7 +8,7 @@ class VehicleBrand {
 
   const VehicleBrand(this.id, this.name, this.type, this.models);
 
-  /// Put the official logo here: assets/brands/<id>.png
+  /// Put the official logo here: `assets/brands/<id>.png`
   /// If the file is missing, the app shows the brand initials instead.
   String get logoAsset => 'assets/brands/$id.png';
 

@@ -3,8 +3,9 @@ import 'package:material_ui/material_ui.dart';
 import 'home_screen.dart';
 import 'mechanics_screen.dart';
 import 'profile_screen.dart';
+import 'saved_screen.dart';
 
-/// The client app: bottom navigation with Search, Mechanics and Profile.
+/// The client app: bottom navigation with Search, Mechanics, Saved and Profile.
 class ClientShell extends StatefulWidget {
   const ClientShell({super.key});
 
@@ -20,6 +21,7 @@ class _ClientShellState extends State<ClientShell> {
     const pages = <Widget>[
       HomeScreen(),
       MechanicsScreen(),
+      SavedScreen(),
       ProfileScreen(),
     ];
     return Scaffold(
@@ -34,6 +36,10 @@ class _ClientShellState extends State<ClientShell> {
           NavigationDestination(
             icon: Icon(Icons.build_outlined),
             label: 'Mechanics',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            label: 'Saved',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

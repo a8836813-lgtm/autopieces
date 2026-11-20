@@ -104,7 +104,7 @@ class _StockEditScreenState extends State<StockEditScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'OEM ${part.oem} · ${part.fits}',
+                  'Serial ${part.oem} · ${part.fits}',
                   style: const TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
               ],

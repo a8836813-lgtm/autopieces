@@ -117,7 +117,7 @@ class _MechanicShellState extends State<MechanicShell> {
               ),
               const SizedBox(height: 2),
               Text(
-                user?.profile['specialty'] ?? mechanic.specialties,
+                user?.profile['specialty'] ?? mechanic.specialties.join(', '),
                 style: const TextStyle(fontSize: 14, color: AppColors.muted),
               ),
               const SizedBox(height: 12),

@@ -25,9 +25,9 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = AuthService.instance.currentUser.value;
-    final name = (user != null && user.name.trim().isNotEmpty)
-        ? user.name.trim()
-        : 'Demo client';
+    final name = user?.name ?? 'Aymen (demo client)';
+    final wilaya = user?.profile['wilaya'];
+    final place = (wilaya != null && wilaya.isNotEmpty) ? wilaya : 'Jijel';
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       children: [
@@ -43,11 +43,11 @@ class ProfileScreen extends StatelessWidget {
                 radius: 26,
                 backgroundColor: AppColors.teal,
                 child: Text(
-                  name[0].toUpperCase(),
+                  name.isEmpty ? 'A' : name[0].toUpperCase(),
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
-              SizedBox(width: 14),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,10 +59,11 @@ class ProfileScreen extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Jijel · VW Golf 7, 2016',
-                      style: TextStyle(fontSize: 13, color: AppColors.muted),
+                      '$place · VW Golf 7, 2016',
+                      style: const TextStyle(
+                          fontSize: 13, color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -118,13 +119,13 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 4),
         OutlinedButton.icon(
           onPressed: () => logoutToRoleSelect(context),
           icon: const Icon(Icons.logout),
           label: const Text('Log out'),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
+            foregroundColor: AppColors.warn,
           ),
         ),
       ],

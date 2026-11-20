@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../data/vehicles.dart';
 import '../theme.dart';
 
-/// Shows assets/brands/<id>.png. If the file is not there, shows the
+/// Shows `assets/brands/<id>.png`. If the file is not there, shows the
 /// brand initials, so the app never breaks while you collect the logos.
 class BrandLogo extends StatelessWidget {
   final VehicleBrand brand;

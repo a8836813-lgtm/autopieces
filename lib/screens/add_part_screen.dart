@@ -21,16 +21,8 @@ class AddPartScreen extends StatefulWidget {
 
 class _AddPartScreenState extends State<AddPartScreen> {
   static const _categories = [
-    'Brakes',
-    'Tires',
-    'Rims',
-    'Engine',
-    'Battery',
-    'Filters',
-    'Suspension',
-    'Electrical',
-    'Body',
-    'Other',
+    'Brakes', 'Tires', 'Rims', 'Engine', 'Battery', 'Filters',
+    'Suspension', 'Electrical', 'Body', 'Other',
   ];
 
   final _serial = TextEditingController();
@@ -167,8 +159,8 @@ class _AddPartScreenState extends State<AddPartScreen> {
                     ),
                     Text(
                       'Serial ${found.oem} · ${found.fits}',
-                      style:
-                          const TextStyle(fontSize: 13, color: AppColors.muted),
+                      style: const TextStyle(
+                          fontSize: 13, color: AppColors.muted),
                     ),
                   ],
                 ),
@@ -243,6 +235,7 @@ class _AddPartScreenState extends State<AddPartScreen> {
               if (_brand != null) ...[
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String?>(
+                  key: ValueKey(_brand?.id),
                   initialValue: _model,
                   isExpanded: true,
                   decoration: _decoration('Model'),

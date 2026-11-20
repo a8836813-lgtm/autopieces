@@ -9,6 +9,7 @@ import '../widgets/mechanic_card.dart';
 import '../widgets/pill.dart';
 import '../widgets/rating_stars.dart';
 import '../widgets/report_card.dart';
+import '../widgets/review_widgets.dart';
 
 /// Full profile of one mechanic: trust stats, services with prices, info
 /// and the repair reports this mechanic published.
@@ -67,6 +68,23 @@ class MechanicDetailScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _rate(BuildContext context) async {
+    final sent = await showReviewSheet(
+      context,
+      title: 'Rate ${mechanic.name}',
+      onSubmit: (stars, comment) => Repo.instance.addReview(
+        targetId: mechanic.id,
+        stars: stars,
+        comment: comment,
+      ),
+    );
+    if (sent && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Thank you for your review')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final m = mechanic;
@@ -106,6 +124,8 @@ class MechanicDetailScreen extends StatelessWidget {
         builder: (context, _) {
           final repo = Repo.instance;
           final reports = repo.reportsForMechanic(m.id);
+          final written = repo.reviewsFor(m.id);
+          final avg = repo.averageStars(m.id) ?? m.rating;
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             children: [
@@ -127,10 +147,10 @@ class MechanicDetailScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            RatingStars(rating: m.rating),
+                            RatingStars(rating: avg),
                             const SizedBox(width: 6),
                             Text(
-                              m.rating.toStringAsFixed(1),
+                              avg.toStringAsFixed(1),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -175,7 +195,7 @@ class MechanicDetailScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _stat('${m.reviews}', 'Reviews'),
+                  _stat('${m.reviews + written.length}', 'Reviews'),
                   const SizedBox(width: 8),
                   _stat('${m.yearsExperience} yrs', 'Experience'),
                   const SizedBox(width: 8),
@@ -245,6 +265,13 @@ class MechanicDetailScreen extends StatelessWidget {
               _infoRow(Icons.translate, m.languages.join(', ')),
               if (m.mobileService)
                 _infoRow(Icons.directions_car_outlined, 'Comes to you'),
+              _heading('Reviews (${written.length})'),
+              for (final rv in written) ReviewTile(review: rv),
+              OutlinedButton.icon(
+                onPressed: () => _rate(context),
+                icon: const Icon(Icons.star_outline, size: 18),
+                label: const Text('Rate this mechanic'),
+              ),
               _heading('Repair reports (${reports.length})'),
               if (reports.isEmpty)
                 const Padding(
@@ -258,8 +285,8 @@ class MechanicDetailScreen extends StatelessWidget {
                 ReportCard(
                   report: r,
                   helpfulCount: repo.helpfulCountFor(r),
-                  isHelpful: repo.isHelpful(r.id),
-                  onHelpful: () => repo.toggleHelpful(r.id),
+                  isHelpful: repo.isHelpful(r.key),
+                  onHelpful: () => repo.toggleHelpful(r.key),
                 ),
             ],
           );

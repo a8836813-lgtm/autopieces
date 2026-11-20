@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/search_query.dart';
 import 'models.dart';
+import 'vehicles.dart';
 
 enum SortMode { bestMatch, nearest, cheapest }
 
@@ -26,6 +28,7 @@ class Repo extends ChangeNotifier {
       hours: 'Open until 19:00',
       openNow: true,
       phone: '0550 10 20 30',
+      bearing: 40,
     ),
     Shop(
       id: 's2',
@@ -37,6 +40,7 @@ class Repo extends ChangeNotifier {
       hours: 'Open until 18:30',
       openNow: true,
       phone: '0550 11 22 33',
+      bearing: 120,
     ),
     Shop(
       id: 's3',
@@ -48,6 +52,7 @@ class Repo extends ChangeNotifier {
       hours: 'Open until 18:00',
       openNow: true,
       phone: '0550 44 55 66',
+      bearing: 200,
     ),
     Shop(
       id: 's4',
@@ -59,6 +64,7 @@ class Repo extends ChangeNotifier {
       hours: 'Open until 19:30',
       openNow: true,
       phone: '0550 77 88 99',
+      bearing: 280,
     ),
     Shop(
       id: 's5',
@@ -70,16 +76,20 @@ class Repo extends ChangeNotifier {
       hours: 'Opens at 08:00',
       openNow: false,
       phone: '0550 12 34 56',
+      bearing: 330,
     ),
   ];
 
-  final List<Part> parts = const [
+  final List<Part> parts = [
     Part(
       id: 'p1',
       name: 'Front brake disc, ventilated 288 mm',
       oem: '5Q0615301',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p2',
@@ -87,6 +97,9 @@ class Repo extends ChangeNotifier {
       oem: '5Q0615601',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p3',
@@ -94,6 +107,9 @@ class Repo extends ChangeNotifier {
       oem: '5Q0698151',
       category: 'Brakes',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p4',
@@ -115,6 +131,9 @@ class Repo extends ChangeNotifier {
       oem: '04E115561H',
       category: 'Filters',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p7',
@@ -122,6 +141,9 @@ class Repo extends ChangeNotifier {
       oem: 'R16-5112',
       category: 'Rims',
       fits: 'VW Golf 7 (2013–2020)',
+      fitments: [
+        Fitment('volkswagen', 'Golf 7'),
+      ],
     ),
     Part(
       id: 'p8',
@@ -136,6 +158,23 @@ class Repo extends ChangeNotifier {
       oem: '1K0615301',
       category: 'Brakes',
       fits: 'VW Golf 5 and 6',
+      fitments: [
+        Fitment('volkswagen', 'Golf 5'),
+        Fitment('volkswagen', 'Golf 6'),
+      ],
+    ),
+    // Demo truck part with a made-up serial number, so Trucks search shows
+    // something. Replace with real data later.
+    Part(
+      id: 'p10',
+      name: 'Air filter, heavy duty',
+      oem: 'DEMO-TRK-1001',
+      category: 'Filters',
+      fits: 'Volvo Trucks FH and FM',
+      fitments: [
+        Fitment('volvo_trucks', 'FH'),
+        Fitment('volvo_trucks', 'FM'),
+      ],
     ),
   ];
 
@@ -157,9 +196,61 @@ class Repo extends ChangeNotifier {
     StockItem(shopId: 's4', partId: 'p7', quantity: 2, price: 16500),
     StockItem(shopId: 's1', partId: 'p8', quantity: 7, price: 6200),
     StockItem(shopId: 's2', partId: 'p8', quantity: 4, price: 6400),
+    StockItem(shopId: 's1', partId: 'p10', quantity: 4, price: 11500),
   ];
 
   final List<Reservation> reservations = [];
+
+  /// The mechanic that the "mechanic mode" demo is logged in as.
+  static const String myMechanicId = 'm1';
+  static const String myMechanicName = 'Garage El Amel';
+
+  /// Saved by the client (demo has a single client).
+  final Set<String> favoriteShopIds = {};
+  final Set<String> favoritePartIds = {};
+
+  /// Counters for the shop "Insights" tab. Each call or view is logged so the
+  /// platform can charge per lead later (CONTACT_REVEALS in the data model).
+  final Map<String, int> viewsByShop = {};
+  final Map<String, int> callsByShop = {};
+
+  final List<Review> reviews = [
+    Review(
+      targetId: 's1',
+      author: 'Yacine M.',
+      stars: 5,
+      comment: 'Had the exact discs for my Golf, fair price.',
+      createdAt: DateTime(2026, 10, 2),
+    ),
+    Review(
+      targetId: 's1',
+      author: 'Samir K.',
+      stars: 4,
+      comment: 'Good stock, a bit busy in the morning.',
+      createdAt: DateTime(2026, 10, 20),
+    ),
+    Review(
+      targetId: 's2',
+      author: 'Nadia B.',
+      stars: 4,
+      comment: 'Found the pads I needed in minutes.',
+      createdAt: DateTime(2026, 9, 14),
+    ),
+    Review(
+      targetId: 'm1',
+      author: 'Karim L.',
+      stars: 5,
+      comment: 'Diagnosed the noise quickly and explained everything.',
+      createdAt: DateTime(2026, 10, 8),
+    ),
+    Review(
+      targetId: 'm2',
+      author: 'Amine D.',
+      stars: 4,
+      comment: 'Honest work on my gearbox.',
+      createdAt: DateTime(2026, 9, 30),
+    ),
+  ];
 
   /// Repair categories shared by mechanics (what they do) and reports.
   static const List<String> categories = [
@@ -306,7 +397,7 @@ class Repo extends ChangeNotifier {
     ),
   ];
 
-  final List<RepairReport> reports = const [
+  final List<RepairReport> reports = [
     RepairReport(
       id: 'r1',
       mechanicId: 'm1',
@@ -323,6 +414,7 @@ class Repo extends ChangeNotifier {
           'Replaced discs and pads, cleaned and greased the slider pins, bled the brake fluid.',
       laborCost: 8000,
       partsCost: 16000,
+      cost: 24000,
       durationHours: 3.5,
       partsUsed: [
         'Front brake discs (pair)',
@@ -348,6 +440,7 @@ class Repo extends ChangeNotifier {
           'Replaced front discs and pads, checked hub runout, road test after bedding in.',
       laborCost: 6500,
       partsCost: 13000,
+      cost: 19500,
       durationHours: 2.5,
       partsUsed: ['Front brake discs (pair)', 'Front brake pads'],
       warrantyMonths: 6,
@@ -367,6 +460,7 @@ class Repo extends ChangeNotifier {
       workDone: 'Replaced the door module and tested the draw with a meter.',
       laborCost: 4500,
       partsCost: 4500,
+      cost: 9000,
       durationHours: 2,
       partsUsed: ['Door control module'],
       warrantyMonths: 3,
@@ -388,6 +482,7 @@ class Repo extends ChangeNotifier {
           'Replaced both stabiliser links and the right strut mount, then checked the alignment.',
       laborCost: 5000,
       partsCost: 11500,
+      cost: 16500,
       durationHours: 3,
       partsUsed: ['Stabiliser links (x2)', 'Front strut mount'],
       warrantyMonths: 6,
@@ -409,6 +504,7 @@ class Repo extends ChangeNotifier {
           'Replaced the seals, vacuumed the system, recharged it and added leak-detection dye.',
       laborCost: 3500,
       partsCost: 4000,
+      cost: 7500,
       durationHours: 1.5,
       partsUsed: [
         'R134a refrigerant',
@@ -434,6 +530,7 @@ class Repo extends ChangeNotifier {
           'Replaced the thermostat and fan relay, flushed and refilled the coolant, pressure tested the system.',
       laborCost: 5500,
       partsCost: 9500,
+      cost: 15000,
       durationHours: 4,
       partsUsed: ['Thermostat', 'Cooling fan relay', 'Coolant (5 L)'],
       warrantyMonths: 6,
@@ -455,6 +552,7 @@ class Repo extends ChangeNotifier {
           'Replaced the coil and all four spark plugs, cleared the fault and road tested.',
       laborCost: 3000,
       partsCost: 6500,
+      cost: 9500,
       durationHours: 2,
       partsUsed: ['Ignition coil', 'Spark plugs (x4)'],
       warrantyMonths: 3,
@@ -476,6 +574,7 @@ class Repo extends ChangeNotifier {
           'Repaired the wires, fitted a new protective sleeve and tested every door function.',
       laborCost: 4000,
       partsCost: 3500,
+      cost: 7500,
       durationHours: 2.5,
       partsUsed: ['Door wiring sleeve', 'Connector pins'],
       warrantyMonths: 3,
@@ -496,6 +595,7 @@ class Repo extends ChangeNotifier {
           'Changed the gearbox oil, adjusted the cable and linkage, then road tested.',
       laborCost: 3500,
       partsCost: 2500,
+      cost: 6000,
       durationHours: 1.5,
       partsUsed: ['Gearbox oil (2 L)'],
       warrantyMonths: 1,
@@ -556,12 +656,56 @@ class Repo extends ChangeNotifier {
         .where((t) => t.isNotEmpty)
         .toList();
     if (tokens.isEmpty) return [];
+    final serial = SearchQuery.normalizeSerial(query);
 
     final results = <SearchResult>[];
     for (final p in parts) {
       final hay = '${p.name} ${p.fits} ${p.oem} ${p.category}'.toLowerCase();
-      final matches = tokens.every((t) => hay.contains(t));
+      final matches = tokens.every((t) => hay.contains(t)) ||
+          (serial.length >= 4 && _serialMatches(p, serial));
       if (!matches) continue;
+      results.addAll(
+        resultsForPart(p.id,
+            sort: SortMode.bestMatch, inStockOnly: inStockOnly),
+      );
+    }
+    _sort(results, sort);
+    return results;
+  }
+
+  /// True when [serial] (already normalized) is part of the part's serial
+  /// number or of one of its other serial numbers.
+  bool _serialMatches(Part p, String serial) {
+    if (SearchQuery.normalizeSerial(p.oem).contains(serial)) return true;
+    return p.altSerials
+        .any((a) => SearchQuery.normalizeSerial(a).contains(serial));
+  }
+
+  /// Does this part fit the vehicle chosen in [q]? Parts with no fitment list
+  /// are universal and fit any car (but not trucks).
+  bool _fitsVehicle(Part p, SearchQuery q) {
+    final brand = q.brand;
+    if (brand == null) return true;
+    if (p.fitments.isEmpty) return brand.type == VehicleType.car;
+    return p.fitments.any(
+      (f) =>
+          f.brandId == brand.id &&
+          (q.model == null || f.model == null || f.model == q.model),
+    );
+  }
+
+  /// Search by part serial number and/or vehicle (brand and model).
+  /// When both are given, the part must match both.
+  List<SearchResult> searchVehicle(
+    SearchQuery q, {
+    SortMode sort = SortMode.bestMatch,
+    bool inStockOnly = true,
+  }) {
+    final serial = q.serial;
+    final results = <SearchResult>[];
+    for (final p in parts) {
+      if (serial != null && !_serialMatches(p, serial)) continue;
+      if (!_fitsVehicle(p, q)) continue;
       results.addAll(
         resultsForPart(p.id,
             sort: SortMode.bestMatch, inStockOnly: inStockOnly),
@@ -600,10 +744,10 @@ class Repo extends ChangeNotifier {
   Mechanic mechanicById(String id) => mechanics.firstWhere((m) => m.id == id);
 
   int reportsCountFor(String mechanicId) =>
-      reports.where((r) => r.mechanicId == mechanicId).length;
+      reportsOf(mechanicById(mechanicId).name).length;
 
   List<RepairReport> reportsForMechanic(String mechanicId) =>
-      reports.where((r) => r.mechanicId == mechanicId).toList();
+      reportsOf(mechanicById(mechanicId).name);
 
   List<Mechanic> searchMechanics({
     String query = '',
@@ -625,8 +769,9 @@ class Repo extends ChangeNotifier {
     }).toList();
     switch (sort) {
       case MechanicSort.topRated:
+        double stars(Mechanic m) => averageStars(m.id) ?? m.rating;
         list.sort((a, b) {
-          final byRating = b.rating.compareTo(a.rating);
+          final byRating = stars(b).compareTo(stars(a));
           return byRating != 0 ? byRating : b.reviews.compareTo(a.reviews);
         });
       case MechanicSort.nearest:
@@ -650,7 +795,7 @@ class Repo extends ChangeNotifier {
       if (tokens.isEmpty) return true;
       final hay = '${r.title} ${r.car} ${r.category} ${r.mechanicName} '
               '${r.problem} ${r.diagnosis} ${r.workDone} '
-              '${r.partsUsed.join(' ')}'
+              '${r.parts} ${r.partsUsed.join(' ')}'
           .toLowerCase();
       return tokens.every((t) => hay.contains(t));
     }).toList();
@@ -665,13 +810,13 @@ class Repo extends ChangeNotifier {
     return list;
   }
 
-  bool isHelpful(String reportId) => _helpfulIds.contains(reportId);
+  bool isHelpful(String reportKey) => _helpfulIds.contains(reportKey);
 
   int helpfulCountFor(RepairReport r) =>
-      r.helpful + (_helpfulIds.contains(r.id) ? 1 : 0);
+      r.helpful + (_helpfulIds.contains(r.key) ? 1 : 0);
 
-  void toggleHelpful(String reportId) {
-    if (!_helpfulIds.add(reportId)) _helpfulIds.remove(reportId);
+  void toggleHelpful(String reportKey) {
+    if (!_helpfulIds.add(reportKey)) _helpfulIds.remove(reportKey);
     notifyListeners();
   }
 
@@ -733,5 +878,143 @@ class Repo extends ChangeNotifier {
   void confirmReservation(Reservation reservation) {
     reservation.status = 'Confirmed';
     notifyListeners();
+  }
+
+  // -------------------------------------------------------------- favorites
+
+  bool isFavoriteShop(String shopId) => favoriteShopIds.contains(shopId);
+  bool isFavoritePart(String partId) => favoritePartIds.contains(partId);
+
+  void toggleFavoriteShop(String shopId) {
+    if (!favoriteShopIds.remove(shopId)) favoriteShopIds.add(shopId);
+    notifyListeners();
+  }
+
+  void toggleFavoritePart(String partId) {
+    if (!favoritePartIds.remove(partId)) favoritePartIds.add(partId);
+    notifyListeners();
+  }
+
+  // ---------------------------------------------------------------- reviews
+
+  List<Review> reviewsFor(String targetId) =>
+      reviews.where((r) => r.targetId == targetId).toList()
+        ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+  /// Average of the written reviews, or null when there are none.
+  double? averageStars(String targetId) {
+    final list = reviewsFor(targetId);
+    if (list.isEmpty) return null;
+    return list.fold<int>(0, (sum, r) => sum + r.stars) / list.length;
+  }
+
+  void addReview({
+    required String targetId,
+    required int stars,
+    required String comment,
+    String author = 'You',
+  }) {
+    reviews.add(
+      Review(
+        targetId: targetId,
+        author: author,
+        stars: stars,
+        comment: comment.trim(),
+      ),
+    );
+    notifyListeners();
+  }
+
+  // ----------------------------------------------------------- reservations
+
+  void cancelReservation(Reservation r) {
+    if (!r.isActive) return;
+    r.status = 'Cancelled';
+    notifyListeners();
+  }
+
+  /// The shop owner marks the part as picked up. One unit leaves the stock.
+  void completeReservation(Reservation r) {
+    if (r.status != 'Confirmed') return;
+    r.status = 'Completed';
+    final item = r.item.stock;
+    if (item.quantity > 0) item.quantity--;
+    notifyListeners();
+  }
+
+  void markReviewed(Reservation r) {
+    r.reviewed = true;
+    notifyListeners();
+  }
+
+  /// Reviews are only allowed for completed reservations.
+  Reservation? reviewableReservationAt(String shopId) {
+    for (final r in reservations) {
+      if (r.item.shop.id == shopId && r.status == 'Completed' && !r.reviewed) {
+        return r;
+      }
+    }
+    return null;
+  }
+
+  // ------------------------------------------------------------------ stats
+
+  void logView(String shopId) {
+    viewsByShop[shopId] = (viewsByShop[shopId] ?? 0) + 1;
+  }
+
+  void logCall(String shopId) {
+    callsByShop[shopId] = (callsByShop[shopId] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  int reservationsCountFor(String shopId) =>
+      reservations.where((r) => r.item.shop.id == shopId).length;
+
+  // ---------------------------------------------------------------- reports
+
+  List<RepairReport> reportsOf(String mechanicName) =>
+      reports.where((r) => r.mechanicName == mechanicName).toList();
+
+  void addReport(RepairReport report) {
+    reports.insert(0, report);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------------------ parts
+
+  /// The catalog part with this serial number (or one of its other serial
+  /// numbers), or null. Spaces, dashes and case are ignored.
+  Part? partBySerial(String serial) {
+    final wanted = SearchQuery.normalizeSerial(serial);
+    if (wanted.isEmpty) return null;
+    for (final p in parts) {
+      if (SearchQuery.normalizeSerial(p.oem) == wanted) return p;
+      if (p.altSerials.any((a) => SearchQuery.normalizeSerial(a) == wanted)) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  /// Adds a new part to the catalog (shop owner "add by serial number").
+  Part addPart({
+    required String name,
+    required String serial,
+    required String category,
+    required String fits,
+    List<Fitment> fitments = const [],
+  }) {
+    final part = Part(
+      id: 'p${parts.length + 1}',
+      name: name.trim(),
+      oem: serial.trim().toUpperCase(),
+      category: category,
+      fits: fits,
+      fitments: fitments,
+    );
+    parts.add(part);
+    notifyListeners();
+    return part;
   }
 }

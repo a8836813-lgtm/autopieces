@@ -39,6 +39,7 @@ ThemeData buildMechanicTheme() {
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: MechColors.surface,
       indicatorColor: MechColors.cyan.withAlpha(48),
-    ), dialogTheme: DialogThemeData(backgroundColor: MechColors.surface2),
+    ),
+    dialogTheme: DialogThemeData(backgroundColor: MechColors.surface2),
   );
 }

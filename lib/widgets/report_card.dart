@@ -32,6 +32,17 @@ class ReportCard extends StatefulWidget {
 class _ReportCardState extends State<ReportCard> {
   bool _expanded = false;
 
+  /// Parts as a list: the detailed list when present, else the text field.
+  List<String> get _parts {
+    final r = widget.report;
+    if (r.partsUsed.isNotEmpty) return r.partsUsed;
+    return r.parts
+        .split(',')
+        .map((p) => p.trim())
+        .where((p) => p.isNotEmpty)
+        .toList();
+  }
+
   Widget _fact(IconData icon, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -101,24 +112,27 @@ class _ReportCardState extends State<ReportCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Pill(
-                      text: r.category,
-                      color: AppColors.teal,
-                      background: const Color(0xFFDCEBEE),
-                    ),
-                    const Spacer(),
-                    Text(
-                      r.date,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: AppColors.muted,
+                if (r.category.isNotEmpty || r.date.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      if (r.category.isNotEmpty)
+                        Pill(
+                          text: r.category,
+                          color: AppColors.teal,
+                          background: const Color(0xFFDCEBEE),
+                        ),
+                      const Spacer(),
+                      Text(
+                        r.date,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.muted,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 Text(
                   r.title,
                   style: const TextStyle(
@@ -167,11 +181,13 @@ class _ReportCardState extends State<ReportCard> {
                   runSpacing: 6,
                   children: [
                     _fact(Icons.payments_outlined, '${formatDzd(r.cost)} DZD'),
-                    _fact(Icons.schedule, formatDuration(r.durationHours)),
-                    _fact(
-                      Icons.shield_outlined,
-                      '${r.warrantyMonths} mo warranty',
-                    ),
+                    if (r.durationHours > 0)
+                      _fact(Icons.schedule, formatDuration(r.durationHours)),
+                    if (r.warrantyMonths > 0)
+                      _fact(
+                        Icons.shield_outlined,
+                        '${r.warrantyMonths} mo warranty',
+                      ),
                   ],
                 ),
                 AnimatedSize(
@@ -184,29 +200,33 @@ class _ReportCardState extends State<ReportCard> {
                             _section('PROBLEM', r.problem),
                             _section('DIAGNOSIS', r.diagnosis),
                             _section('WORK DONE', r.workDone),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'PARTS USED',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.4,
-                                color: AppColors.muted,
+                            if (_parts.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              const Text(
+                                'PARTS USED',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.4,
+                                  color: AppColors.muted,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Wrap(
-                              spacing: 6,
-                              runSpacing: 6,
-                              children: [
-                                for (final p in r.partsUsed) Pill(text: p),
-                              ],
-                            ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  for (final p in _parts) Pill(text: p),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 14),
                             const Divider(height: 1, color: AppColors.border),
                             const SizedBox(height: 6),
-                            _costRow('Labor', r.laborCost),
-                            _costRow('Parts', r.partsCost),
+                            if (r.laborCost + r.partsCost > 0) ...[
+                              _costRow('Labor', r.laborCost),
+                              _costRow('Parts', r.partsCost),
+                            ],
                             _costRow('Total', r.cost, bold: true),
                           ],
                         )
