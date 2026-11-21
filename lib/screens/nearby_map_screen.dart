@@ -87,7 +87,7 @@ class _NearbyMapScreenState extends State<NearbyMapScreen> {
                                 decoration: BoxDecoration(
                                   color: shops[i] == _selected
                                       ? AppColors.orange
-                                      : (shops[i].openNow
+                                      : (Repo.instance.isShopOpen(shops[i])
                                           ? AppColors.teal
                                           : AppColors.muted),
                                   shape: BoxShape.circle,
@@ -141,7 +141,7 @@ class _NearbyMapScreenState extends State<NearbyMapScreen> {
                       leading: CircleAvatar(
                         radius: 14,
                         backgroundColor:
-                            s.openNow ? AppColors.teal : AppColors.muted,
+                            Repo.instance.isShopOpen(s) ? AppColors.teal : AppColors.muted,
                         child: Text('${i + 1}',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 12)),
@@ -150,7 +150,7 @@ class _NearbyMapScreenState extends State<NearbyMapScreen> {
                           style:
                               const TextStyle(fontWeight: FontWeight.w600)),
                       subtitle: Text(
-                          '${s.distanceKm.toStringAsFixed(1)} km · ${s.hours}'),
+                          '${s.distanceKm.toStringAsFixed(1)} km · ${Repo.instance.shopHoursOf(s)}'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(

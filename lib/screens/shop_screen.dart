@@ -108,16 +108,16 @@ class _ShopScreenState extends State<ShopScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      shop.hours,
+                      Repo.instance.shopHoursOf(shop),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: shop.openNow ? AppColors.green : AppColors.warn,
+                        color: Repo.instance.isShopOpen(shop) ? AppColors.green : AppColors.warn,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Phone (demo number): ${shop.phone}',
+                      'Phone (demo number): ${Repo.instance.shopPhoneOf(shop)}',
                       style: const TextStyle(fontSize: 14),
                     ),
                   ],

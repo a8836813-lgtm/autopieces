@@ -33,7 +33,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(r.shop.name),
-        content: Text('Phone (demo number): ${r.shop.phone}\n${r.shop.hours}'),
+        content: Text('Phone (demo number): ${Repo.instance.shopPhoneOf(r.shop)}\n${Repo.instance.shopHoursOf(r.shop)}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),

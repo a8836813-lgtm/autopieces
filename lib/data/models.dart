@@ -114,11 +114,19 @@ class Reservation {
   /// True once the client has reviewed the shop for this reservation.
   bool reviewed;
 
+  /// Shown to the shop owner (the demo client has no name).
+  final String clientName;
+
+  /// Set when the shop marks the part as picked up.
+  DateTime? completedAt;
+
   Reservation({
     required this.item,
     DateTime? createdAt,
     this.status = 'Pending',
     this.reviewed = false,
+    this.clientName = 'Client (demo)',
+    this.completedAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   bool get isActive => status == 'Pending' || status == 'Confirmed';
@@ -326,4 +334,29 @@ class MechanicBadge {
     required this.hint,
     required this.earned,
   });
+}
+
+/// One sale of the logged-in shop (money in, for the sales charts).
+class Sale {
+  final String partName;
+  final int quantity;
+
+  /// Total amount in DZD.
+  final int amount;
+  final DateTime date;
+
+  const Sale({
+    required this.partName,
+    required this.quantity,
+    required this.amount,
+    required this.date,
+  });
+}
+
+/// A line in the shop "recent activity" list.
+class ActivityEntry {
+  final String text;
+  final DateTime time;
+
+  ActivityEntry(this.text, [DateTime? time]) : time = time ?? DateTime.now();
 }

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
+import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
 
@@ -110,7 +111,7 @@ class ResultCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 13, color: AppColors.muted),
               ),
               Text(
-                shop.hours,
+                Repo.instance.shopHoursOf(shop),
                 style: const TextStyle(fontSize: 13, color: AppColors.muted),
               ),
             ],

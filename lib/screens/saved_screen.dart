@@ -166,7 +166,7 @@ class SavedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _title('My reservations'),
-            if (repo.reservations.isEmpty)
+            if (repo.clientReservations.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: Text(
@@ -174,7 +174,7 @@ class SavedScreen extends StatelessWidget {
                   style: TextStyle(color: AppColors.muted),
                 ),
               ),
-            for (final r in repo.reservations) _reservationCard(context, r),
+            for (final r in repo.clientReservations) _reservationCard(context, r),
             _title('Favorite shops'),
             if (shops.isEmpty)
               const Padding(
@@ -197,7 +197,7 @@ class SavedScreen extends StatelessWidget {
                   title: Text(s.name,
                       style: const TextStyle(fontWeight: FontWeight.w600)),
                   subtitle: Text(
-                      '${s.distanceKm.toStringAsFixed(1)} km · ${s.hours}'),
+                      '${s.distanceKm.toStringAsFixed(1)} km · ${Repo.instance.shopHoursOf(s)}'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(

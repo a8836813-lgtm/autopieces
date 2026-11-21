@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
+import '../data/repo.dart';
 import '../theme.dart';
 
 class ShopSlideCard extends StatelessWidget {
@@ -61,11 +62,11 @@ class ShopSlideCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  shop.hours,
+                  Repo.instance.shopHoursOf(shop),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: shop.openNow ? AppColors.green : AppColors.warn,
+                    color: Repo.instance.isShopOpen(shop) ? AppColors.green : AppColors.warn,
                   ),
                 ),
               ],

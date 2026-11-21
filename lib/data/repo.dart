@@ -199,7 +199,37 @@ class Repo extends ChangeNotifier {
     StockItem(shopId: 's1', partId: 'p10', quantity: 4, price: 11500),
   ];
 
-  final List<Reservation> reservations = [];
+  late final List<Reservation> reservations = _seedReservations();
+
+  List<Reservation> _seedReservations() {
+    SearchResult? at(String partId) {
+      final item = stockFor(myShopId, partId);
+      if (item == null) return null;
+      return SearchResult(
+        part: partById(partId),
+        shop: shopById(myShopId),
+        stock: item,
+      );
+    }
+
+    final now = DateTime.now();
+    final list = <Reservation>[];
+    void add(String partId, String client, String status, Duration ago) {
+      final r = at(partId);
+      if (r == null) return;
+      list.add(Reservation(
+        item: r,
+        clientName: client,
+        status: status,
+        createdAt: now.subtract(ago),
+      ));
+    }
+
+    add('p1', 'Rachid M.', 'Pending', const Duration(minutes: 25));
+    add('p3', 'Souad B.', 'Pending', const Duration(hours: 2));
+    add('p8', 'Walid H.', 'Confirmed', const Duration(hours: 5));
+    return list;
+  }
 
   /// The mechanic that the "mechanic mode" demo is logged in as.
   static const String myMechanicId = 'm1';
@@ -606,6 +636,44 @@ class Repo extends ChangeNotifier {
   /// Appointment requests sent by the demo client.
   final List<AppointmentRequest> appointments = [];
 
+  // ------------------------------------------------------------- shop mode
+
+  /// Settings of the logged-in shop (the const [Shop] list cannot change).
+  bool shopOpen = true;
+  String shopHours = 'Open until 19:00';
+  String shopPhone = '';
+  String shopAbout = 'Brake parts, filters and batteries for most cars.';
+  bool shopDelivers = false;
+  final Set<String> shopPayments = {'Cash'};
+
+  /// A part counts as "low" when its quantity is at or under this number.
+  int lowStockLimit = 1;
+
+  final List<Sale> sales = _seedSales();
+  final List<ActivityEntry> activity = [];
+
+  /// Replies the shop owner wrote to reviews (key: [reviewKey]).
+  final Map<String, String> reviewReplies = {};
+
+  static List<Sale> _seedSales() {
+    final now = DateTime.now();
+    DateTime ago(int days, int hour) =>
+        DateTime(now.year, now.month, now.day - days, hour);
+    return [
+      Sale(partName: 'Brake pads (front)', quantity: 2, amount: 15800, date: ago(0, 10)),
+      Sale(partName: 'Engine oil filter', quantity: 3, amount: 11700, date: ago(1, 11)),
+      Sale(partName: 'Spark plug', quantity: 4, amount: 3600, date: ago(1, 15)),
+      Sale(partName: 'Brake discs (pair)', quantity: 1, amount: 6300, date: ago(2, 9)),
+      Sale(partName: 'Brake pads (front)', quantity: 1, amount: 7900, date: ago(3, 16)),
+      Sale(partName: 'Engine oil filter', quantity: 2, amount: 7800, date: ago(4, 12)),
+      Sale(partName: 'Spark plug', quantity: 8, amount: 7200, date: ago(5, 10)),
+      Sale(partName: 'Brake pads (front)', quantity: 3, amount: 23700, date: ago(6, 14)),
+      Sale(partName: 'Brake discs (pair)', quantity: 2, amount: 12600, date: ago(8, 11)),
+      Sale(partName: 'Engine oil filter', quantity: 5, amount: 19500, date: ago(10, 9)),
+      Sale(partName: 'Spark plug', quantity: 6, amount: 5400, date: ago(12, 13)),
+    ];
+  }
+
   /// Mechanic mode: jobs asked of the logged-in mechanic.
   final List<JobRequest> jobs = _seedJobs();
 
@@ -972,6 +1040,11 @@ class Repo extends ChangeNotifier {
     required String condition,
   }) {
     final existing = stockFor(shopId, partId);
+    if (shopId == myShopId) {
+      logActivity(existing == null
+          ? 'Added ${partById(partId).name} to stock ($quantity units)'
+          : 'Updated ${partById(partId).name}: $quantity units, $price DZD');
+    }
     if (existing != null) {
       existing.quantity = quantity;
       existing.price = price;
@@ -997,6 +1070,7 @@ class Repo extends ChangeNotifier {
 
   void confirmReservation(Reservation reservation) {
     reservation.status = 'Confirmed';
+    logActivity('Confirmed ${reservation.item.part.name} for ${reservation.clientName}');
     notifyListeners();
   }
 
@@ -1057,8 +1131,21 @@ class Repo extends ChangeNotifier {
   void completeReservation(Reservation r) {
     if (r.status != 'Confirmed') return;
     r.status = 'Completed';
+    r.completedAt = DateTime.now();
     final item = r.item.stock;
     if (item.quantity > 0) item.quantity--;
+    if (r.item.shop.id == myShopId) {
+      sales.insert(
+        0,
+        Sale(
+          partName: r.item.part.name,
+          quantity: 1,
+          amount: item.price,
+          date: r.completedAt!,
+        ),
+      );
+      logActivity('${r.clientName} picked up ${r.item.part.name} (${item.price} DZD)');
+    }
     notifyListeners();
   }
 
@@ -1067,9 +1154,14 @@ class Repo extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reservations made by the demo client (the other ones belong to shop
+  /// customers and only show in shop mode).
+  List<Reservation> get clientReservations =>
+      reservations.where((r) => r.clientName == 'Client (demo)').toList();
+
   /// Reviews are only allowed for completed reservations.
   Reservation? reviewableReservationAt(String shopId) {
-    for (final r in reservations) {
+    for (final r in clientReservations) {
       if (r.item.shop.id == shopId && r.status == 'Completed' && !r.reviewed) {
         return r;
       }
@@ -1098,6 +1190,172 @@ class Repo extends ChangeNotifier {
 
   void addReport(RepairReport report) {
     reports.insert(0, report);
+    notifyListeners();
+  }
+
+  // ------------------------------------------------------- shop owner tools
+
+  void logActivity(String text) {
+    activity.insert(0, ActivityEntry(text));
+    if (activity.length > 30) activity.removeLast();
+  }
+
+  bool isShopOpen(Shop s) => s.id == myShopId ? shopOpen : s.openNow;
+
+  String shopHoursOf(Shop s) => s.id == myShopId ? shopHours : s.hours;
+
+  String shopPhoneOf(Shop s) =>
+      s.id == myShopId && shopPhone.trim().isNotEmpty ? shopPhone : s.phone;
+
+  void setShopOpen(bool value) {
+    shopOpen = value;
+    logActivity(value ? 'Shop set to open' : 'Shop set to closed');
+    notifyListeners();
+  }
+
+  void updateShopInfo({
+    required String hours,
+    required String phone,
+    required String about,
+    required bool delivers,
+    required Set<String> payments,
+  }) {
+    shopHours = hours.trim().isEmpty ? shopHours : hours.trim();
+    shopPhone = phone.trim();
+    shopAbout = about.trim();
+    shopDelivers = delivers;
+    shopPayments
+      ..clear()
+      ..addAll(payments);
+    logActivity('Shop information updated');
+    notifyListeners();
+  }
+
+  void setLowStockLimit(int value) {
+    lowStockLimit = value.clamp(0, 20);
+    notifyListeners();
+  }
+
+  /// Adds [delta] units (can be negative) to a stock item, never below 0.
+  void adjustStock(StockItem item, int delta) {
+    final next = item.quantity + delta;
+    item.quantity = next < 0 ? 0 : next;
+    logActivity(
+      '${partById(item.partId).name}: ${delta >= 0 ? '+' : ''}$delta, now ${item.quantity} units',
+    );
+    notifyListeners();
+  }
+
+  void removeStock(StockItem item) {
+    final name = partById(item.partId).name;
+    stock.remove(item);
+    logActivity('Removed $name from stock');
+    notifyListeners();
+  }
+
+  /// Raises or lowers prices of the shop stock by [percent]. When [category]
+  /// is null every part changes. Returns how many items changed.
+  int bulkPriceChange({String? category, required double percent}) {
+    var changed = 0;
+    for (final item in stockOfShop(myShopId)) {
+      if (category != null && partById(item.partId).category != category) {
+        continue;
+      }
+      final next = (item.price * (1 + percent / 100)).round();
+      item.price = next < 1 ? 1 : next;
+      changed++;
+    }
+    if (changed > 0) {
+      logActivity(
+        'Prices ${percent >= 0 ? 'raised' : 'lowered'} ${percent.abs().toStringAsFixed(0)}% '
+        '(${category ?? 'all parts'}, $changed items)',
+      );
+      notifyListeners();
+    }
+    return changed;
+  }
+
+  /// The shop turns down a pending or confirmed reservation.
+  void declineReservation(Reservation r) {
+    if (!r.isActive) return;
+    r.status = 'Cancelled';
+    logActivity('Declined ${r.item.part.name} for ${r.clientName}');
+    notifyListeners();
+  }
+
+  List<Reservation> shopReservations() =>
+      reservations.where((r) => r.item.shop.id == myShopId).toList();
+
+  int get pendingOrdersCount =>
+      shopReservations().where((r) => r.status == 'Pending').length;
+
+  List<StockItem> get outOfStockItems =>
+      stockOfShop(myShopId).where((s) => s.quantity <= 0).toList();
+
+  List<StockItem> get lowStockItems => stockOfShop(myShopId)
+      .where((s) => s.quantity > 0 && s.quantity <= lowStockLimit)
+      .toList();
+
+  /// Total value of the stock at selling price, in DZD.
+  int get stockValue =>
+      stockOfShop(myShopId).fold(0, (a, s) => a + s.price * s.quantity);
+
+  static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// Sales per day for the last 7 days (oldest first, today last).
+  List<int> weeklySales() {
+    final today = _day(DateTime.now());
+    final result = List<int>.filled(7, 0);
+    for (final s in sales) {
+      final ago = today.difference(_day(s.date)).inDays;
+      if (ago >= 0 && ago < 7) result[6 - ago] += s.amount;
+    }
+    return result;
+  }
+
+  int get weekSales => weeklySales().fold(0, (a, b) => a + b);
+
+  int get lastWeekSales {
+    final today = _day(DateTime.now());
+    var total = 0;
+    for (final s in sales) {
+      final ago = today.difference(_day(s.date)).inDays;
+      if (ago >= 7 && ago < 14) total += s.amount;
+    }
+    return total;
+  }
+
+  int get todaySales {
+    final today = _day(DateTime.now());
+    return sales
+        .where((s) => _day(s.date) == today)
+        .fold(0, (a, s) => a + s.amount);
+  }
+
+  /// Best sellers over all recorded sales: part name to units sold.
+  List<MapEntry<String, int>> topSelling({int limit = 5}) {
+    final units = <String, int>{};
+    for (final s in sales) {
+      units[s.partName] = (units[s.partName] ?? 0) + s.quantity;
+    }
+    final list = units.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return list.take(limit).toList();
+  }
+
+  static String reviewKey(Review r) =>
+      '${r.targetId}|${r.author}|${r.createdAt.millisecondsSinceEpoch}';
+
+  String? replyTo(Review r) => reviewReplies[reviewKey(r)];
+
+  void setReviewReply(Review r, String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) {
+      reviewReplies.remove(reviewKey(r));
+    } else {
+      reviewReplies[reviewKey(r)] = trimmed;
+      logActivity('Replied to ${r.author}');
+    }
     notifyListeners();
   }
 
