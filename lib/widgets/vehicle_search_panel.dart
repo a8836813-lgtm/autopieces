@@ -4,6 +4,7 @@ import '../data/vehicles.dart';
 import '../models/search_query.dart';
 import '../theme.dart';
 import 'brand_logo.dart';
+import 'futuristic.dart';
 
 /// Part serial number + Cars/Trucks + brand grid + model chips.
 /// Calls [onSearch] with a [SearchQuery] when the user taps the button.
@@ -130,7 +131,7 @@ class _VehicleSearchPanelState extends State<VehicleSearchPanel> {
                     }),
                   ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.border),
@@ -222,15 +223,10 @@ class _VehicleSearchPanelState extends State<VehicleSearchPanel> {
                 style: const TextStyle(
                     color: AppColors.muted, fontWeight: FontWeight.w600)),
           ),
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: FilledButton.icon(
-            onPressed: _submit,
-            icon: const Icon(Icons.search),
-            label: const Text('Search parts',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          ),
+        CtaButton(
+          label: 'Search parts',
+          icon: Icons.search,
+          onPressed: _submit,
         ),
       ],
     );
@@ -275,11 +271,22 @@ class _BrandTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
-          color: selected ? AppColors.greenBg : Colors.transparent,
+          color: selected
+              ? AppColors.teal.withValues(alpha: 0.12)
+              : Colors.transparent,
           border: Border.all(
             color: selected ? AppColors.teal : Colors.transparent,
             width: 1.5,
           ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: AppColors.teal.withValues(alpha: 0.25),
+                    blurRadius: 14,
+                    spreadRadius: -4,
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [

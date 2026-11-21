@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../services/auth_service.dart';
 import '../theme.dart';
+import '../widgets/backend_status_card.dart';
 import 'auth/home_router.dart';
 import 'shop_shell.dart';
 
@@ -14,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -44,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: AppColors.teal,
                 child: Text(
                   name.isEmpty ? 'A' : name[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
+                  style: const TextStyle(color: AppColors.onNeon, fontSize: 20),
                 ),
               ),
               const SizedBox(width: 14),
@@ -71,6 +72,7 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
         ),
+        const BackendStatusCard(),
         _card(
           child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,

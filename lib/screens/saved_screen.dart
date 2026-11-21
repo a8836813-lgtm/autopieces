@@ -79,7 +79,7 @@ class SavedScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -186,7 +186,7 @@ class SavedScreen extends StatelessWidget {
               ),
             for (final s in shops)
               Card(
-                color: Colors.white,
+                color: AppColors.surface,
                 elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
@@ -217,7 +217,7 @@ class SavedScreen extends StatelessWidget {
               ),
             for (final p in parts)
               Card(
-                color: Colors.white,
+                color: AppColors.surface,
                 elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(

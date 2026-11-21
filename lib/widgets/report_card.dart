@@ -99,7 +99,7 @@ class _ReportCardState extends State<ReportCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: AppColors.surface,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
@@ -119,7 +119,7 @@ class _ReportCardState extends State<ReportCard> {
                         Pill(
                           text: r.category,
                           color: AppColors.teal,
-                          background: const Color(0xFFDCEBEE),
+                          background: const Color(0xFF12324A),
                         ),
                       const Spacer(),
                       Text(

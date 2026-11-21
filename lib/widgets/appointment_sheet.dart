@@ -28,7 +28,7 @@ Future<void> showAppointmentSheet(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    backgroundColor: Colors.white,
+    backgroundColor: AppColors.surface,
     builder: (ctx) =>
         _AppointmentForm(mechanic: mechanic, presetService: presetService),
   );

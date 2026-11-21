@@ -20,7 +20,7 @@ class BrandLogo extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(size * 0.25),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.teal.withValues(alpha: 0.25)),
       ),
       child: Image.asset(
         brand.logoAsset,

@@ -23,7 +23,7 @@ class MechanicDetailScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
@@ -94,7 +94,7 @@ class MechanicDetailScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: AppColors.surface,
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: Row(
@@ -168,7 +168,7 @@ class MechanicDetailScreen extends StatelessWidget {
                                 text: 'Verified',
                                 icon: Icons.verified,
                                 color: AppColors.teal,
-                                background: Color(0xFFDCEBEE),
+                                background: Color(0xFF12324A),
                               ),
                             if (m.premium)
                               const Pill(
@@ -215,7 +215,7 @@ class MechanicDetailScreen extends StatelessWidget {
               _heading('Services and prices'),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border),
                 ),

@@ -212,22 +212,24 @@ api/
 ### 9.7 Backend links (UPDATE EVERY SESSION) **[PLACEHOLDER]**
 Rule: whenever a session touches the backend or the Flutter-to-backend link, update this table and add the same links to the session log. Use full GitHub links (branch `feature/roles-and-polish` unless merged) and mark status: `planned`, `written`, `tested`.
 
-**PHP (API between the app and the database)**
+**PHP (API between the app and the database, XAMPP / MySQL, written 2026-11-21, not tested against a DB yet)**
 | Item | Link or path | Status |
 |---|---|---|
-| PHP API folder | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend (not created yet) | planned |
-| Database connection (PDO to Supabase PostgreSQL) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/config/database.php | planned |
-| Auth endpoints (register, login, me) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/auth/ | planned |
-| Parts search endpoint | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/parts/search.php | planned |
-| Shops, inventory, reservations | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/shops/ | planned |
-| Mechanics, reports, jobs | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/backend/mechanics/ | planned |
-| `.env.example` (no real keys) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/.env.example | planned |
-| Hosting / base URL of the PHP API | `TODO` | planned |
+| PHP API folder (copy to `C:\xampp\htdocs\autopieces\api`) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php | written |
+| Config: DB, Supabase placeholders, secrets | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/config.php | written (placeholders) |
+| Database connection (PDO to MySQL) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/database/db.php | written |
+| MySQL schema (import in phpMyAdmin) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/database/schema.sql | written |
+| Health check (open in browser to test XAMPP) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/ping.php | written |
+| Auth endpoints (register, login) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/auth/ | written (login token TODO) |
+| Parts search endpoint | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/parts_search.php | written |
+| Shops endpoint (+ distance) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/shops.php | written |
+| Reservations, mechanics, reports, favorites, reviews endpoints | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/ (not created yet) | planned |
+| Hosting / base URL of the PHP API | `http://10.0.2.2/autopieces/api` (emulator), `http://<PC-LAN-IP>/autopieces/api` (phone) | placeholder |
 
 **Supabase**
 | Item | Link or path | Status |
 |---|---|---|
-| Supabase project dashboard | `TODO` (paste the project URL here) | planned |
+| Supabase project dashboard | `TODO` (paste the project URL here); placeholder `YOUR_SUPABASE_URL` in `lib/config/app_config.dart` and `php/config.php` | placeholder |
 | API URL (public, safe to write here) | `TODO` | planned |
 | SQL schema file (tables from section 8) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/supabase/schema.sql | planned |
 | Row Level Security policies | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/supabase/policies.sql | planned |
@@ -237,7 +239,7 @@ Rule: whenever a session touches the backend or the Flutter-to-backend link, upd
 **Flutter side of the link**
 | Item | Link or path | Status |
 |---|---|---|
-| API base URL config | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/config/app_config.dart | planned |
+| API base URL config (Supabase URL/key and PHP base URL placeholders, backend switch) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/config/app_config.dart | written (placeholders) |
 | HTTP client for the PHP API | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/services/api_client.dart | planned |
 | In-memory fake data to replace | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/data/repo.dart | exists (fake data) |
 | Mock login to replace | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/services/auth_service.dart | exists (mock) |
@@ -299,3 +301,4 @@ If Claude says it cannot access the repo: in claude.ai go to Settings, Connector
 - Never commit `.env`, Supabase service key or database password.
 - "N unpushed commits" warnings from an automatic check were false alarms: compare the commit ids on GitHub instead.
 - Brand logos are not included: add PNGs named by brand id to `assets/brands/`.
+- 2026-11-21: Futuristic redesign merged into this branch. New design system in `lib/widgets/futuristic.dart` (AppScaffold, animated aurora background, GlassCard, CtaButton, GlassNavBar, FadeSlideIn, EmptyState, StatusChip, LiveDot), dark `lib/theme.dart`, splash screen before role select, floating glass nav bar (Search, Mechanics, Saved, Profile), scan hero card on Home (keeps vehicle quick search and map button). Light backgrounds in the newer screens switched to `AppColors.surface`. Backend: PHP/XAMPP API written in `php/`, `lib/config/app_config.dart`, Backend status card on the Profile screen. Not compiled (no Flutter SDK in the build sandbox): run `flutter analyze`. Backend links: https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/ (written), https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/database/schema.sql (written), https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/config/app_config.dart (placeholders), Supabase: placeholders only (`YOUR_SUPABASE_URL`, `YOUR_SUPABASE_ANON_KEY`).
