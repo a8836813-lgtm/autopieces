@@ -273,3 +273,57 @@ class AppointmentRequest {
     this.status = 'Sent',
   }) : createdAt = createdAt ?? DateTime.now();
 }
+
+/// A job a client asked the logged-in mechanic for (demo, kept in memory).
+///
+/// Status flow: New -> Accepted -> In progress -> Done, or New -> Declined.
+class JobRequest {
+  final String id;
+  final String clientName;
+  final String car;
+  final String problem;
+  final double distanceKm;
+
+  /// Quoted price in DZD.
+  final int price;
+
+  /// When the client wants the job done.
+  final DateTime slot;
+  final bool urgent;
+  final DateTime createdAt;
+  String status;
+
+  /// Set when the job is marked as done (used for earnings).
+  DateTime? completedAt;
+
+  JobRequest({
+    required this.id,
+    required this.clientName,
+    required this.car,
+    required this.problem,
+    required this.distanceKm,
+    required this.price,
+    required this.slot,
+    this.urgent = false,
+    this.status = 'New',
+    this.completedAt,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
+
+  bool get isActive => status == 'Accepted' || status == 'In progress';
+}
+
+/// One badge the mechanic can earn.
+class MechanicBadge {
+  final String id;
+  final String title;
+  final String hint;
+  final bool earned;
+
+  const MechanicBadge({
+    required this.id,
+    required this.title,
+    required this.hint,
+    required this.earned,
+  });
+}

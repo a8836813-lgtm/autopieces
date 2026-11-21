@@ -606,6 +606,126 @@ class Repo extends ChangeNotifier {
   /// Appointment requests sent by the demo client.
   final List<AppointmentRequest> appointments = [];
 
+  /// Mechanic mode: jobs asked of the logged-in mechanic.
+  final List<JobRequest> jobs = _seedJobs();
+
+  /// Mechanic mode: "available now" switch and the demo Pro plan.
+  bool mechanicAvailable = true;
+  bool mechanicPro = false;
+
+  static List<JobRequest> _seedJobs() {
+    final now = DateTime.now();
+    DateTime day(int daysAgo, int hour) =>
+        DateTime(now.year, now.month, now.day - daysAgo, hour);
+    return [
+      JobRequest(
+        id: 'j1',
+        clientName: 'Samira L.',
+        car: 'Renault Clio 4 (2017)',
+        problem: 'Brakes squeal and the pedal feels soft',
+        distanceKm: 3.4,
+        price: 6000,
+        slot: now.add(const Duration(hours: 3)),
+        urgent: true,
+      ),
+      JobRequest(
+        id: 'j2',
+        clientName: 'Karim B.',
+        car: 'Peugeot 208 (2018)',
+        problem: 'Engine light on and rough idle',
+        distanceKm: 2.1,
+        price: 4500,
+        slot: day(-1, 10),
+      ),
+      JobRequest(
+        id: 'j3',
+        clientName: 'Yacine M.',
+        car: 'Dacia Logan (2015)',
+        problem: 'Oil and filter change',
+        distanceKm: 1.2,
+        price: 3000,
+        slot: day(-1, 14),
+        status: 'Accepted',
+      ),
+      JobRequest(
+        id: 'j4',
+        clientName: 'Nadia H.',
+        car: 'Hyundai i10 (2019)',
+        problem: 'Air conditioning does not cool',
+        distanceKm: 4.8,
+        price: 8000,
+        slot: now.subtract(const Duration(hours: 1)),
+        status: 'In progress',
+      ),
+      JobRequest(
+        id: 'j5',
+        clientName: 'Omar T.',
+        car: 'Toyota Hilux (2014)',
+        problem: 'Timing belt replacement',
+        distanceKm: 6.0,
+        price: 22000,
+        slot: day(1, 9),
+        status: 'Done',
+        completedAt: day(1, 16),
+      ),
+      JobRequest(
+        id: 'j6',
+        clientName: 'Lina S.',
+        car: 'Kia Picanto (2020)',
+        problem: 'Battery replacement',
+        distanceKm: 2.7,
+        price: 9500,
+        slot: day(2, 11),
+        status: 'Done',
+        completedAt: day(2, 12),
+      ),
+      JobRequest(
+        id: 'j7',
+        clientName: 'Amine R.',
+        car: 'VW Golf 7 (2016)',
+        problem: 'Front suspension noise',
+        distanceKm: 3.9,
+        price: 12000,
+        slot: day(4, 9),
+        status: 'Done',
+        completedAt: day(4, 15),
+      ),
+      JobRequest(
+        id: 'j8',
+        clientName: 'Sofiane K.',
+        car: 'Renault Symbol (2013)',
+        problem: 'Clutch kit replacement',
+        distanceKm: 5.2,
+        price: 15000,
+        slot: day(6, 9),
+        status: 'Done',
+        completedAt: day(6, 17),
+      ),
+      JobRequest(
+        id: 'j9',
+        clientName: 'Meriem D.',
+        car: 'Fiat Tipo (2018)',
+        problem: 'Alternator replacement',
+        distanceKm: 1.8,
+        price: 13000,
+        slot: day(9, 9),
+        status: 'Done',
+        completedAt: day(9, 14),
+      ),
+      JobRequest(
+        id: 'j10',
+        clientName: 'Hichem A.',
+        car: 'Skoda Octavia (2012)',
+        problem: 'Brake discs and pads',
+        distanceKm: 4.1,
+        price: 11000,
+        slot: day(11, 9),
+        status: 'Done',
+        completedAt: day(11, 13),
+      ),
+    ];
+  }
+
   final Set<String> _helpfulIds = {};
 
   // ---------------------------------------------------------------- lookups
@@ -760,7 +880,7 @@ class Repo extends ChangeNotifier {
     final list = mechanics.where((m) {
       if (category != null && !m.specialties.contains(category)) return false;
       if (verifiedOnly && !m.verified) return false;
-      if (openNowOnly && !m.openNow) return false;
+      if (openNowOnly && !isMechanicOpen(m)) return false;
       if (tokens.isEmpty) return true;
       final hay = '${m.name} ${m.specialties.join(' ')} ${m.address} '
               '${m.services.map((s) => s.name).join(' ')}'
@@ -979,6 +1099,154 @@ class Repo extends ChangeNotifier {
   void addReport(RepairReport report) {
     reports.insert(0, report);
     notifyListeners();
+  }
+
+  // ------------------------------------------------------- mechanic mode
+
+  void deleteReport(RepairReport report) {
+    reports.remove(report);
+    notifyListeners();
+  }
+
+  void setMechanicAvailable(bool value) {
+    mechanicAvailable = value;
+    notifyListeners();
+  }
+
+  void setMechanicPro(bool value) {
+    mechanicPro = value;
+    notifyListeners();
+  }
+
+  /// Open now, taking the logged-in mechanic's own switch into account.
+  bool isMechanicOpen(Mechanic m) =>
+      m.id == myMechanicId ? mechanicAvailable : m.openNow;
+
+  /// Featured on the client side, also when the demo Pro plan is on.
+  bool isMechanicFeatured(Mechanic m) =>
+      m.premium || (m.id == myMechanicId && mechanicPro);
+
+  void acceptJob(JobRequest job) {
+    job.status = 'Accepted';
+    notifyListeners();
+  }
+
+  void declineJob(JobRequest job) {
+    job.status = 'Declined';
+    notifyListeners();
+  }
+
+  void startJob(JobRequest job) {
+    job.status = 'In progress';
+    notifyListeners();
+  }
+
+  void finishJob(JobRequest job) {
+    job.status = 'Done';
+    job.completedAt = DateTime.now();
+    notifyListeners();
+  }
+
+  List<JobRequest> jobsWithStatus(Set<String> statuses) {
+    final list = jobs.where((j) => statuses.contains(j.status)).toList();
+    list.sort((a, b) => a.slot.compareTo(b.slot));
+    return list;
+  }
+
+  int get jobsDoneCount => jobs.where((j) => j.status == 'Done').length;
+
+  static DateTime _dayOf(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// Money earned per day for the last 7 days (oldest first, today last).
+  List<int> weeklyEarnings() {
+    final today = _dayOf(DateTime.now());
+    final result = List<int>.filled(7, 0);
+    for (final j in jobs) {
+      final done = j.completedAt;
+      if (j.status != 'Done' || done == null) continue;
+      final ago = today.difference(_dayOf(done)).inDays;
+      if (ago >= 0 && ago < 7) result[6 - ago] += j.price;
+    }
+    return result;
+  }
+
+  int get weekEarnings => weeklyEarnings().fold(0, (a, b) => a + b);
+
+  int get lastWeekEarnings {
+    final today = _dayOf(DateTime.now());
+    var total = 0;
+    for (final j in jobs) {
+      final done = j.completedAt;
+      if (j.status != 'Done' || done == null) continue;
+      final ago = today.difference(_dayOf(done)).inDays;
+      if (ago >= 7 && ago < 14) total += j.price;
+    }
+    return total;
+  }
+
+  /// Share of requests the mechanic answered (accepted or declined), 0 to 1.
+  double get responseRate {
+    if (jobs.isEmpty) return 0;
+    final answered = jobs.where((j) => j.status != 'New').length;
+    return answered / jobs.length;
+  }
+
+  /// Share of accepted jobs that were finished, 0 to 1.
+  double get completionRate {
+    final accepted = jobs.where((j) => j.status != 'New' && j.status != 'Declined');
+    if (accepted.isEmpty) return 0;
+    final done = accepted.where((j) => j.status == 'Done').length;
+    return done / accepted.length;
+  }
+
+  /// Experience points: reports, finished jobs and reviews all count.
+  int get mechanicXp =>
+      reportsOf(myMechanicName).length * 30 +
+      jobsDoneCount * 20 +
+      reviewsFor(myMechanicId).length * 10;
+
+  List<MechanicBadge> mechanicBadges() {
+    final reportCount = reportsOf(myMechanicName).length;
+    final avg = averageStars(myMechanicId) ?? 0;
+    final fiveStar = reviewsFor(myMechanicId).any((r) => r.stars == 5);
+    return [
+      MechanicBadge(
+        id: 'first',
+        title: 'First report',
+        hint: 'Publish 1 repair report',
+        earned: reportCount >= 1,
+      ),
+      MechanicBadge(
+        id: 'story',
+        title: 'Storyteller',
+        hint: 'Publish 3 repair reports',
+        earned: reportCount >= 3,
+      ),
+      MechanicBadge(
+        id: 'top',
+        title: 'Top rated',
+        hint: 'Keep an average of 4.5 stars',
+        earned: avg >= 4.5,
+      ),
+      MechanicBadge(
+        id: 'five',
+        title: '5-star review',
+        hint: 'Get a 5-star review',
+        earned: fiveStar,
+      ),
+      MechanicBadge(
+        id: 'trusted',
+        title: 'Trusted',
+        hint: 'Finish 3 jobs',
+        earned: jobsDoneCount >= 3,
+      ),
+      MechanicBadge(
+        id: 'pro',
+        title: 'Pro member',
+        hint: 'Switch on the Pro plan',
+        earned: mechanicPro,
+      ),
+    ];
   }
 
   // ------------------------------------------------------------------ parts

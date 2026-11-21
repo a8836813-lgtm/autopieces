@@ -134,7 +134,7 @@ class MechanicCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (m.premium)
+                    if (Repo.instance.isMechanicFeatured(m))
                       const Pill(
                         text: 'Featured',
                         color: AppColors.warn,
@@ -154,7 +154,9 @@ class MechanicCard extends StatelessWidget {
                     Icon(
                       Icons.circle,
                       size: 9,
-                      color: m.openNow ? AppColors.green : AppColors.danger,
+                      color: Repo.instance.isMechanicOpen(m)
+                          ? AppColors.green
+                          : AppColors.danger,
                     ),
                     const SizedBox(width: 6),
                     Expanded(

@@ -170,18 +170,20 @@ class MechanicDetailScreen extends StatelessWidget {
                                 color: AppColors.teal,
                                 background: Color(0xFFDCEBEE),
                               ),
-                            if (m.premium)
+                            if (Repo.instance.isMechanicFeatured(m))
                               const Pill(
                                 text: 'Featured',
                                 color: AppColors.warn,
                                 background: AppColors.warnBg,
                               ),
                             Pill(
-                              text: m.openNow ? 'Open now' : 'Closed',
-                              color: m.openNow
+                              text: Repo.instance.isMechanicOpen(m)
+                                  ? 'Open now'
+                                  : 'Closed',
+                              color: Repo.instance.isMechanicOpen(m)
                                   ? AppColors.green
                                   : AppColors.danger,
-                              background: m.openNow
+                              background: Repo.instance.isMechanicOpen(m)
                                   ? AppColors.greenBg
                                   : AppColors.dangerBg,
                             ),
