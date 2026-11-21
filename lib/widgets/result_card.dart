@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../data/models.dart';
 import '../theme.dart';
 import '../utils.dart';
+import 'futuristic.dart';
 
 /// One search result: a part, the shop that has it, price, stock and distance.
 class ResultCard extends StatelessWidget {
@@ -29,30 +30,34 @@ class ResultCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        gradient: AppGradients.glass,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: highlight ? AppColors.teal : AppColors.border,
-          width: highlight ? 2 : 1,
+          width: highlight ? 1.6 : 1,
         ),
+        boxShadow: highlight
+            ? [
+                BoxShadow(
+                  color: AppColors.teal.withValues(alpha: 0.25),
+                  blurRadius: 22,
+                  spreadRadius: -3,
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (highlight)
-            Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.greenBg,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                'Best match',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: StatusChip(
+                  label: 'Best match',
                   color: AppColors.green,
+                  icon: Icons.bolt,
                 ),
               ),
             ),
@@ -138,6 +143,7 @@ class ResultCard extends StatelessWidget {
                 onPressed: onReserve,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.orange,
+                  foregroundColor: AppColors.onNeon,
                   minimumSize: const Size(64, 44),
                 ),
                 child: const Text('Reserve'),

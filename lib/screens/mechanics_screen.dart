@@ -63,7 +63,7 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
           decoration: InputDecoration(
             hintText: 'Describe a problem, e.g. grinding noise',
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.surface,
             prefixIcon: const Icon(Icons.search),
             contentPadding: const EdgeInsets.symmetric(vertical: 16),
             border: border,
@@ -97,7 +97,7 @@ class _MechanicCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -122,7 +122,7 @@ class _MechanicCard extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFDE7D9),
+                    color: const Color(0x33A78BFA),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -130,7 +130,7 @@ class _MechanicCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.warn,
+                      color: AppColors.orange,
                     ),
                   ),
                 ),
@@ -184,7 +184,7 @@ class _ReportCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),

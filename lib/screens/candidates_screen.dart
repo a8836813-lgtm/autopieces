@@ -119,7 +119,7 @@ class _CandidatesScreenState extends State<CandidatesScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
-        color: Colors.white,
+        color: AppColors.surface,
         shape: shape,
         child: InkWell(
           customBorder: shape,
@@ -190,7 +190,7 @@ class _CandidatesScreenState extends State<CandidatesScreen> {
                   style: const TextStyle(
                     fontSize: 13,
                     height: 1.4,
-                    color: Color(0xFF3A414D),
+                    color: AppColors.muted,
                   ),
                 ),
               ],

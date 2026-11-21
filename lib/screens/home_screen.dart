@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/repo.dart';
 import '../theme.dart';
+import '../widgets/futuristic.dart';
 import '../widgets/shop_slide_card.dart';
 import 'results_screen.dart';
 import 'scan_screen.dart';
@@ -56,113 +57,195 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final shops = Repo.instance.shops;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: AppColors.border),
-    );
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'AutoPièces',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: AppColors.teal,
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GradientText(
+                    'AUTOPIÈCES',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2.2,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'LOCAL PARTS GRID',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      letterSpacing: 2,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const CircleAvatar(
-              backgroundColor: AppColors.teal,
-              child: Text('A', style: TextStyle(color: Colors.white)),
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppGradients.neon,
+              ),
+              child: const CircleAvatar(
+                radius: 20,
+                backgroundColor: AppColors.surface,
+                child: Text(
+                  'A',
+                  style: TextStyle(
+                    color: AppColors.teal,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 26),
         const Text(
-          'What does your car need?',
+          'What does your',
           style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            height: 1.15,
+            fontSize: 30,
+            fontWeight: FontWeight.w300,
+            height: 1.1,
             color: AppColors.ink,
           ),
         ),
-        const SizedBox(height: 16),
+        const GradientText(
+          'car need?',
+          style: TextStyle(
+            fontSize: 38,
+            fontWeight: FontWeight.w900,
+            height: 1.1,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 18),
         Row(
           children: [
             Expanded(
-              child: TextField(
-                controller: _controller,
-                textInputAction: TextInputAction.search,
-                onSubmitted: _search,
-                decoration: InputDecoration(
-                  hintText: 'Part name or number',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  border: border,
-                  enabledBorder: border,
-                  suffixIcon: IconButton(
-                    tooltip: 'Search',
-                    icon: const Icon(Icons.search),
-                    onPressed: () => _search(_controller.text),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.teal.withValues(alpha: 0.18),
+                      blurRadius: 20,
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _controller,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: _search,
+                  decoration: InputDecoration(
+                    hintText: 'Part name or number',
+                    prefixIcon:
+                        const Icon(Icons.search, color: AppColors.teal),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 17,
+                    ),
+                    suffixIcon: IconButton(
+                      tooltip: 'Search',
+                      icon: const Icon(Icons.arrow_forward_rounded),
+                      color: AppColors.teal,
+                      onPressed: () => _search(_controller.text),
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            SizedBox(
-              width: 52,
-              height: 52,
-              child: Tooltip(
-                message: 'Scan a part with the camera',
-                child: FilledButton(
-                  onPressed: _openScan,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.orange,
-                    padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            Tooltip(
+              message: 'Scan a part with the camera',
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: AppGradients.neon,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.orange.withValues(alpha: 0.4),
+                      blurRadius: 18,
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: _openScan,
+                    child: const Icon(
+                      Icons.center_focus_strong_outlined,
+                      color: AppColors.onNeon,
                     ),
                   ),
-                  child: const Icon(Icons.photo_camera_outlined),
                 ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        OutlinedButton(
-          onPressed: () {},
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-            alignment: Alignment.centerLeft,
-            backgroundColor: Colors.white,
-            foregroundColor: AppColors.ink,
-            side: const BorderSide(color: AppColors.border),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+        const SizedBox(height: 12),
+        GlassCard(
+          onTap: () {},
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: const Row(
+            children: [
+              NeonIconBadge(
+                icon: Icons.directions_car_outlined,
+                size: 38,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'VW Golf 7 · 2016',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      'Your vehicle',
+                      style: TextStyle(fontSize: 12, color: AppColors.muted),
+                    ),
+                  ],
+                ),
+              ),
+              StatusChip(label: 'Active', color: AppColors.green),
+            ],
           ),
-          child: const Text('Your car: VW Golf 7 · 2016'),
         ),
-        const SizedBox(height: 24),
-        const Text(
-          'Shops near you',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _stat('${shops.length}', 'Shops online', AppColors.teal),
+            const SizedBox(width: 10),
+            _stat('AI', 'Part scanner', AppColors.orange),
+            const SizedBox(width: 10),
+            _stat('24/7', 'Live stock', AppColors.green),
+          ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 26),
+        const SectionHeader('Shops near you'),
+        const SizedBox(height: 12),
         SizedBox(
-          height: 150,
+          height: 158,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
             itemCount: shops.length,
             separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, i) {
@@ -179,49 +262,69 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-        const SizedBox(height: 24),
-        const Text(
-          'Browse by category',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 26),
+        const SectionHeader('Browse by category'),
+        const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 3,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
-          childAspectRatio: 1.15,
+          childAspectRatio: 1.05,
           children: [
-            for (final c in _categories)
-              Material(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: AppColors.border),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => _search(c.query),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(c.icon, color: AppColors.teal, size: 28),
-                      const SizedBox(height: 6),
-                      Text(
-                        c.label,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
+            for (var i = 0; i < _categories.length; i++)
+              GlassCard(
+                padding: EdgeInsets.zero,
+                onTap: () => _search(_categories[i].query),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    NeonIconBadge(
+                      icon: _categories[i].icon,
+                      size: 42,
+                      color: i.isEven ? AppColors.teal : AppColors.orange,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _categories[i].label,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _stat(String value, String label, Color color) {
+    return Expanded(
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        radius: 14,
+        child: Column(
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: AppColors.muted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../theme.dart';
+import '../widgets/backend_status_card.dart';
 import 'shop_shell.dart';
 
 /// Client profile (demo) with a shortcut into the shop-owner mode.
@@ -12,7 +13,7 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -38,7 +39,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: AppColors.teal,
                 child: Text(
                   'A',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  style: TextStyle(color: AppColors.onNeon, fontSize: 20),
                 ),
               ),
               SizedBox(width: 14),
@@ -64,6 +65,7 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
         ),
+        const BackendStatusCard(),
         _card(
           child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,6 +107,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.teal,
+                  foregroundColor: AppColors.onNeon,
                   minimumSize: const Size.fromHeight(48),
                 ),
                 child: const Text('Open shop mode (demo)'),

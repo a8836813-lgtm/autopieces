@@ -5,6 +5,7 @@ import '../data/repo.dart';
 import '../data/scan_mode.dart';
 import '../theme.dart';
 import '../utils.dart';
+import '../widgets/futuristic.dart';
 import 'scan_screen.dart';
 import 'stock_edit_screen.dart';
 
@@ -43,7 +44,7 @@ class _ShopShellState extends State<ShopShell> {
             builder: (context) {
               final part = repo.partById(s.partId);
               return Card(
-                color: Colors.white,
+                color: AppColors.surface,
                 elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
@@ -111,7 +112,7 @@ class _ShopShellState extends State<ShopShell> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
@@ -154,7 +155,9 @@ class _ShopShellState extends State<ShopShell> {
   Widget build(BuildContext context) {
     final repo = Repo.instance;
     final shop = repo.shopById(Repo.myShopId);
-    return Scaffold(
+    return AuroraBackground(
+      child: Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
           '${shop.name} · Shop mode',
@@ -169,8 +172,8 @@ class _ShopShellState extends State<ShopShell> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _scan,
         backgroundColor: AppColors.orange,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.photo_camera_outlined),
+        foregroundColor: AppColors.onNeon,
+        icon: const Icon(Icons.center_focus_strong_outlined),
         label: const Text('Scan a part'),
       ),
       bottomNavigationBar: NavigationBar(
@@ -187,6 +190,7 @@ class _ShopShellState extends State<ShopShell> {
           ),
         ],
       ),
+    ),
     );
   }
 }
