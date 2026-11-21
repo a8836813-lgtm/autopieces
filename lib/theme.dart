@@ -139,6 +139,58 @@ ThemeData buildTheme() {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.teal.withValues(alpha: 0.18),
+      checkmarkColor: AppColors.teal,
+      side: const BorderSide(color: AppColors.border),
+      labelStyle: const TextStyle(
+        color: AppColors.ink,
+        fontWeight: FontWeight.w600,
+        fontSize: 13,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.surfaceHi,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(color: AppColors.teal.withValues(alpha: 0.3)),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        color: AppColors.ink,
+      ),
+      contentTextStyle: const TextStyle(
+        fontSize: 14.5,
+        height: 1.45,
+        color: AppColors.muted,
+      ),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surfaceHi,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? AppColors.teal.withValues(alpha: 0.18)
+              : AppColors.surface,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? AppColors.teal
+              : AppColors.muted,
+        ),
+        side: const WidgetStatePropertyAll(BorderSide(color: AppColors.border)),
+      ),
+    ),
     dividerColor: AppColors.border,
   );
 }

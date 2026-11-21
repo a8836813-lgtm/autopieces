@@ -58,9 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final shops = Repo.instance.shops;
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      children: [
+    final children = <Widget>[
         Row(
           children: [
             const Expanded(
@@ -224,10 +222,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              StatusChip(label: 'Active', color: AppColors.green),
+              PulseDot(),
             ],
           ),
         ),
+        const SizedBox(height: 12),
+        _ScanHero(onTap: _openScan),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -298,6 +298,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
           ],
         ),
+    ];
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+      children: [
+        for (var i = 0; i < children.length; i++)
+          FadeSlideIn(index: i, child: children[i]),
       ],
     );
   }
@@ -321,6 +327,92 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               label,
               style: const TextStyle(fontSize: 11, color: AppColors.muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Big call-to-action for the camera scanner.
+class _ScanHero extends StatelessWidget {
+  final VoidCallback onTap;
+  const _ScanHero({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E3B52), Color(0xFF2B1B5E)],
+          ),
+          border: Border.all(color: AppColors.teal.withValues(alpha: 0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.teal.withValues(alpha: 0.22),
+              blurRadius: 28,
+              spreadRadius: -6,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const StatusChip(
+                    label: 'AI scanner',
+                    color: AppColors.orange,
+                    icon: Icons.auto_awesome,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Scan any part',
+                    style: TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Point your camera, we find the shops that have it in stock.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.35,
+                      color: AppColors.ink.withValues(alpha: 0.75),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppGradients.neon,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.teal.withValues(alpha: 0.5),
+                    blurRadius: 24,
+                    spreadRadius: -2,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.center_focus_strong_outlined,
+                size: 30,
+                color: AppColors.onNeon,
+              ),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
+import '../widgets/futuristic.dart';
 
 /// Mechanics directory plus a searchable list of repair reports.
 class MechanicsScreen extends StatefulWidget {
@@ -28,33 +29,36 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
     final repo = Repo.instance;
     final reports = repo.searchReports(_query);
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       borderSide: const BorderSide(color: AppColors.border),
     );
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
       children: [
-        const Text(
-          'Mechanics near Jijel',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+        const FadeSlideIn(
+          child: GradientText(
+            'Mechanics',
+            style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         const Text(
-          'Within 15 km · sorted by rating',
-          style: TextStyle(fontSize: 14, color: AppColors.muted),
+          'Near Jijel · within 15 km · sorted by rating',
+          style: TextStyle(fontSize: 13, color: AppColors.muted),
         ),
-        const SizedBox(height: 12),
-        for (final m in repo.mechanics) _MechanicCard(mechanic: m),
-        const SizedBox(height: 20),
-        const Text(
-          'Repair reports',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-        ),
+        const SizedBox(height: 16),
+        for (var i = 0; i < repo.mechanics.length; i++)
+          FadeSlideIn(
+            index: i + 1,
+            child: _MechanicCard(mechanic: repo.mechanics[i]),
+          ),
+        const SizedBox(height: 22),
+        const SectionHeader('Repair reports'),
         const SizedBox(height: 4),
         const Text(
           'Search real problems that mechanics already fixed.',
-          style: TextStyle(fontSize: 14, color: AppColors.muted),
+          style: TextStyle(fontSize: 13, color: AppColors.muted),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -64,7 +68,7 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
             hintText: 'Describe a problem, e.g. grinding noise',
             filled: true,
             fillColor: AppColors.surface,
-            prefixIcon: const Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search, color: AppColors.teal),
             contentPadding: const EdgeInsets.symmetric(vertical: 16),
             border: border,
             enabledBorder: border,
@@ -72,13 +76,10 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
         ),
         const SizedBox(height: 12),
         if (reports.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-              'No report matches this problem yet.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.muted),
-            ),
+          const EmptyState(
+            icon: Icons.find_in_page_outlined,
+            title: 'No report yet',
+            message: 'No report matches this problem yet.',
           ),
         for (final r in reports) _ReportCard(report: r),
       ],
@@ -93,58 +94,98 @@ class _MechanicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+    final initial =
+        mechanic.name.isEmpty ? '?' : mechanic.name.substring(0, 1);
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
+      glow: mechanic.premium,
+      accent: mechanic.premium ? AppColors.orange : null,
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  mechanic.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AppGradients.neon,
+            ),
+            child: CircleAvatar(
+              radius: 24,
+              backgroundColor: AppColors.surface,
+              child: Text(
+                initial.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.teal,
                 ),
               ),
-              if (mechanic.premium)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0x33A78BFA),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Premium',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.orange,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        mechanic.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (mechanic.premium)
+                      const StatusChip(
+                        label: 'Premium',
+                        color: AppColors.orange,
+                        icon: Icons.workspace_premium,
+                      ),
+                  ],
                 ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Rating ${mechanic.rating} · ${mechanic.reviews} reviews · ${mechanic.distanceKm.toStringAsFixed(1)} km',
-            style: const TextStyle(fontSize: 13),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${mechanic.specialties} · ${mechanic.reportsCount} published reports',
-            style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        size: 16, color: AppColors.orange),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${mechanic.rating}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      '  (${mechanic.reviews})   ',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                    const Icon(Icons.near_me_outlined,
+                        size: 14, color: AppColors.teal),
+                    const SizedBox(width: 3),
+                    Text(
+                      '${mechanic.distanceKm.toStringAsFixed(1)} km',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${mechanic.specialties} · ${mechanic.reportsCount} published reports',
+                  style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -157,22 +198,45 @@ class _ReportCard extends StatelessWidget {
 
   const _ReportCard({required this.report});
 
-  Widget _section(String label, String text) {
+  Widget _section(String label, String text, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.muted,
+          Container(
+            width: 3,
+            height: 44,
+            margin: const EdgeInsets.only(right: 10, top: 2),
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.5),
+                  blurRadius: 8,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 2),
-          Text(text, style: const TextStyle(fontSize: 14, height: 1.4)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(text, style: const TextStyle(fontSize: 14, height: 1.4)),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -180,33 +244,38 @@ class _ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             report.title,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 2),
-          Text(
-            '${report.car} · ${report.mechanicName}',
-            style: const TextStyle(fontSize: 13, color: AppColors.muted),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.directions_car_outlined,
+                  size: 14, color: AppColors.muted),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  '${report.car} · ${report.mechanicName}',
+                  style: const TextStyle(fontSize: 13, color: AppColors.muted),
+                ),
+              ),
+            ],
           ),
-          _section('PROBLEM', report.problem),
-          _section('DIAGNOSIS', report.diagnosis),
-          _section('WORK DONE', report.workDone),
-          const SizedBox(height: 10),
-          Text(
-            'Labor and parts: ${formatDzd(report.cost)} DZD',
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          _section('PROBLEM', report.problem, AppColors.warn),
+          _section('DIAGNOSIS', report.diagnosis, AppColors.orange),
+          _section('WORK DONE', report.workDone, AppColors.green),
+          const SizedBox(height: 14),
+          StatusChip(
+            label: '${formatDzd(report.cost)} DZD · labor + parts',
+            color: AppColors.teal,
+            icon: Icons.payments_outlined,
           ),
         ],
       ),

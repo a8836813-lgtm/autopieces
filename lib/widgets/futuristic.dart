@@ -2,32 +2,67 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme.dart';
 
-/// Dark base with soft cyan / violet glows and a faint tech grid.
-/// Wrap a screen with it and give the inner Scaffold a transparent background.
-class AuroraBackground extends StatelessWidget {
+/// Dark base with slowly drifting cyan / violet / magenta glows and a faint
+/// tech grid. Wrap a screen with it and give the inner Scaffold a transparent
+/// background (or just use [AppScaffold]).
+class AuroraBackground extends StatefulWidget {
   final Widget child;
   const AuroraBackground({super.key, required this.child});
 
   @override
+  State<AuroraBackground> createState() => _AuroraBackgroundState();
+}
+
+class _AuroraBackgroundState extends State<AuroraBackground>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 18),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Stack(
       fit: StackFit.expand,
       children: [
         const ColoredBox(color: AppColors.background),
-        Positioned(
-          top: -140,
-          left: -120,
-          child: _glow(AppColors.teal, 380, 0.20),
-        ),
-        Positioned(
-          bottom: -160,
-          right: -140,
-          child: _glow(AppColors.orange, 420, 0.18),
+        AnimatedBuilder(
+          animation: _c,
+          builder: (context, _) {
+            final t = Curves.easeInOut.transform(_c.value);
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  top: -150 + 70 * t,
+                  left: -130 + 90 * t,
+                  child: _glow(AppColors.teal, 400, 0.22),
+                ),
+                Positioned(
+                  bottom: -170 + 80 * (1 - t),
+                  right: -150 + 70 * t,
+                  child: _glow(AppColors.orange, 440, 0.20),
+                ),
+                Positioned(
+                  top: size.height * 0.42 - 60 * t,
+                  left: size.width * 0.55 - 40 * t,
+                  child: _glow(AppColors.magenta, 240, 0.08),
+                ),
+              ],
+            );
+          },
         ),
         const Positioned.fill(
           child: IgnorePointer(child: CustomPaint(painter: _GridPainter())),
         ),
-        child,
+        widget.child,
       ],
     );
   }
@@ -43,6 +78,319 @@ class AuroraBackground extends StatelessWidget {
             colors: [color.withValues(alpha: opacity), Colors.transparent],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Scaffold on top of the aurora background. Use it for every screen.
+class AppScaffold extends StatelessWidget {
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+  final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
+
+  const AppScaffold({
+    super.key,
+    required this.body,
+    this.appBar,
+    this.floatingActionButton,
+    this.bottomNavigationBar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AuroraBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: appBar,
+        body: body,
+        floatingActionButton: floatingActionButton,
+        bottomNavigationBar: bottomNavigationBar,
+      ),
+    );
+  }
+}
+
+/// Fades and slides its child in. Give each item of a list a growing
+/// [index] for a staggered entrance.
+class FadeSlideIn extends StatelessWidget {
+  final Widget child;
+  final int index;
+  final Duration duration;
+  final double dy;
+
+  const FadeSlideIn({
+    super.key,
+    required this.child,
+    this.index = 0,
+    this.duration = const Duration(milliseconds: 520),
+    this.dy = 22,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final delay = Duration(milliseconds: 70 * index.clamp(0, 12));
+    final total = duration + delay;
+    final start = delay.inMilliseconds / total.inMilliseconds;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: total,
+      curve: Interval(start, 1, curve: Curves.easeOutCubic),
+      builder: (context, v, child) => Opacity(
+        opacity: v,
+        child: Transform.translate(offset: Offset(0, dy * (1 - v)), child: child),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Small press-down scale effect for tappable things.
+class Pressable extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  const Pressable({super.key, required this.child, this.onTap});
+
+  @override
+  State<Pressable> createState() => _PressableState();
+}
+
+class _PressableState extends State<Pressable> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _down = true),
+      onTapCancel: () => setState(() => _down = false),
+      onTapUp: (_) => setState(() => _down = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _down ? 0.96 : 1,
+        duration: const Duration(milliseconds: 110),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Pulsing dot, e.g. for "live" indicators.
+class PulseDot extends StatefulWidget {
+  final Color color;
+  final double size;
+  const PulseDot({super.key, this.color = AppColors.green, this.size = 8});
+
+  @override
+  State<PulseDot> createState() => _PulseDotState();
+}
+
+class _PulseDotState extends State<PulseDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) => Container(
+        width: widget.size,
+        height: widget.size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: widget.color,
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withValues(alpha: 0.35 + 0.4 * _c.value),
+              blurRadius: 4 + 8 * _c.value,
+              spreadRadius: 1 + 2 * _c.value,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class NavItem {
+  final IconData icon;
+  final IconData? activeIcon;
+  final String label;
+  const NavItem(this.icon, this.label, {this.activeIcon});
+}
+
+/// Floating glass navigation bar. The selected item gets a neon pill that
+/// expands to show its label.
+class GlassNavBar extends StatelessWidget {
+  final List<NavItem> items;
+  final int index;
+  final ValueChanged<int> onChanged;
+
+  const GlassNavBar({
+    super.key,
+    required this.items,
+    required this.index,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: AppColors.surface.withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.teal.withValues(alpha: 0.28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: AppColors.teal.withValues(alpha: 0.10),
+                blurRadius: 24,
+                spreadRadius: -4,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              for (var i = 0; i < items.length; i++)
+                Expanded(
+                  child: _NavButton(
+                    item: items[i],
+                    selected: i == index,
+                    onTap: () => onChanged(i),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatelessWidget {
+  final NavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+  const _NavButton({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Pressable(
+      onTap: onTap,
+      child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOutCubic,
+          height: 44,
+          padding: EdgeInsets.symmetric(horizontal: selected ? 16 : 12),
+          decoration: BoxDecoration(
+            gradient: selected ? AppGradients.neon : null,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.teal.withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      spreadRadius: -4,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                selected ? (item.activeIcon ?? item.icon) : item.icon,
+                size: 22,
+                color: selected ? AppColors.onNeon : AppColors.muted,
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOutCubic,
+                child: selected
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 7),
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.onNeon,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Friendly empty / no-result state.
+class EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+  const EmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 12),
+      child: Column(
+        children: [
+          NeonIconBadge(icon: icon, size: 64, color: AppColors.orange),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              height: 1.4,
+              color: AppColors.muted,
+            ),
+          ),
+        ],
       ),
     );
   }

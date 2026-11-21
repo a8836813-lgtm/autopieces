@@ -5,6 +5,7 @@ import '../data/scan_mode.dart';
 import '../theme.dart';
 import 'results_screen.dart';
 import 'stock_edit_screen.dart';
+import '../widgets/futuristic.dart';
 
 /// Shows the top matches for the scanned part and lets the user confirm one.
 class CandidatesScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _CandidatesScreenState extends State<CandidatesScreen> {
   @override
   Widget build(BuildContext context) {
     final isClient = widget.mode == ScanMode.client;
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: const Text(
           'Is this your part?',

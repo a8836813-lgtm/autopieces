@@ -11,8 +11,10 @@ Three roles: client, mechanic, shop owner (grossiste). Flutter app.
 
 ## 2. Design system (futuristic dark theme)
 - `lib/theme.dart`: `AppColors` (neon cyan `teal`, violet `orange`, magenta), `AppGradients`, `buildTheme()`
-- `lib/widgets/futuristic.dart`: `AuroraBackground`, `GlassCard`, `NeonButton`,
-  `GradientText`, `NeonIconBadge`, `StatusChip`, `SectionHeader`
+- `lib/widgets/futuristic.dart`: `AppScaffold` (use for every screen), `AuroraBackground` (animated),
+  `GlassCard`, `NeonButton`, `GradientText`, `NeonIconBadge`, `StatusChip`, `SectionHeader`,
+  `FadeSlideIn` (staggered entrance), `Pressable`, `PulseDot`, `GlassNavBar`, `EmptyState`
+- `lib/screens/splash_screen.dart`: animated intro, then the role selection screen
 - Color names were kept from v1, so old code picks up the new palette automatically.
 
 ## 9.7 Backend links: PHP (XAMPP) and Supabase  ← keep this updated every session
@@ -47,3 +49,7 @@ URLs: emulator `http://10.0.2.2/autopieces/api`, phone `http://<PC-LAN-IP>/autop
   `lib/config/app_config.dart`, `php/*`, Backend status card in Profile.
   Links: PHP files and Supabase items listed in 9.7 above.
   Not verified by compile: no Flutter SDK in the build sandbox, run `flutter analyze` locally.
+- **2026-11-21 (2)**: Design pass 2: animated aurora, splash screen, floating glass nav bar,
+  staggered entrances, scan hero card, redesigned shop page, mechanics and report cards,
+  themed dialogs/chips/segmented buttons, empty states. App now starts on the splash then role select.
+  Backend links unchanged (see 9.7: `php/*`, `lib/config/app_config.dart`, Supabase placeholders).

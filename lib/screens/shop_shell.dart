@@ -39,18 +39,16 @@ class _ShopShellState extends State<ShopShell> {
           style: const TextStyle(fontSize: 14, color: AppColors.muted),
         ),
         const SizedBox(height: 12),
-        for (final s in items)
+        for (var i = 0; i < items.length; i++)
           Builder(
             builder: (context) {
+              final s = items[i];
               final part = repo.partById(s.partId);
-              return Card(
-                color: AppColors.surface,
-                elevation: 0,
-                margin: const EdgeInsets.only(bottom: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: AppColors.border),
-                ),
+              return FadeSlideIn(
+                index: i,
+                child: GlassCard(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.zero,
                 child: ListTile(
                   title: Text(
                     part.name,
@@ -75,6 +73,7 @@ class _ShopShellState extends State<ShopShell> {
                     ),
                   ),
                 ),
+                ),
               );
             },
           ),
@@ -88,13 +87,11 @@ class _ShopShellState extends State<ShopShell> {
         .toList();
     if (mine.isEmpty) {
       return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Text(
-            'No reservations yet.\nReserve a part from the client side at this shop to see it here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: AppColors.muted),
-          ),
+        child: EmptyState(
+          icon: Icons.receipt_long_outlined,
+          title: 'No reservations yet',
+          message:
+              'Reserve a part from the client side at this shop to see it here.',
         ),
       );
     }
@@ -108,14 +105,9 @@ class _ShopShellState extends State<ShopShell> {
 
   Widget _reservationCard(Repo repo, Reservation r) {
     final pending = r.status == 'Pending';
-    return Container(
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
+      accent: pending ? AppColors.orange : AppColors.green,
       child: Row(
         children: [
           Expanded(
@@ -155,14 +147,9 @@ class _ShopShellState extends State<ShopShell> {
   Widget build(BuildContext context) {
     final repo = Repo.instance;
     final shop = repo.shopById(Repo.myShopId);
-    return AuroraBackground(
-      child: Scaffold(
-      backgroundColor: Colors.transparent,
+    return AppScaffold(
       appBar: AppBar(
-        title: Text(
-          '${shop.name} · Shop mode',
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-        ),
+        title: Text('${shop.name} · Shop mode'),
       ),
       body: ListenableBuilder(
         listenable: repo,
@@ -171,26 +158,19 @@ class _ShopShellState extends State<ShopShell> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _scan,
-        backgroundColor: AppColors.orange,
-        foregroundColor: AppColors.onNeon,
         icon: const Icon(Icons.center_focus_strong_outlined),
         label: const Text('Scan a part'),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Stock',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            label: 'Reservations',
-          ),
+      bottomNavigationBar: GlassNavBar(
+        index: _tab,
+        onChanged: (i) => setState(() => _tab = i),
+        items: const [
+          NavItem(Icons.inventory_2_outlined, 'Stock',
+              activeIcon: Icons.inventory_2),
+          NavItem(Icons.receipt_long_outlined, 'Reservations',
+              activeIcon: Icons.receipt_long),
         ],
       ),
-    ),
     );
   }
 }

@@ -4,6 +4,7 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
+import '../widgets/futuristic.dart';
 import '../widgets/result_card.dart';
 
 /// Shops that have a part in stock. Opened either with a text [query]
@@ -82,7 +83,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final part = widget.part;
     final title = part?.name ?? 'Results for “${widget.query}”';
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           title,
@@ -112,11 +113,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
             children: [
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 13, color: AppColors.muted),
+              Row(
+                children: [
+                  const PulseDot(),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
@@ -133,20 +145,21 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ),
               const SizedBox(height: 12),
               if (results.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Text(
-                    'No shop has this in stock right now.\nTry another spelling, or turn off "In stock only".',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 15, color: AppColors.muted),
-                  ),
+                const EmptyState(
+                  icon: Icons.search_off_rounded,
+                  title: 'Nothing in stock',
+                  message:
+                      'No shop has this right now. Try another spelling, or turn off "In stock only".',
                 ),
               for (var i = 0; i < results.length; i++)
-                ResultCard(
-                  result: results[i],
-                  highlight: i == 0 && _sort == SortMode.bestMatch,
-                  onCall: () => _call(results[i]),
-                  onReserve: () => _reserve(results[i]),
+                FadeSlideIn(
+                  index: i,
+                  child: ResultCard(
+                    result: results[i],
+                    highlight: i == 0 && _sort == SortMode.bestMatch,
+                    onCall: () => _call(results[i]),
+                    onReserve: () => _reserve(results[i]),
+                  ),
                 ),
             ],
           );

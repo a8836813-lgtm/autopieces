@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../models/search_query.dart';
 import '../widgets/vehicle_search_panel.dart';
+import '../widgets/futuristic.dart';
 
 /// Full-screen search by serial number and/or vehicle.
 ///
@@ -17,7 +18,7 @@ class VehicleSearchScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: const Text('Find a part')),
       body: SafeArea(
         child: SingleChildScrollView(

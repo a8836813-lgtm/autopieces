@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../theme.dart';
 import '../widgets/futuristic.dart';
 import 'home_screen.dart';
 import 'mechanics_screen.dart';
@@ -24,35 +23,19 @@ class _ClientShellState extends State<ClientShell> {
       MechanicsScreen(),
       ProfileScreen(),
     ];
-    return AuroraBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: IndexedStack(index: _index, children: pages),
-        ),
-        bottomNavigationBar: DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.border)),
-          ),
-          child: NavigationBar(
-            selectedIndex: _index,
-            onDestinationSelected: (i) => setState(() => _index = i),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.search),
-                label: 'Search',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.build_outlined),
-                label: 'Mechanics',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                label: 'Profile',
-              ),
-            ],
-          ),
-        ),
+    return AppScaffold(
+      body: SafeArea(
+        bottom: false,
+        child: IndexedStack(index: _index, children: pages),
+      ),
+      bottomNavigationBar: GlassNavBar(
+        index: _index,
+        onChanged: (i) => setState(() => _index = i),
+        items: const [
+          NavItem(Icons.search, 'Search'),
+          NavItem(Icons.build_outlined, 'Mechanics', activeIcon: Icons.build),
+          NavItem(Icons.person_outline, 'Profile', activeIcon: Icons.person),
+        ],
       ),
     );
   }
