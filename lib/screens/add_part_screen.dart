@@ -94,7 +94,7 @@ class _AddPartScreenState extends State<AddPartScreen> {
       hintText: hint,
       errorText: error,
       filled: true,
-      fillColor: AppColors.surface,
+      fillColor: Colors.white,
       border: border,
       enabledBorder: border,
     );

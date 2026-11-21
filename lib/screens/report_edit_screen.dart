@@ -75,7 +75,7 @@ class _ReportEditScreenState extends State<ReportEditScreen> {
           hintText: hint,
           alignLabelWithHint: lines > 1,
           filled: true,
-          fillColor: AppColors.surface,
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: AppColors.border),

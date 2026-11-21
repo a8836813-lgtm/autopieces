@@ -1,12 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 
-import '../widgets/futuristic.dart';
 import 'home_screen.dart';
 import 'mechanics_screen.dart';
 import 'profile_screen.dart';
 import 'saved_screen.dart';
 
-/// The client app: bottom navigation with Search, Mechanics and Profile.
+/// The client app: bottom navigation with Search, Mechanics, Saved and Profile.
 class ClientShell extends StatefulWidget {
   const ClientShell({super.key});
 
@@ -25,19 +24,27 @@ class _ClientShellState extends State<ClientShell> {
       SavedScreen(),
       ProfileScreen(),
     ];
-    return AppScaffold(
+    return Scaffold(
       body: SafeArea(
-        bottom: false,
         child: IndexedStack(index: _index, children: pages),
       ),
-      bottomNavigationBar: GlassNavBar(
-        index: _index,
-        onChanged: (i) => setState(() => _index = i),
-        items: const [
-          NavItem(Icons.search, 'Search'),
-          NavItem(Icons.build_outlined, 'Mechanics', activeIcon: Icons.build),
-          NavItem(Icons.bookmark_border, 'Saved', activeIcon: Icons.bookmark),
-          NavItem(Icons.person_outline, 'Profile', activeIcon: Icons.person),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: (i) => setState(() => _index = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
+          NavigationDestination(
+            icon: Icon(Icons.build_outlined),
+            label: 'Mechanics',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark_border),
+            label: 'Saved',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );

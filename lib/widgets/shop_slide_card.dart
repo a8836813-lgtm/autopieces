@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
 import '../theme.dart';
-import 'futuristic.dart';
 
 class ShopSlideCard extends StatelessWidget {
   final Shop shop;
@@ -18,80 +17,60 @@ class ShopSlideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(
+        color: highlighted ? AppColors.teal : AppColors.border,
+        width: highlighted ? 2 : 1,
+      ),
+    );
     return SizedBox(
-      width: 230,
-      child: GlassCard(
-        onTap: onTap,
-        glow: highlighted,
-        accent: highlighted ? AppColors.teal : null,
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      width: 220,
+      child: Material(
+        color: Colors.white,
+        shape: shape,
+        child: InkWell(
+          customBorder: shape,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    shop.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
+                Text(
+                  shop.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.ink,
                   ),
                 ),
-                if (highlighted)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 6),
-                    child: StatusChip(label: 'Closest'),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              shop.type,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12.5, color: AppColors.muted),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                const Icon(Icons.near_me_outlined,
-                    size: 14, color: AppColors.teal),
-                const SizedBox(width: 4),
+                const SizedBox(height: 4),
                 Text(
-                  '${shop.distanceKm.toStringAsFixed(1)} km',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  shop.type,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, color: AppColors.muted),
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.star_rounded,
-                    size: 15, color: AppColors.orange),
-                const SizedBox(width: 3),
+                const Spacer(),
                 Text(
-                  '${shop.rating}',
-                  style: const TextStyle(
+                  '${shop.distanceKm.toStringAsFixed(1)} km · Rating ${shop.rating}',
+                  style: const TextStyle(fontSize: 13, color: AppColors.ink),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  shop.hours,
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
+                    color: shop.openNow ? AppColors.green : AppColors.warn,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              shop.hours,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: shop.openNow ? AppColors.green : AppColors.warn,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -21,8 +21,8 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   static const int _maxPhotos = 6;
-  static const Color _dark = Color(0xFF060A13);
-  static const Color _panel = Color(0xFF121A2E);
+  static const Color _dark = Color(0xFF14181F);
+  static const Color _panel = Color(0xFF2A303B);
   static const Color _lightText = Color(0xFFD5D9E0);
 
   final PartScanner _scanner = MockPartScanner();
@@ -127,7 +127,7 @@ class _ScanScreenState extends State<ScanScreen> {
       return Center(child: CameraPreview(controller));
     }
     return Container(
-      color: const Color(0xFF0B1222),
+      color: const Color(0xFF1B2029),
       alignment: Alignment.center,
       padding: const EdgeInsets.all(24),
       child: Text(

@@ -54,7 +54,7 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: Colors.white,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: controller.text.isEmpty
             ? null

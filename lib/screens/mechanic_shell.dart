@@ -5,7 +5,6 @@ import '../data/repo.dart';
 import '../services/auth_service.dart';
 import '../theme.dart';
 import '../utils.dart';
-import '../widgets/futuristic.dart';
 import '../widgets/review_widgets.dart';
 import 'auth/home_router.dart';
 import 'report_edit_screen.dart';
@@ -56,7 +55,7 @@ class _MechanicShellState extends State<MechanicShell> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -104,7 +103,7 @@ class _MechanicShellState extends State<MechanicShell> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: AppColors.border),
           ),
@@ -169,7 +168,7 @@ class _MechanicShellState extends State<MechanicShell> {
   @override
   Widget build(BuildContext context) {
     final repo = Repo.instance;
-    return AppScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Mechanic space',
@@ -185,18 +184,23 @@ class _MechanicShellState extends State<MechanicShell> {
           ? FloatingActionButton.extended(
               onPressed: _newReport,
               backgroundColor: AppColors.orange,
-              foregroundColor: AppColors.onNeon,
+              foregroundColor: Colors.white,
               icon: const Icon(Icons.edit_note),
               label: const Text('New report'),
             )
           : null,
-      bottomNavigationBar: GlassNavBar(
-        index: _tab,
-        onChanged: (i) => setState(() => _tab = i),
-        items: const [
-          NavItem(Icons.description_outlined, 'Reports',
-              activeIcon: Icons.description),
-          NavItem(Icons.person_outline, 'Profile', activeIcon: Icons.person),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _tab,
+        onDestinationSelected: (i) => setState(() => _tab = i),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.description_outlined),
+            label: 'My reports',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            label: 'Profile',
+          ),
         ],
       ),
     );

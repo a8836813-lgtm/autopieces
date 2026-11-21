@@ -5,7 +5,6 @@ import '../data/repo.dart';
 import '../data/scan_mode.dart';
 import '../theme.dart';
 import '../utils.dart';
-import '../widgets/futuristic.dart';
 import '../widgets/review_widgets.dart';
 import 'add_part_screen.dart';
 import 'auth/home_router.dart';
@@ -50,7 +49,7 @@ class _ShopShellState extends State<ShopShell> {
           label: const Text('Add a part by serial number'),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(48),
-            backgroundColor: AppColors.surface,
+            backgroundColor: Colors.white,
           ),
         ),
         const SizedBox(height: 12),
@@ -59,7 +58,7 @@ class _ShopShellState extends State<ShopShell> {
             builder: (context) {
               final part = repo.partById(s.partId);
               return Card(
-                color: AppColors.surface,
+                color: Colors.white,
                 elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
@@ -127,7 +126,7 @@ class _ShopShellState extends State<ShopShell> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.border),
       ),
@@ -180,7 +179,7 @@ class _ShopShellState extends State<ShopShell> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.border),
         ),
@@ -252,7 +251,7 @@ class _ShopShellState extends State<ShopShell> {
           ),
         for (final s in low)
           Card(
-            color: AppColors.surface,
+            color: Colors.white,
             elevation: 0,
             margin: const EdgeInsets.only(bottom: 8),
             shape: RoundedRectangleBorder(
@@ -291,7 +290,7 @@ class _ShopShellState extends State<ShopShell> {
   Widget build(BuildContext context) {
     final repo = Repo.instance;
     final shop = repo.shopById(Repo.myShopId);
-    return AppScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(
           '${shop.name} · Shop mode',
@@ -317,20 +316,27 @@ class _ShopShellState extends State<ShopShell> {
           ? FloatingActionButton.extended(
               onPressed: _scan,
               backgroundColor: AppColors.orange,
-              foregroundColor: AppColors.onNeon,
+              foregroundColor: Colors.white,
               icon: const Icon(Icons.photo_camera_outlined),
               label: const Text('Scan a part'),
             )
           : null,
-      bottomNavigationBar: GlassNavBar(
-        index: _tab,
-        onChanged: (i) => setState(() => _tab = i),
-        items: const [
-          NavItem(Icons.inventory_2_outlined, 'Stock',
-              activeIcon: Icons.inventory_2),
-          NavItem(Icons.receipt_long_outlined, 'Orders',
-              activeIcon: Icons.receipt_long),
-          NavItem(Icons.insights_outlined, 'Insights', activeIcon: Icons.insights),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _tab,
+        onDestinationSelected: (i) => setState(() => _tab = i),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            label: 'Stock',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            label: 'Reservations',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            label: 'Insights',
+          ),
         ],
       ),
     );

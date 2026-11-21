@@ -127,7 +127,7 @@ class _NearbyMapScreenState extends State<NearbyMapScreen> {
                   final s = shops[i];
                   final selected = s == _selected;
                   return Card(
-                    color: selected ? AppColors.greenBg : AppColors.surface,
+                    color: selected ? AppColors.greenBg : Colors.white,
                     elevation: 0,
                     margin: const EdgeInsets.only(bottom: 6),
                     shape: RoundedRectangleBorder(
@@ -184,7 +184,7 @@ class _RingsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final fill = Paint()..color = const Color(0xFF0E1526);
+    final fill = Paint()..color = const Color(0xFFEAF1F2);
     canvas.drawCircle(center, radius, fill);
 
     final line = Paint()

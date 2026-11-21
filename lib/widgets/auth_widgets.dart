@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../services/auth_service.dart';
 import '../theme.dart';
-import 'futuristic.dart';
 
 /// Icon, title and description for each role.
 extension RoleUi on UserRole {
@@ -44,9 +43,7 @@ class AuthScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AuroraBackground(
-      child: Scaffold(
-      backgroundColor: Colors.transparent,
+    return Scaffold(
       appBar: AppBar(automaticallyImplyLeading: showBack),
       body: SafeArea(
         child: Center(
@@ -62,21 +59,17 @@ class AuthScaffold extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.teal.withValues(alpha: 0.12),
+                        color: AppColors.chipBg,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: AppColors.teal.withValues(alpha: 0.5)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(role!.icon, size: 16, color: AppColors.teal),
                           const SizedBox(width: 6),
-                          Text(role!.title.toUpperCase(),
+                          Text(role!.title,
                               style: const TextStyle(
-                                  fontSize: 12,
-                                  letterSpacing: 1,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w600,
                                   color: AppColors.teal)),
                         ],
                       ),
@@ -85,9 +78,8 @@ class AuthScaffold extends StatelessWidget {
                   ],
                   Text(title,
                       style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.ink)),
                   const SizedBox(height: 6),
                   Text(subtitle,
@@ -101,7 +93,6 @@ class AuthScaffold extends StatelessWidget {
           ),
         ),
       ),
-    ),
     );
   }
 }
@@ -231,9 +222,9 @@ class ErrorBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.warnBg,
+        color: const Color(0xFFFDECEA),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppColors.warn.withValues(alpha: 0.5)),
+        border: Border.all(color: const Color(0xFFF5C2BD)),
       ),
       child: Text(message,
           style: const TextStyle(color: AppColors.warn, height: 1.3)),
@@ -255,24 +246,35 @@ class SubmitButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CtaButton(
-      label: label,
-      loading: loading,
-      onPressed: onPressed,
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: FilledButton(
+        onPressed: loading ? null : onPressed,
+        child: loading
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white))
+            : Text(label,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+      ),
     );
   }
 }
 
 InputDecoration _decoration(String label, IconData icon) {
   OutlineInputBorder border(Color c) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: c),
       );
   return InputDecoration(
     labelText: label,
     prefixIcon: Icon(icon, color: AppColors.muted),
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: Colors.white,
     enabledBorder: border(AppColors.border),
     focusedBorder: border(AppColors.teal),
     errorBorder: border(AppColors.warn),

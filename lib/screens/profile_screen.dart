@@ -15,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -45,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: AppColors.teal,
                 child: Text(
                   name.isEmpty ? 'A' : name[0].toUpperCase(),
-                  style: const TextStyle(color: AppColors.onNeon, fontSize: 20),
+                  style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
               const SizedBox(width: 14),

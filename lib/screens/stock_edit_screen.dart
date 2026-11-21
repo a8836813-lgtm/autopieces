@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import '../data/models.dart';
 import '../data/repo.dart';
 import '../theme.dart';
-import '../widgets/futuristic.dart';
 
 /// Shop owner: update quantity, price and condition of a matched part, or add
 /// it as a new listing when the shop does not have it yet.
@@ -67,7 +66,7 @@ class _StockEditScreenState extends State<StockEditScreen> {
   @override
   Widget build(BuildContext context) {
     final part = widget.part;
-    return AppScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Your stock',
@@ -80,7 +79,7 @@ class _StockEditScreenState extends State<StockEditScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.teal, width: 2),
             ),
@@ -115,7 +114,7 @@ class _StockEditScreenState extends State<StockEditScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppColors.border),
             ),

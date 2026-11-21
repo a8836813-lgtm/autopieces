@@ -2,58 +2,48 @@ import 'package:material_ui/material_ui.dart';
 
 import '../config/app_config.dart';
 import '../theme.dart';
-import 'futuristic.dart';
 
-/// Shows which backend the app is using and what is still to be filled in.
+/// Shows which backend the app is using (demo data, PHP/XAMPP or Supabase).
 class BackendStatusCard extends StatelessWidget {
   const BackendStatusCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final live = AppConfig.backendMode != BackendMode.mock;
-    return GlassCard(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      accent: live ? AppColors.green : AppColors.orange,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.border),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(child: SectionHeader('Backend')),
-              StatusChip(
-                label: live ? 'Connected' : 'Demo mode',
-                color: live ? AppColors.green : AppColors.orange,
-              ),
-            ],
+          const Text(
+            'Backend',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
-          _line(Icons.storage_outlined, 'Active source', AppConfig.statusLabel),
+          const SizedBox(height: 8),
+          _line('Active source', AppConfig.statusLabel),
           _line(
-            Icons.bolt_outlined,
             'Supabase',
             AppConfig.supabaseConfigured ? 'Configured' : 'Placeholder, not set',
           ),
-          _line(
-            Icons.dns_outlined,
-            'PHP / XAMPP',
-            AppConfig.phpBaseUrl,
-          ),
+          _line('PHP / XAMPP', AppConfig.phpBaseUrl),
         ],
       ),
     );
   }
 
-  Widget _line(IconData icon, String label, String value) {
+  Widget _line(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.only(top: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: AppColors.muted),
-          const SizedBox(width: 8),
           Text(
-            '$label  ',
+            '$label: ',
             style: const TextStyle(fontSize: 13, color: AppColors.muted),
           ),
           Expanded(
