@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
 import '../data/repo.dart';
+import '../services/maps_service.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/appointment_sheet.dart';
@@ -261,6 +262,18 @@ class MechanicDetailScreen extends StatelessWidget {
               ),
               _heading('Details'),
               _infoRow(Icons.place_outlined, m.address),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => MapsService.openPlace(
+                    context,
+                    name: m.name,
+                    address: m.address,
+                  ),
+                  icon: const Icon(Icons.map_outlined, size: 18),
+                  label: const Text('Open in Google Maps'),
+                ),
+              ),
               _infoRow(Icons.schedule, m.hours),
               _infoRow(Icons.phone_outlined, m.phone),
               _infoRow(Icons.chat_bubble_outline, m.responseTime),

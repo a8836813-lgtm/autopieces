@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
 import '../data/repo.dart';
+import '../services/maps_service.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/appointment_sheet.dart';
@@ -214,6 +215,16 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
     );
     return [
       _requestsCard(repo),
+      const SizedBox(height: 12),
+      FilledButton.icon(
+        onPressed: () => MapsService.openMechanicsNearMe(context),
+        icon: const Icon(Icons.map_outlined),
+        label: const Text('Find mechanics near me on Google Maps'),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(50),
+          backgroundColor: AppColors.orange,
+        ),
+      ),
       const SizedBox(height: 16),
       _searchField(
         controller: _mCtrl,

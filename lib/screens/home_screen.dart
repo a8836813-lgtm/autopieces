@@ -4,10 +4,10 @@ import '../data/repo.dart';
 import '../data/vehicles.dart';
 import '../models/search_query.dart';
 import '../services/auth_service.dart';
+import '../services/maps_service.dart';
 import '../theme.dart';
 import '../widgets/shop_slide_card.dart';
 import '../widgets/vehicle_quick_search.dart';
-import 'nearby_map_screen.dart';
 import 'results_screen.dart';
 import 'scan_screen.dart';
 import 'shop_screen.dart';
@@ -206,11 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             TextButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const NearbyMapScreen(),
-                ),
-              ),
+              onPressed: () => MapsService.openMechanicsNearMe(context),
               icon: const Icon(Icons.map_outlined, size: 18),
               label: const Text('Map'),
             ),
