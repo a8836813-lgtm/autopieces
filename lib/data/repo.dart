@@ -80,7 +80,7 @@ class Repo extends ChangeNotifier {
     ),
   ];
 
-  final List<Part> parts = [
+  final List<Part> parts = <Part>[
     Part(
       id: 'p1',
       name: 'Front brake disc, ventilated 288 mm',
