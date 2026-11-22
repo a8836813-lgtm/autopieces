@@ -25,7 +25,7 @@ class _ScanScreenState extends State<ScanScreen> {
   static const Color _panel = Color(0xFF2A303B);
   static const Color _lightText = Color(0xFFD5D9E0);
 
-  final PartScanner _scanner = MockPartScanner();
+  final PartScanner _scanner = PartScannerFactory.create();
   final List<String> _photos = [];
   CameraController? _controller;
   String? _cameraMessage;
@@ -103,6 +103,14 @@ class _ScanScreenState extends State<ScanScreen> {
       final candidates = await _scanner.identify(List<String>.of(_photos));
       if (!mounted) return;
       setState(() => _identifying = false);
+      if (candidates.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'No matching part in the catalog. Try a clearer photo or search by name.')),
+        );
+        return;
+      }
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => CandidatesScreen(

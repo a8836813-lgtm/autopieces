@@ -63,6 +63,26 @@ class AppConfig {
   static bool get googlePlacesConfigured =>
       googlePlacesApiKey.isNotEmpty && !googlePlacesApiKey.startsWith('YOUR_');
 
+  // ───────────────────── AI PART SCANNER SERVER (PLACEHOLDER) ───────────────
+  // The FastAPI service in /ai_server (see ai_server/README.md).
+  // Emulator → http://10.0.2.2:8000 · real phone → http://<PC-LAN-IP>:8000
+  // Hosted → https://your-ai-server.example.com
+  //   flutter run --dart-define=AI_SCANNER_URL=http://10.0.2.2:8000
+  static const String aiScannerUrl = String.fromEnvironment(
+    'AI_SCANNER_URL',
+    defaultValue: 'YOUR_AI_SCANNER_URL',
+  );
+
+  /// Optional shared secret sent as the X-API-Key header (same value as the
+  /// AI_API_KEY environment variable on the server). Leave empty if unused.
+  static const String aiScannerApiKey = String.fromEnvironment(
+    'AI_SCANNER_API_KEY',
+    defaultValue: '',
+  );
+
+  static bool get aiScannerConfigured =>
+      aiScannerUrl.startsWith('http') && !aiScannerUrl.contains('YOUR_');
+
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static bool get supabaseConfigured =>
