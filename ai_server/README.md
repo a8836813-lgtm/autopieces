@@ -41,3 +41,13 @@ Class names → catalog parts: `kScannerClassKeywords` in `lib/services/part_sca
 - Set `AI_API_KEY=somesecret` on the server and `--dart-define=AI_SCANNER_API_KEY=somesecret` in the app. A key inside an app can be extracted, so treat it as a speed bump, not real security. Real protection comes with Supabase login later.
 - Free CPU hosts for a demo: Hugging Face Spaces (Docker), Render. A small YOLO classifier runs fine on CPU.
 - Photos are not stored by this server.
+
+## 5. Put the server online (Hugging Face Spaces, free)
+Files to upload to the Space: `Dockerfile`, `main.py`, `requirements.txt`, `models/best.pt`.
+1. huggingface.co > New Space > SDK **Docker** (Blank) > hardware **CPU basic (free)**.
+2. Files tab > Add file > Upload files (drag the 4 items above, keep the `models` folder).
+3. Wait for the build (5 to 15 minutes). The Space then shows **Running**.
+4. Test `https://<user>-<space>.hf.space/health` in a browser.
+5. App: `flutter run --dart-define=AI_SCANNER_URL=https://<user>-<space>.hf.space`.
+6. Optional: Space > Settings > Variables and secrets > secret `AI_API_KEY`, and the same value in the app with `--dart-define=AI_SCANNER_API_KEY=...`.
+A free Space goes to sleep after some days without visitors and wakes up on the next request (the first scan can take 1 to 2 minutes). Open `/health` before a demo.
