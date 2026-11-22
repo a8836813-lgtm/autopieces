@@ -51,6 +51,18 @@ class AppConfig {
     defaultValue: 'http://10.0.2.2/autopieces/api',
   );
 
+  // ─────────────── GOOGLE PLACES (PLACEHOLDER, live opening hours) ───────────
+  // Google Cloud Console → enable "Places API (New)" → Credentials → API key.
+  // Billing must be enabled on the project. Restrict the key to your app.
+  //   flutter run --dart-define=GOOGLE_PLACES_API_KEY=AIza...
+  static const String googlePlacesApiKey = String.fromEnvironment(
+    'GOOGLE_PLACES_API_KEY',
+    defaultValue: 'YOUR_GOOGLE_PLACES_API_KEY',
+  );
+
+  static bool get googlePlacesConfigured =>
+      googlePlacesApiKey.isNotEmpty && !googlePlacesApiKey.startsWith('YOUR_');
+
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static bool get supabaseConfigured =>

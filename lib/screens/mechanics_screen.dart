@@ -2,13 +2,13 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
 import '../data/repo.dart';
-import '../services/maps_service.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/appointment_sheet.dart';
 import '../widgets/mechanic_card.dart';
 import '../widgets/report_card.dart';
 import 'mechanic_detail_screen.dart';
+import 'mechanics_map_screen.dart';
 
 /// Mechanics directory and searchable repair reports.
 class MechanicsScreen extends StatefulWidget {
@@ -217,9 +217,11 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
       _requestsCard(repo),
       const SizedBox(height: 12),
       FilledButton.icon(
-        onPressed: () => MapsService.openMechanicsNearMe(context),
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => const MechanicsMapScreen(),
+        )),
         icon: const Icon(Icons.map_outlined),
-        label: const Text('Find mechanics near me on Google Maps'),
+        label: const Text('Mechanics near me on the map'),
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
           backgroundColor: AppColors.orange,
