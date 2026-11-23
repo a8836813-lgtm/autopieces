@@ -5,6 +5,7 @@ import '../data/repo.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/review_widgets.dart';
+import 'order_history_screen.dart';
 import 'results_screen.dart';
 import 'shop_screen.dart';
 
@@ -50,11 +51,12 @@ class SavedScreen extends StatelessWidget {
     final sent = await showReviewSheet(
       context,
       title: 'Rate ${r.item.shop.name}',
-      onSubmit: (stars, comment) {
+      onSubmit: (stars, comment, photos) {
         Repo.instance.addReview(
           targetId: r.item.shop.id,
           stars: stars,
           comment: comment,
+          photos: photos,
         );
         Repo.instance.markReviewed(r);
       },
@@ -73,6 +75,46 @@ class SavedScreen extends StatelessWidget {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
         ),
       );
+
+  Widget _alertTile(BuildContext context, Repo repo, PriceAlert a) {
+    final part = repo.partById(a.partId);
+    final offer = repo.cheapestOffer(a.partId);
+    final hit = repo.isAlertTriggered(a);
+    final status = offer == null
+        ? 'Out of stock everywhere right now'
+        : hit
+            ? 'Now ${formatDzd(offer.stock.price)} DZD at ${offer.shop.name}'
+            : 'Cheapest now ${formatDzd(offer.stock.price)} DZD';
+    return Card(
+      color: hit ? AppColors.greenBg : Colors.white,
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: hit ? AppColors.green : AppColors.border),
+      ),
+      child: ListTile(
+        leading: Icon(
+          hit ? Icons.notifications_active : Icons.notifications_none,
+          color: hit ? AppColors.green : AppColors.muted,
+        ),
+        title: Text(part.name,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(
+          'Target ${formatDzd(a.targetPrice)} DZD or less\n$status',
+        ),
+        isThreeLine: true,
+        trailing: IconButton(
+          tooltip: 'Remove alert',
+          icon: const Icon(Icons.close),
+          onPressed: () => repo.removePriceAlert(a.partId),
+        ),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => ResultsScreen(part: part)),
+        ),
+      ),
+    );
+  }
 
   Widget _reservationCard(BuildContext context, Reservation r) {
     return Container(
@@ -165,7 +207,20 @@ class SavedScreen extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
-            _title('My reservations'),
+            Row(
+              children: [
+                Expanded(child: _title('My reservations')),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OrderHistoryScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.history, size: 18),
+                  label: const Text('History'),
+                ),
+              ],
+            ),
             if (repo.clientReservations.isEmpty)
               const Padding(
                 padding: EdgeInsets.only(bottom: 12),
@@ -175,6 +230,16 @@ class SavedScreen extends StatelessWidget {
                 ),
               ),
             for (final r in repo.clientReservations) _reservationCard(context, r),
+            _title('Price alerts'),
+            if (repo.priceAlerts.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Tap the bell on a part result to be told when its price drops.',
+                  style: TextStyle(color: AppColors.muted),
+                ),
+              ),
+            for (final a in repo.priceAlerts) _alertTile(context, repo, a),
             _title('Favorite shops'),
             if (shops.isEmpty)
               const Padding(
