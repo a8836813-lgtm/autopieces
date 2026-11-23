@@ -4,6 +4,7 @@ import '../data/models.dart';
 import '../data/repo.dart';
 import '../models/search_query.dart';
 import '../theme.dart';
+import '../widgets/price_alert_sheet.dart';
 import '../utils.dart';
 import '../widgets/result_card.dart';
 
@@ -100,6 +101,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         actions: [
+          if (part != null)
+            ListenableBuilder(
+              listenable: repo,
+              builder: (context, _) {
+                final hasAlert = repo.alertFor(part.id) != null;
+                return IconButton(
+                  tooltip: hasAlert ? 'Price alert is on' : 'Price alert',
+                  icon: Icon(
+                    hasAlert
+                        ? Icons.notifications_active
+                        : Icons.notifications_none,
+                    color: hasAlert ? AppColors.orange : null,
+                  ),
+                  onPressed: () => showPriceAlertSheet(context, part),
+                );
+              },
+            ),
           if (part != null)
             ListenableBuilder(
               listenable: repo,

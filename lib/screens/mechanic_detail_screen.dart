@@ -73,10 +73,11 @@ class MechanicDetailScreen extends StatelessWidget {
     final sent = await showReviewSheet(
       context,
       title: 'Rate ${mechanic.name}',
-      onSubmit: (stars, comment) => Repo.instance.addReview(
+      onSubmit: (stars, comment, photos) => Repo.instance.addReview(
         targetId: mechanic.id,
         stars: stars,
         comment: comment,
+        photos: photos,
       ),
     );
     if (sent && context.mounted) {

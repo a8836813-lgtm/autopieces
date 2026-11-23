@@ -1107,6 +1107,7 @@ class Repo extends ChangeNotifier {
     required int stars,
     required String comment,
     String author = 'You',
+    List<String> photos = const [],
   }) {
     reviews.add(
       Review(
@@ -1114,10 +1115,54 @@ class Repo extends ChangeNotifier {
         author: author,
         stars: stars,
         comment: comment.trim(),
+        photos: List<String>.of(photos),
       ),
     );
     notifyListeners();
   }
+
+  // ------------------------------------------------------------ price alerts
+
+  final List<PriceAlert> priceAlerts = [];
+
+  PriceAlert? alertFor(String partId) {
+    for (final a in priceAlerts) {
+      if (a.partId == partId) return a;
+    }
+    return null;
+  }
+
+  void setPriceAlert(String partId, int targetPrice) {
+    priceAlerts.removeWhere((a) => a.partId == partId);
+    priceAlerts.add(PriceAlert(partId: partId, targetPrice: targetPrice));
+    notifyListeners();
+  }
+
+  void removePriceAlert(String partId) {
+    priceAlerts.removeWhere((a) => a.partId == partId);
+    notifyListeners();
+  }
+
+  /// Cheapest in-stock offer for the part, or null when nobody has it.
+  SearchResult? cheapestOffer(String partId) {
+    final list = resultsForPart(partId, sort: SortMode.cheapest);
+    if (list.isEmpty) return null;
+    list.sort((a, b) => a.stock.price.compareTo(b.stock.price));
+    return list.first;
+  }
+
+  bool isAlertTriggered(PriceAlert a) {
+    final offer = cheapestOffer(a.partId);
+    return offer != null && offer.stock.price <= a.targetPrice;
+  }
+
+  int get triggeredAlertsCount =>
+      priceAlerts.where((a) => isAlertTriggered(a)).length;
+
+  /// Total paid by the client for completed reservations, in DZD.
+  int get clientSpent => clientReservations
+      .where((r) => r.status == 'Completed')
+      .fold(0, (sum, r) => sum + r.item.stock.price);
 
   // ----------------------------------------------------------- reservations
 
@@ -1190,6 +1235,14 @@ class Repo extends ChangeNotifier {
 
   void addReport(RepairReport report) {
     reports.insert(0, report);
+    notifyListeners();
+  }
+
+  /// Replaces [old] by an edited copy (same position in the list).
+  void updateReport(RepairReport old, RepairReport updated) {
+    final i = reports.indexOf(old);
+    if (i == -1) return;
+    reports[i] = updated;
     notifyListeners();
   }
 
@@ -1402,6 +1455,28 @@ class Repo extends ChangeNotifier {
   void finishJob(JobRequest job) {
     job.status = 'Done';
     job.completedAt = DateTime.now();
+    notifyListeners();
+  }
+
+  void addJobPhoto(JobRequest job, String path) {
+    job.photos.add(path);
+    notifyListeners();
+  }
+
+  void removeJobPhoto(JobRequest job, String path) {
+    job.photos.remove(path);
+    notifyListeners();
+  }
+
+  void saveInvoice(JobRequest job, {required int labour, required int parts}) {
+    job.labourCost = labour;
+    job.partsCost = parts;
+    notifyListeners();
+  }
+
+  void setJobPaid(JobRequest job, bool paid) {
+    job.paid = paid;
+    job.paidAt = paid ? DateTime.now() : null;
     notifyListeners();
   }
 

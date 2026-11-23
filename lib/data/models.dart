@@ -244,6 +244,38 @@ class RepairReport {
 
   /// Key used for "helpful" votes (reports written in the app have no id).
   String get key => id.isNotEmpty ? id : '$mechanicName|$title';
+
+  /// A copy with the fields the mechanic can edit replaced.
+  RepairReport copyWith({
+    String? title,
+    String? car,
+    String? problem,
+    String? diagnosis,
+    String? workDone,
+    String? parts,
+    int? cost,
+  }) {
+    return RepairReport(
+      mechanicName: mechanicName,
+      title: title ?? this.title,
+      car: car ?? this.car,
+      problem: problem ?? this.problem,
+      diagnosis: diagnosis ?? this.diagnosis,
+      workDone: workDone ?? this.workDone,
+      cost: cost ?? this.cost,
+      parts: parts ?? this.parts,
+      id: id,
+      mechanicId: mechanicId,
+      category: category,
+      date: date,
+      laborCost: laborCost,
+      partsCost: partsCost,
+      durationHours: durationHours,
+      partsUsed: partsUsed,
+      warrantyMonths: warrantyMonths,
+      helpful: helpful,
+    );
+  }
 }
 
 /// A rating and comment about a shop or a mechanic ([targetId]).
@@ -254,13 +286,28 @@ class Review {
   final String comment;
   final DateTime createdAt;
 
+  /// Photos the client attached (file paths).
+  final List<String> photos;
+
   Review({
     required this.targetId,
     required this.author,
     required this.stars,
     required this.comment,
+    this.photos = const [],
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
+}
+
+/// The client wants to be told when a part is available at [targetPrice] DZD
+/// or less (demo: checked when the Saved tab opens, kept in memory).
+class PriceAlert {
+  final String partId;
+  final int targetPrice;
+  final DateTime createdAt;
+
+  PriceAlert({required this.partId, required this.targetPrice, DateTime? createdAt})
+      : createdAt = createdAt ?? DateTime.now();
 }
 
 /// An appointment the client asked a mechanic for (demo, kept in memory).
@@ -304,6 +351,15 @@ class JobRequest {
   /// Set when the job is marked as done (used for earnings).
   DateTime? completedAt;
 
+  /// Photos of the job taken by the mechanic (file paths).
+  final List<String> photos = <String>[];
+
+  // Invoice (filled in by the mechanic once the job is done).
+  int? labourCost;
+  int partsCost = 0;
+  bool paid = false;
+  DateTime? paidAt;
+
   JobRequest({
     required this.id,
     required this.clientName,
@@ -319,6 +375,12 @@ class JobRequest {
   }) : createdAt = createdAt ?? DateTime.now();
 
   bool get isActive => status == 'Accepted' || status == 'In progress';
+
+  /// Invoice number shown on the invoice.
+  String get invoiceNo => 'INV-$id';
+
+  /// Labour plus parts, in DZD. Labour defaults to the quoted price.
+  int get invoiceTotal => (labourCost ?? price) + partsCost;
 }
 
 /// One badge the mechanic can earn.

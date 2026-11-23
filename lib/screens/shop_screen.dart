@@ -28,11 +28,12 @@ class _ShopScreenState extends State<ShopScreen> {
     final sent = await showReviewSheet(
       context,
       title: 'Rate ${widget.shop.name}',
-      onSubmit: (stars, comment) {
+      onSubmit: (stars, comment, photos) {
         Repo.instance.addReview(
           targetId: widget.shop.id,
           stars: stars,
           comment: comment,
+          photos: photos,
         );
         Repo.instance.markReviewed(r);
       },

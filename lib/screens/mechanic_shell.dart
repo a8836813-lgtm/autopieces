@@ -3,13 +3,16 @@ import 'package:material_ui/material_ui.dart';
 import '../data/models.dart';
 import '../data/repo.dart';
 import '../services/auth_service.dart';
+import '../services/photo_picker.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/mechanic_widgets.dart';
+import '../widgets/photo_strip.dart';
 import '../widgets/pill.dart';
 import '../widgets/review_widgets.dart';
 import 'auth/home_router.dart';
 import 'estimate_screen.dart';
+import 'invoice_screen.dart';
 import 'mechanic_diagnostic_screen.dart';
 import 'report_edit_screen.dart';
 import 'results_screen.dart';
@@ -41,6 +44,14 @@ class _MechanicShellState extends State<MechanicShell> {
   }
 
   void _newReport() => _go(const ReportEditScreen());
+
+  void _editReport(RepairReport r) => _go(ReportEditScreen(existing: r));
+
+  Future<void> _addJobPhoto(Repo repo, JobRequest j) async {
+    final path = await PhotoPicker.pick(context);
+    if (path == null) return;
+    repo.addJobPhoto(j, path);
+  }
 
   Future<void> _findPart() async {
     final controller = TextEditingController();
@@ -481,6 +492,16 @@ class _MechanicShellState extends State<MechanicShell> {
           ),
           const SizedBox(height: 8),
           Text(j.problem, style: const TextStyle(fontSize: 14.5, height: 1.35)),
+          if (j.status == 'Accepted' ||
+              j.status == 'In progress' ||
+              j.status == 'Done') ...[
+            const SizedBox(height: 10),
+            PhotoStrip(
+              paths: j.photos,
+              onAdd: () => _addJobPhoto(repo, j),
+              onRemove: (p) => repo.removeJobPhoto(j, p),
+            ),
+          ],
           const SizedBox(height: 8),
           Row(
             children: [
@@ -560,21 +581,44 @@ class _MechanicShellState extends State<MechanicShell> {
           ),
         );
       case 'Done':
-        return Row(
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.check_circle, size: 18, color: AppColors.green),
-            const SizedBox(width: 6),
-            Text(
-              '+${formatDzd(j.price)} DZD earned',
-              style: const TextStyle(
-                color: AppColors.green,
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              children: [
+                const Icon(Icons.check_circle,
+                    size: 18, color: AppColors.green),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '+${formatDzd(j.price)} DZD earned',
+                    style: const TextStyle(
+                      color: AppColors.green,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Pill(
+                  text: j.paid ? 'Paid' : 'Not paid yet',
+                  color: j.paid ? AppColors.green : AppColors.warn,
+                  background: j.paid ? AppColors.greenBg : AppColors.warnBg,
+                ),
+              ],
             ),
-            const Spacer(),
-            TextButton(
-              onPressed: _newReport,
-              child: const Text('Write report'),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 4,
+              children: [
+                TextButton.icon(
+                  onPressed: () => _go(InvoiceScreen(job: j)),
+                  icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                  label: const Text('Invoice'),
+                ),
+                TextButton(
+                  onPressed: _newReport,
+                  child: const Text('Write report'),
+                ),
+              ],
             ),
           ],
         );
@@ -707,6 +751,12 @@ class _MechanicShellState extends State<MechanicShell> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+              ),
+              IconButton(
+                tooltip: 'Edit',
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.edit_outlined, color: AppColors.muted),
+                onPressed: () => _editReport(r),
               ),
               IconButton(
                 tooltip: 'Delete',

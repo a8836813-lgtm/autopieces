@@ -1,7 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../data/models.dart';
+import '../services/photo_picker.dart';
 import '../theme.dart';
+import 'photo_strip.dart';
 
 /// Read-only stars, for example 4.5 shows four and a half stars.
 class StarRow extends StatelessWidget {
@@ -71,6 +73,10 @@ class ReviewTile extends StatelessWidget {
             const SizedBox(height: 6),
             Text(review.comment, style: const TextStyle(fontSize: 14)),
           ],
+          if (review.photos.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            PhotoStrip(paths: review.photos, size: 56),
+          ],
         ],
       ),
     );
@@ -82,7 +88,8 @@ class ReviewTile extends StatelessWidget {
 Future<bool> showReviewSheet(
   BuildContext context, {
   required String title,
-  required void Function(int stars, String comment) onSubmit,
+  required void Function(int stars, String comment, List<String> photos)
+      onSubmit,
 }) async {
   final result = await showModalBottomSheet<bool>(
     context: context,
@@ -98,7 +105,8 @@ Future<bool> showReviewSheet(
 
 class _ReviewSheet extends StatefulWidget {
   final String title;
-  final void Function(int stars, String comment) onSubmit;
+  final void Function(int stars, String comment, List<String> photos)
+      onSubmit;
 
   const _ReviewSheet({required this.title, required this.onSubmit});
 
@@ -108,8 +116,15 @@ class _ReviewSheet extends StatefulWidget {
 
 class _ReviewSheetState extends State<_ReviewSheet> {
   final _comment = TextEditingController();
+  final List<String> _photos = <String>[];
   int _stars = 0;
   String? _error;
+
+  Future<void> _addPhoto() async {
+    final path = await PhotoPicker.pick(context);
+    if (path == null || !mounted) return;
+    setState(() => _photos.add(path));
+  }
 
   @override
   void dispose() {
@@ -122,7 +137,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
       setState(() => _error = 'Tap a star to rate');
       return;
     }
-    widget.onSubmit(_stars, _comment.text);
+    widget.onSubmit(_stars, _comment.text, List<String>.of(_photos));
     Navigator.of(context).pop(true);
   }
 
@@ -173,7 +188,13 @@ class _ReviewSheetState extends State<_ReviewSheet> {
               border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
+          PhotoStrip(
+            paths: _photos,
+            onAdd: _addPhoto,
+            onRemove: (p) => setState(() => _photos.remove(p)),
+          ),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             height: 50,
