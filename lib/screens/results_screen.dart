@@ -197,6 +197,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   highlight: i == 0 && _sort == SortMode.bestMatch,
                   onCall: () => _call(results[i]),
                   onReserve: () => _reserve(results[i]),
+                  onAlert: () => showPriceAlertSheet(context, results[i].part),
                 ),
             ],
           );

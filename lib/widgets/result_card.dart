@@ -12,11 +12,15 @@ class ResultCard extends StatelessWidget {
   final VoidCallback onCall;
   final VoidCallback onReserve;
 
+  /// Opens the price alert sheet for this part (bell next to the name).
+  final VoidCallback? onAlert;
+
   const ResultCard({
     super.key,
     required this.result,
     required this.onCall,
     required this.onReserve,
+    this.onAlert,
     this.highlight = false,
   });
 
@@ -57,13 +61,38 @@ class ResultCard extends StatelessWidget {
                 ),
               ),
             ),
-          Text(
-            result.part.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.ink,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  result.part.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.ink,
+                  ),
+                ),
+              ),
+              if (onAlert != null)
+                ListenableBuilder(
+                  listenable: Repo.instance,
+                  builder: (context, _) {
+                    final on = Repo.instance.alertFor(result.part.id) != null;
+                    return IconButton(
+                      tooltip: on ? 'Price alert is on' : 'Price alert',
+                      visualDensity: VisualDensity.compact,
+                      onPressed: onAlert,
+                      icon: Icon(
+                        on
+                            ? Icons.notifications_active
+                            : Icons.notifications_none,
+                        size: 22,
+                        color: on ? AppColors.orange : AppColors.muted,
+                      ),
+                    );
+                  },
+                ),
+            ],
           ),
           const SizedBox(height: 2),
           Text(
