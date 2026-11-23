@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../data/scan_mode.dart';
 import '../services/part_scanner.dart';
+import '../services/part_scanner_factory.dart';
 import '../theme.dart';
 import 'candidates_screen.dart';
 

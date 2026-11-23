@@ -80,6 +80,11 @@ class AppConfig {
     defaultValue: '',
   );
 
+  /// true = the scanner runs inside the phone (assets/models/part_classifier.onnx),
+  /// no server needed. Only used when AI_SCANNER_URL is not set.
+  static const bool useOnDeviceModel =
+      bool.fromEnvironment('ON_DEVICE_MODEL', defaultValue: true);
+
   static bool get aiScannerConfigured =>
       aiScannerUrl.startsWith('http') && !aiScannerUrl.contains('YOUR_');
 
