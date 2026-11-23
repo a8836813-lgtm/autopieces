@@ -1,0 +1,4 @@
+Upload these to the Hugging Face Space (SDK: Gradio, hardware: CPU basic free):
+  README.md, app.py, main.py, requirements.txt, packages.txt
+  models/best.pt   <- copy it from ai_server/models/best.pt
+Replace the README.md and app.py that Hugging Face created.

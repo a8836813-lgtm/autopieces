@@ -51,3 +51,5 @@ Files to upload to the Space: `Dockerfile`, `main.py`, `requirements.txt`, `mode
 5. App: `flutter run --dart-define=AI_SCANNER_URL=https://<user>-<space>.hf.space`.
 6. Optional: Space > Settings > Variables and secrets > secret `AI_API_KEY`, and the same value in the app with `--dart-define=AI_SCANNER_API_KEY=...`.
 A free Space goes to sleep after some days without visitors and wakes up on the next request (the first scan can take 1 to 2 minutes). Open `/health` before a demo.
+
+(For the free Gradio-Space route use the files in hf_space/, see hf_space/FILES_TO_UPLOAD.txt.)
