@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Res as ResultsScreen
+    participant Repo as Repo
+    actor Shop as Shop owner
+    participant Saved as SavedScreen
+
+    Client->>Res: tap Reserve
+    Res->>Res: _reserve(result)
+    Res->>Repo: reserve(result)
+    Repo-->>Res: Reservation (status Pending)
+    Shop->>Repo: shopReservations()
+    Repo-->>Shop: pending orders
+    Shop->>Repo: confirmReservation(reservation)
+    Repo->>Repo: logActivity(text)
+    Client->>Saved: open Saved tab
+    Saved->>Repo: clientReservations
+    Repo-->>Saved: status Confirmed
+    Client->>Shop: goes to the shop, pays at pickup
+    Shop->>Repo: completeReservation(reservation)
+    Repo->>Repo: stock quantity -1, add Sale, logActivity
+    Client->>Saved: _review(reservation)
+    Saved->>Repo: addReview(targetId, stars, comment, photos)
+    Saved->>Repo: markReviewed(reservation)

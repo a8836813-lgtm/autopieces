@@ -1,0 +1,32 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Scan as ScanScreen
+    participant Fac as PartScannerFactory
+    participant Sc as OnDevicePartScanner
+    participant Match as scanner_matching
+    participant Repo as Repo (catalog)
+    participant Cand as CandidatesScreen
+    participant Res as ResultsScreen
+
+    Client->>Scan: open scan screen
+    Client->>Scan: _capture() x 2-3
+    Scan->>Fac: create()
+    Fac-->>Scan: PartScanner
+    Client->>Scan: _identify()
+    Scan->>Sc: identify(photoPaths)
+    loop for each photo
+        Sc->>Sc: _preprocess(path)
+        Sc->>Sc: _run(input) (ONNX model)
+    end
+    Sc->>Match: candidatesFromVotes(votes, total)
+    Match->>Repo: parts (look for a catalog match)
+    Repo-->>Match: Part or none
+    Match-->>Sc: List of MatchCandidate
+    Sc-->>Scan: List of MatchCandidate
+    Scan->>Cand: open CandidatesScreen(candidates)
+    Client->>Cand: _confirm()
+    Cand->>Res: open ResultsScreen(part)
+    Res->>Repo: resultsForPart(partId)
+    Repo-->>Res: List of SearchResult
+    Res-->>Client: shops, prices, distance

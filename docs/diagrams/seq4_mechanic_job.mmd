@@ -1,0 +1,26 @@
+sequenceDiagram
+    autonumber
+    actor Mech as Mechanic
+    participant Shell as MechanicShell
+    participant Repo as Repo
+    participant Inv as InvoiceScreen
+    participant Rep as ReportEditScreen
+
+    Mech->>Shell: open Jobs tab
+    Shell->>Repo: jobsWithStatus(statuses)
+    Repo-->>Shell: List of JobRequest
+    Mech->>Shell: Accept
+    Shell->>Repo: acceptJob(job)
+    Mech->>Shell: Start work
+    Shell->>Repo: startJob(job)
+    Mech->>Shell: _addJobPhoto(repo, job)
+    Shell->>Repo: addJobPhoto(job, path)
+    Mech->>Shell: Mark as done
+    Shell->>Repo: finishJob(job)
+    Mech->>Inv: open InvoiceScreen(job)
+    Inv->>Repo: saveInvoice(job, labour, parts)
+    Inv->>Repo: setJobPaid(job, true)
+    Mech->>Rep: Write report
+    Rep->>Repo: addReport(report)
+    Mech->>Rep: Edit report later
+    Rep->>Repo: updateReport(old, updated)
