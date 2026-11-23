@@ -1,0 +1,24 @@
+sequenceDiagram
+    autonumber
+    actor User
+    participant Login as LoginScreen
+    participant Val as validators
+    participant Auth as AuthService
+    participant Home as HomeRouter
+
+    User->>Login: choose role, enter email and password
+    Login->>Val: Validators.email, Validators.password
+    Val-->>Login: ok or error text
+    Login->>Auth: _submit() calls login(role, email, password)
+    alt unknown email
+        Auth-->>Login: AuthException "No account found"
+    else wrong role
+        Auth-->>Login: AuthException "registered as another role"
+    else wrong password
+        Auth-->>Login: AuthException "Incorrect password"
+    else success
+        Auth->>Auth: currentUser.value = user
+        Auth-->>Login: AppUser
+        Login->>Home: HomeRouter (by role)
+        Home-->>User: client, mechanic or shop space
+    end

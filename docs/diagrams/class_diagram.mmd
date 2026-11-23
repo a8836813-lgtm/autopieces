@@ -1,0 +1,123 @@
+classDiagram
+    direction LR
+    class Repo {
+        <<singleton>>
+        +parts List~Part~
+        +shops List~Shop~
+        +mechanics List~Mechanic~
+        +reservations List~Reservation~
+        +reviews List~Review~
+        +jobs List~JobRequest~
+        +priceAlerts List~PriceAlert~
+        +resultsForPart(partId)
+        +reserve(result)
+        +confirmReservation(r)
+        +completeReservation(r)
+        +addReview(...)
+        +acceptJob(job)
+        +finishJob(job)
+        +addReport(report)
+        +setPriceAlert(partId, price)
+    }
+    class AuthService {
+        <<singleton>>
+        +currentUser
+        +login(role, email, password)
+        +signUp(...)
+        +logout()
+    }
+    class AppUser {
+        +id
+        +name
+        +email
+        +phone
+        +role UserRole
+    }
+    class Shop {
+        +id
+        +name
+        +type
+        +phone
+        +hours
+        +rating
+    }
+    class Part {
+        +id
+        +name
+        +oem
+        +category
+        +fits
+    }
+    class StockItem {
+        +shopId
+        +partId
+        +price
+        +quantity
+    }
+    class Reservation {
+        +status
+        +createdAt
+        +reviewed
+    }
+    class SearchResult
+    class MatchCandidate {
+        +confidence
+        +reason
+    }
+    class Mechanic {
+        +id
+        +name
+        +specialties
+        +rating
+        +hours
+    }
+    class RepairReport {
+        +title
+        +car
+        +diagnosis
+        +cost
+    }
+    class Review {
+        +targetId
+        +stars
+        +comment
+        +photos
+    }
+    class JobRequest {
+        +status
+        +price
+        +photos
+        +paid
+    }
+    class PriceAlert {
+        +partId
+        +targetPrice
+    }
+    class PartScanner {
+        <<interface>>
+        +identify(photoPaths)
+    }
+    class OnDevicePartScanner
+    class RemotePartScanner
+    class MockPartScanner
+
+    Repo "1" o-- "*" Shop
+    Repo "1" o-- "*" Part
+    Repo "1" o-- "*" Mechanic
+    Shop "1" --> "*" StockItem : sells
+    Part "1" --> "*" StockItem : listed as
+    SearchResult --> Part
+    SearchResult --> Shop
+    SearchResult --> StockItem
+    Reservation --> SearchResult
+    MatchCandidate --> Part
+    Mechanic "1" --> "*" RepairReport : writes
+    Mechanic "1" --> "*" JobRequest : receives
+    Review ..> Shop : about
+    Review ..> Mechanic : about
+    PriceAlert ..> Part
+    AuthService --> AppUser
+    PartScanner <|.. OnDevicePartScanner
+    PartScanner <|.. RemotePartScanner
+    PartScanner <|.. MockPartScanner
+    PartScanner ..> MatchCandidate : returns

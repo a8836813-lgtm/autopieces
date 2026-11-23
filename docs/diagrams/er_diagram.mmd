@@ -1,0 +1,97 @@
+erDiagram
+    USERS ||--o{ SHOPS : owns
+    USERS ||--o{ RESERVATIONS : makes
+    USERS ||--o{ MECHANIC_REPORTS : writes
+    USERS ||--o{ JOB_REQUESTS : "receives (mechanic)"
+    USERS ||--o{ REVIEWS : writes
+    USERS ||--o{ FAVORITES : saves
+    USERS ||--o{ PRICE_ALERTS : sets
+    SHOPS ||--o{ STOCK : holds
+    PARTS ||--o{ STOCK : "is stocked as"
+    STOCK ||--o{ RESERVATIONS : reserved
+    PARTS ||--o{ PRICE_ALERTS : watched
+    JOB_REQUESTS ||--o| INVOICES : billed
+
+    USERS {
+        int id PK
+        string role "client, mechanic, shop"
+        string name
+        string email
+        string phone
+        string password_hash
+        text profile_json
+    }
+    SHOPS {
+        int id PK
+        int owner_id FK
+        string name
+        string type
+        string phone
+        string hours
+        decimal rating
+        double lat
+        double lng
+    }
+    PARTS {
+        int id PK
+        string name
+        string oem
+        string fits
+    }
+    STOCK {
+        int id PK
+        int shop_id FK
+        int part_id FK
+        int price
+        int quantity
+        string part_condition
+    }
+    RESERVATIONS {
+        int id PK
+        int client_id FK
+        int stock_id FK
+        string status
+        timestamp created_at
+    }
+    MECHANIC_REPORTS {
+        int id PK
+        int mechanic_id FK
+        string car
+        string title
+        text body
+    }
+    JOB_REQUESTS {
+        int id PK
+        int mechanic_id FK
+        int client_id FK
+        string car
+        string problem
+        int price
+        string status
+        datetime slot
+    }
+    INVOICES {
+        int id PK
+        int job_id FK
+        int labour
+        int parts_cost
+        boolean paid
+    }
+    REVIEWS {
+        int id PK
+        int author_id FK
+        int target_id
+        int stars
+        string comment
+    }
+    FAVORITES {
+        int id PK
+        int user_id FK
+        int part_id FK
+    }
+    PRICE_ALERTS {
+        int id PK
+        int user_id FK
+        int part_id FK
+        int target_price
+    }
