@@ -122,12 +122,26 @@ class ApiEndpoints {
   static const String register = 'auth/register.php';
   static const String shops = 'shops.php';
   static const String searchParts = 'parts_search.php';
+  static const String me = 'auth/me.php';
+  static const String myShop = 'my_shop.php';
+  static const String parts = 'parts.php';
+  static const String stock = 'stock.php';
+  static const String reservations = 'reservations.php';
+  static const String mechanics = 'mechanics.php';
+  static const String reports = 'reports.php';
+  static const String appointments = 'appointments.php';
+  static const String jobs = 'jobs.php';
+  static const String reviews = 'reviews.php';
+  static const String favorites = 'favorites.php';
+  static const String priceAlerts = 'price_alerts.php';
+  static const String shopStats = 'shop_stats.php';
+  static const String mechanicStats = 'mechanic_stats.php';
   static const String chatSend = 'chat/send.php';
   static const String chatMessages = 'chat/messages.php';
   static const String chatInbox = 'chat/inbox.php';
 
-  // Planned (not written yet): stock.php, reservations.php, reports.php,
-  // favorites.php, reviews.php
+  // All endpoints above exist in /php (see docs/API.md). The app still reads its
+  // demo data from lib/data/repo.dart; switching Repo to these endpoints is the next step.
 
   static String url(String endpoint) {
     final base = AppConfig.phpBaseUrl.endsWith('/')

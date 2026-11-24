@@ -1,4 +1,6 @@
-# Never run scripts from the upload folder.
-php_flag engine off
-RemoveHandler .php .phtml .php3 .php5
-Options -ExecCGI -Indexes
+# Photos only: refuse to serve or run any script that ends up in this folder.
+<FilesMatch "\.(php|phtml|php[0-9]|phar|cgi|pl|py)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>

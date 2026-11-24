@@ -14,6 +14,23 @@ function chat_row(array $r): array {
     ];
 }
 
+/**
+ * With AUTH_REQUIRED the signed-in account must be a side of this conversation:
+ * the client with this e-mail, or the shop / mechanic whose profile id is $peer.
+ * In development mode (AUTH_REQUIRED = false) the app is trusted.
+ */
+function chat_guard(string $client, string $kind, string $peer, string $side): void {
+    if (!AUTH_REQUIRED) return;
+    $u = actor();
+    if ($side === 'client') {
+        if ($u['role'] !== 'client' || strtolower($u['email']) !== $client) json_error('Not your conversation', 403);
+        return;
+    }
+    if ($u['role'] !== $kind) json_error('Not your conversation', 403);
+    $row = $kind === 'shop' ? my_shop($u) : my_mechanic($u);
+    if ((string) $row['id'] !== $peer) json_error('Not your conversation', 403);
+}
+
 /** Reads and validates the three fields that identify one conversation. */
 function conv_from(array $src): array {
     $client = strtolower(trim((string) ($src['client_ref'] ?? '')));

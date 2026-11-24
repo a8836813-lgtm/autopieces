@@ -10,12 +10,13 @@ require_once __DIR__ . '/_chat.php';
 $reader = $_GET['reader'] ?? '';
 if (!in_array($reader, ['client', 'peer'], true)) json_error('reader must be client or peer');
 $after = max(0, (int) ($_GET['after_id'] ?? 0));
+chat_guard($client, $kind, $peer, $reader);
 
 $other = $reader === 'client' ? 'peer' : 'client';
-db()->prepare('UPDATE chat_messages SET read_at = NOW()
+db()->prepare('UPDATE chat_messages SET read_at = ?
                WHERE client_ref = ? AND peer_kind = ? AND peer_id = ?
                  AND sender = ? AND read_at IS NULL')
-    ->execute([$client, $kind, $peer, $other]);
+    ->execute([now_sql(), $client, $kind, $peer, $other]);
 
 $st = db()->prepare('SELECT * FROM chat_messages
                      WHERE client_ref = ? AND peer_kind = ? AND peer_id = ? AND id > ?

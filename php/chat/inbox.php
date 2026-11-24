@@ -11,6 +11,7 @@ $as = $_GET['as'] ?? '';
 if ($as === 'client') {
     $client = strtolower(trim((string) ($_GET['client_ref'] ?? '')));
     if ($client === '') json_error('client_ref required');
+    chat_guard($client, 'shop', '', 'client');
     $where = 'client_ref = ?';
     $args = [$client];
     $other = 'peer';
@@ -20,6 +21,7 @@ if ($as === 'client') {
     if ($peer === '' || !in_array($kind, ['mechanic', 'shop'], true)) {
         json_error('peer_kind and peer_id required');
     }
+    chat_guard('', $kind, $peer, 'peer');
     $where = 'peer_kind = ? AND peer_id = ?';
     $args = [$kind, $peer];
     $other = 'client';

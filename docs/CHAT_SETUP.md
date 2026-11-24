@@ -7,10 +7,9 @@ Everything runs on your PC; no hosting needed.
 1. Start **Apache** and **MySQL** in the XAMPP control panel.
 2. Copy the `php` folder of the project to `C:\xampp\htdocs\autopieces\api`
    (the result must be `C:\xampp\htdocs\autopieces\api\chat\send.php`).
-3. Open http://localhost/phpmyadmin, choose the `autopieces` database
-   (if it does not exist yet, import `php/database/schema.sql` first).
-   If the database already exists, open the **SQL** tab and run only the last block of
-   `schema.sql` (the one that starts with `CREATE TABLE IF NOT EXISTS chat_messages`).
+3. Open http://localhost/phpmyadmin. If an `autopieces` database exists from before, **drop it**
+   (it only held test data), then import `php/database/schema.sql` and after it `php/database/seed.sql`
+   (Import tab). The schema now contains every table, including `chat_messages`.
 4. Check in the browser: http://localhost/autopieces/api/ping.php
 
 ## 2. Run the app

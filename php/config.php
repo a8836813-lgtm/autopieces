@@ -22,3 +22,12 @@ define('SUPABASE_ANON_KEY', 'YOUR_SUPABASE_ANON_KEY');
 // ───────── Security ─────────
 define('JWT_SECRET', 'CHANGE_ME_TO_A_LONG_RANDOM_STRING');
 define('ALLOWED_ORIGIN', '*');    // CHANGE_ME to your web origin before going public
+
+// true  = every endpoint needs the token returned by auth/login.php (Authorization: Bearer ...).
+// false = DEVELOPMENT: if no token is sent, the endpoint trusts a "user_id" parameter, so you can
+//         test with a browser or Postman. Set to true (and change JWT_SECRET) before a real demo.
+define('AUTH_REQUIRED', false);
+define('TOKEN_TTL_DAYS', 7);
+
+// A review of a mechanic needs a finished job with that mechanic (shops always need a picked-up reservation).
+define('MECHANIC_REVIEW_NEEDS_JOB', true);

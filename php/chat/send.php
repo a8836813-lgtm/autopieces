@@ -11,6 +11,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') json_error('POST only', 405);
 [$client, $kind, $peer] = conv_from($_POST);
 $sender = $_POST['sender'] ?? '';
 if (!in_array($sender, ['client', 'peer'], true)) json_error('sender must be client or peer');
+chat_guard($client, $kind, $peer, $sender);
 
 $body = trim((string) ($_POST['body'] ?? ''));
 if (mb_strlen($body) > 2000) json_error('Message too long (2000 characters max)');
