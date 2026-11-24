@@ -44,6 +44,7 @@ class MechanicCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onCall;
   final VoidCallback onBook;
+  final VoidCallback? onChat;
 
   const MechanicCard({
     super.key,
@@ -52,6 +53,7 @@ class MechanicCard extends StatelessWidget {
     required this.onTap,
     required this.onCall,
     required this.onBook,
+    this.onChat,
   });
 
   @override
@@ -184,6 +186,16 @@ class MechanicCard extends StatelessWidget {
                         label: const Text('Call'),
                       ),
                     ),
+                    if (onChat != null) ...[
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: onChat,
+                          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                          label: const Text('Chat'),
+                        ),
+                      ),
+                    ],
                     const SizedBox(width: 10),
                     Expanded(
                       child: FilledButton.icon(

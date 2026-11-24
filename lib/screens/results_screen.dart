@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/price_alert_sheet.dart';
 import '../utils.dart';
 import '../widgets/result_card.dart';
+import 'chat_screen.dart';
 
 /// Shops that have a part in stock. Opened with a text [query] (a free
 /// search), an exact [part] (after a scan), or a [vehicleQuery] (brand, model
@@ -198,6 +199,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   onCall: () => _call(results[i]),
                   onReserve: () => _reserve(results[i]),
                   onAlert: () => showPriceAlertSheet(context, results[i].part),
+                  onChat: () => openChat(
+                    context,
+                    peerKind: 'shop',
+                    peerId: results[i].shop.id,
+                    peerName: results[i].shop.name,
+                    initialText:
+                        'Hello, is "${results[i].part.name}" still available?',
+                  ),
                 ),
             ],
           );

@@ -319,6 +319,10 @@ class AppointmentRequest {
   final DateTime createdAt;
   String status; // 'Sent' or 'Cancelled'
 
+  /// The job this created on the mechanic side (only for the demo mechanic).
+  /// The client follows its status and photos through it.
+  JobRequest? job;
+
   AppointmentRequest({
     required this.mechanic,
     required this.service,

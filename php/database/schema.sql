@@ -65,3 +65,25 @@ CREATE TABLE mechanic_reports (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (mechanic_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- ───────── Chat (client <-> mechanic or shop) ─────────
+-- Identity is stored as plain text references so the chat works before the
+-- app login is wired to this database:
+--   client_ref = the client's e-mail, peer_kind = 'mechanic' | 'shop',
+--   peer_id    = the mechanic id (e.g. m1) or shop id (e.g. s1) used by the app.
+-- If you already imported the schema, run only this block.
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  client_ref VARCHAR(160) NOT NULL,
+  client_name VARCHAR(120) NOT NULL DEFAULT '',
+  peer_kind ENUM('mechanic','shop') NOT NULL,
+  peer_id VARCHAR(40) NOT NULL,
+  peer_name VARCHAR(140) NOT NULL DEFAULT '',
+  sender ENUM('client','peer') NOT NULL,
+  body TEXT,
+  photo_path VARCHAR(200) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  read_at TIMESTAMP NULL DEFAULT NULL,
+  INDEX idx_conv (client_ref, peer_kind, peer_id, id),
+  INDEX idx_peer (peer_kind, peer_id, id)
+);

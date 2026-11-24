@@ -6,7 +6,9 @@ import '../theme.dart';
 import '../utils.dart';
 import '../widgets/appointment_sheet.dart';
 import '../widgets/mechanic_card.dart';
+import '../widgets/photo_strip.dart';
 import '../widgets/report_card.dart';
+import 'chat_screen.dart';
 import 'mechanic_detail_screen.dart';
 import 'mechanics_map_screen.dart';
 
@@ -145,6 +147,18 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
 
   // ------------------------------------------------------------ mechanics
 
+  /// What the client sees for an appointment, from the mechanic's job.
+  String _appointmentStatus(AppointmentRequest a) {
+    final s = a.job?.status ?? 'New';
+    return switch (s) {
+      'Accepted' => 'Accepted by the mechanic',
+      'In progress' => 'Work in progress',
+      'Done' => 'Done',
+      'Declined' => 'Declined by the mechanic',
+      _ => 'Waiting for confirmation',
+    };
+  }
+
   Widget _requestsCard(Repo repo) {
     final active =
         repo.appointments.where((a) => a.status != 'Cancelled').toList();
@@ -184,19 +198,45 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
                           ),
                         ),
                         Text(
-                          '${formatDate(a.when)} at ${formatTime(a.when)} · Waiting for confirmation',
+                          '${formatDate(a.when)} at ${formatTime(a.when)} · ${_appointmentStatus(a)}',
                           style: const TextStyle(
                             fontSize: 12.5,
                             color: AppColors.muted,
                           ),
                         ),
+                        if (a.job != null && a.job!.labourCost != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              'Invoice ${a.job!.invoiceNo} · ${formatDzd(a.job!.invoiceTotal)} DZD · ${a.job!.paid ? 'Paid' : 'Not paid yet'}',
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.green,
+                              ),
+                            ),
+                          ),
+                        if (a.job != null && a.job!.photos.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Progress photos from the mechanic',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.muted,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          PhotoStrip(paths: a.job!.photos, size: 56),
+                        ],
                       ],
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => repo.cancelAppointment(a),
-                    child: const Text('Cancel'),
-                  ),
+                  if (a.job == null || a.job!.status == 'New')
+                    TextButton(
+                      onPressed: () => repo.cancelAppointment(a),
+                      child: const Text('Cancel'),
+                    ),
                 ],
               ),
             ),
@@ -282,6 +322,8 @@ class _MechanicsScreenState extends State<MechanicsScreen> {
           onTap: () => _openMechanic(m),
           onCall: () => callMechanic(context, m),
           onBook: () => showAppointmentSheet(context, m),
+          onChat: () => openChat(context,
+              peerKind: 'mechanic', peerId: m.id, peerName: m.name),
         ),
     ];
   }

@@ -228,6 +228,10 @@ Rule: whenever a session touches the backend or the Flutter-to-backend link, upd
 | Auth endpoints (register, login) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/auth/ | written (login token TODO) |
 | Parts search endpoint | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/parts_search.php | written |
 | Shops endpoint (+ distance) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/shops.php | written |
+| Chat endpoints (send with optional photo, poll messages, inbox) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/chat/ | written, PHP syntax and logic tested on a SQLite stand-in, not yet on real XAMPP/MySQL |
+| Chat table `chat_messages` (run this block in phpMyAdmin) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/database/schema.sql | written |
+| Chat photo upload folder (PHP execution disabled by .htaccess) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/uploads/ | written |
+| Flutter chat service (PHP or in-memory, flag `CHAT_PHP`) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/services/chat_service.dart | written |
 | Reservations, mechanics, reports, favorites, reviews endpoints | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/php/ (not created yet) | planned |
 | Hosting / base URL of the PHP API | `http://10.0.2.2/autopieces/api` (emulator), `http://<PC-LAN-IP>/autopieces/api` (phone) | placeholder |
 | AI scanner server (FastAPI + YOLO) | https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/ai_server and `AI_SCANNER_URL` in https://github.com/a8836813-lgtm/autopieces/blob/feature/roles-and-polish/lib/config/app_config.dart | written, no trained model yet (URL placeholder) |

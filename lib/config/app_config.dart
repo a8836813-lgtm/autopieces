@@ -88,6 +88,15 @@ class AppConfig {
   static bool get aiScannerConfigured =>
       aiScannerUrl.startsWith('http') && !aiScannerUrl.contains('YOUR_');
 
+  // ───────────────────── CHAT (client <-> mechanic / shop) ──────────────────
+  // true  = messages go through the PHP/XAMPP server (works between 2 phones).
+  // false = messages stay in memory on this phone (demo, no server needed).
+  //   flutter run --dart-define=CHAT_PHP=false
+  // The server address is PHP_BASE_URL above. XAMPP needs Apache AND MySQL
+  // started, and the table chat_messages from php/database/schema.sql.
+  static const bool chatViaPhp =
+      bool.fromEnvironment('CHAT_PHP', defaultValue: true);
+
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static bool get supabaseConfigured =>
@@ -113,6 +122,9 @@ class ApiEndpoints {
   static const String register = 'auth/register.php';
   static const String shops = 'shops.php';
   static const String searchParts = 'parts_search.php';
+  static const String chatSend = 'chat/send.php';
+  static const String chatMessages = 'chat/messages.php';
+  static const String chatInbox = 'chat/inbox.php';
 
   // Planned (not written yet): stock.php, reservations.php, reports.php,
   // favorites.php, reviews.php

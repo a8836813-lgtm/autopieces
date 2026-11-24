@@ -11,6 +11,7 @@ import '../widgets/pill.dart';
 import '../widgets/rating_stars.dart';
 import '../widgets/report_card.dart';
 import '../widgets/review_widgets.dart';
+import 'chat_screen.dart';
 
 /// Full profile of one mechanic: trust stats, services with prices, info
 /// and the repair reports this mechanic published.
@@ -106,6 +107,15 @@ class MechanicDetailScreen extends StatelessWidget {
                   onPressed: () => callMechanic(context, m),
                   icon: const Icon(Icons.call_outlined, size: 18),
                   label: const Text('Call'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => openChat(context,
+                      peerKind: 'mechanic', peerId: m.id, peerName: m.name),
+                  icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                  label: const Text('Chat'),
                 ),
               ),
               const SizedBox(width: 10),

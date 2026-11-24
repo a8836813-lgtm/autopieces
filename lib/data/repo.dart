@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/search_query.dart';
+import '../services/auth_service.dart';
 import 'models.dart';
 import 'vehicles.dart';
 
@@ -1020,6 +1021,25 @@ class Repo extends ChangeNotifier {
       when: when,
       note: note,
     );
+    // The demo mechanic receives it in the Jobs tab, so the client can follow
+    // the status and the progress photos.
+    if (mechanic.id == myMechanicId) {
+      var price = 0;
+      for (final s in mechanic.services) {
+        if (s.name == service) price = s.priceFrom;
+      }
+      final job = JobRequest(
+        id: 'a${DateTime.now().millisecondsSinceEpoch}',
+        clientName: AuthService.instance.currentUser.value?.name ?? 'Client',
+        car: 'Car not specified',
+        problem: note.trim().isEmpty ? service : '$service. ${note.trim()}',
+        distanceKm: mechanic.distanceKm,
+        price: price,
+        slot: when,
+      );
+      jobs.insert(0, job);
+      request.job = job;
+    }
     appointments.insert(0, request);
     notifyListeners();
     return request;
@@ -1027,6 +1047,8 @@ class Repo extends ChangeNotifier {
 
   void cancelAppointment(AppointmentRequest request) {
     request.status = 'Cancelled';
+    final job = request.job;
+    if (job != null && job.status == 'New') jobs.remove(job);
     notifyListeners();
   }
 

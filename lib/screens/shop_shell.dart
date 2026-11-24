@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../data/models.dart';
 import '../data/repo.dart';
 import '../data/scan_mode.dart';
+import '../services/chat_service.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/mechanic_widgets.dart';
@@ -10,6 +11,7 @@ import '../widgets/pill.dart';
 import '../widgets/review_widgets.dart';
 import 'add_part_screen.dart';
 import 'auth/home_router.dart';
+import 'messages_screen.dart';
 import 'restock_screen.dart';
 import 'scan_screen.dart';
 import 'shop_info_screen.dart';
@@ -35,7 +37,15 @@ class _ShopShellState extends State<ShopShell> {
   final _stockSearch = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final me = ChatIdentity.current();
+    if (me != null) ChatService.instance.start(me, this);
+  }
+
+  @override
   void dispose() {
+    ChatService.instance.stop(this);
     _stockSearch.dispose();
     super.dispose();
   }
@@ -1243,6 +1253,7 @@ class _ShopShellState extends State<ShopShell> {
           _tab == 0 ? '${shop.name} · Shop mode' : titles[_tab],
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
+        actions: const [MessagesAction()],
       ),
       body: ListenableBuilder(
         listenable: repo,

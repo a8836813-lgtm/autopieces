@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../data/models.dart';
 import '../data/repo.dart';
 import '../services/auth_service.dart';
+import '../services/chat_service.dart';
 import '../services/photo_picker.dart';
 import '../theme.dart';
 import '../utils.dart';
@@ -13,6 +14,7 @@ import '../widgets/review_widgets.dart';
 import 'auth/home_router.dart';
 import 'estimate_screen.dart';
 import 'invoice_screen.dart';
+import 'messages_screen.dart';
 import 'mechanic_diagnostic_screen.dart';
 import 'report_edit_screen.dart';
 import 'results_screen.dart';
@@ -32,7 +34,15 @@ class _MechanicShellState extends State<MechanicShell> {
   final _reportSearch = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final me = ChatIdentity.current();
+    if (me != null) ChatService.instance.start(me, this);
+  }
+
+  @override
   void dispose() {
+    ChatService.instance.stop(this);
     _reportSearch.dispose();
     super.dispose();
   }
@@ -1085,6 +1095,7 @@ class _MechanicShellState extends State<MechanicShell> {
           titles[_tab],
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
+        actions: const [MessagesAction()],
       ),
       body: ListenableBuilder(
         listenable: repo,

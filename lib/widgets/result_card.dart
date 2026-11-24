@@ -15,12 +15,16 @@ class ResultCard extends StatelessWidget {
   /// Opens the price alert sheet for this part (bell next to the name).
   final VoidCallback? onAlert;
 
+  /// Opens a chat with the shop (null hides the button).
+  final VoidCallback? onChat;
+
   const ResultCard({
     super.key,
     required this.result,
     required this.onCall,
     required this.onReserve,
     this.onAlert,
+    this.onChat,
     this.highlight = false,
   });
 
@@ -163,6 +167,16 @@ class ResultCard extends StatelessWidget {
                     OutlinedButton.styleFrom(minimumSize: const Size(64, 44)),
                 child: const Text('Call'),
               ),
+              if (onChat != null) ...[
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: onChat,
+                  style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(48, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: 12)),
+                  child: const Icon(Icons.chat_bubble_outline, size: 20),
+                ),
+              ],
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: onReserve,
