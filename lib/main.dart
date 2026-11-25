@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'screens/auth/role_select_screen.dart';
+import 'screens/auth/start_screen.dart';
 import 'services/notifier.dart';
 import 'theme.dart';
 
@@ -16,7 +16,7 @@ class AutoPiecesApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: messengerKey,
       theme: buildTheme(),
-      home: const RoleSelectScreen(),
+      home: const StartScreen(),
     );
   }
 }

@@ -13,6 +13,8 @@ INSERT INTO shops (id, owner_id, name, type, address, phone, hours, about, open_
   (2, NULL, 'Auto Parts Kaous', 'Retail shop', 'Kaous, Jijel',        '0771111111', 'Open until 18:00', 'Spare parts for French and Korean cars.',       1, 36.8030, 5.8050),
   (3, NULL, 'Casse Auto El Milia', 'Used parts', 'El Milia',          '0772222222', 'Open until 17:00', 'Used and refurbished parts.',                    0, 36.7510, 6.2630);
 
+UPDATE shops SET payments = 'Cash, CIB card' WHERE id = 1;
+
 INSERT INTO parts (id, name, oem, category, fits, alt_serials) VALUES
   (1, 'Front brake pads',  '04465-02220', 'Brakes',  'Toyota, Renault Clio',      'GDB1330,FDB1573'),
   (2, 'Oil filter',        '90915-YZZE1', 'Filters', 'Most petrol cars',          'W712/75,OC196'),

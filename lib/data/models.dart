@@ -8,6 +8,9 @@ class Shop {
   final String hours;
   final bool openNow;
   final String phone;
+  final String about;
+  final bool delivers;
+  final List<String> payments;
 
   /// Direction from the client in degrees (0 = north). Used by the nearby
   /// map until real GPS coordinates exist.
@@ -23,6 +26,9 @@ class Shop {
     required this.hours,
     required this.openNow,
     required this.phone,
+    this.about = '',
+    this.delivers = false,
+    this.payments = const ['Cash'],
     this.bearing = 0,
   });
 }

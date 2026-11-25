@@ -122,6 +122,42 @@ class _ShopScreenState extends State<ShopScreen> {
                       'Phone (demo number): ${Repo.instance.shopPhoneOf(shop)}',
                       style: const TextStyle(fontSize: 14),
                     ),
+                    if (Repo.instance.shopAboutOf(shop).isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        Repo.instance.shopAboutOf(shop),
+                        style: const TextStyle(
+                            fontSize: 14, color: AppColors.muted, height: 1.35),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.delivery_dining_outlined,
+                            size: 18, color: AppColors.muted),
+                        const SizedBox(width: 6),
+                        Text(
+                          Repo.instance.shopDeliversOf(shop)
+                              ? 'Delivery available'
+                              : 'Pick up in the shop',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.payments_outlined,
+                            size: 18, color: AppColors.muted),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Pay with ${Repo.instance.shopPaymentsOf(shop).join(', ')}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

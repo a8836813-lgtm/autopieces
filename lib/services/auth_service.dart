@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
 import '../data/repo.dart';
 import 'api_client.dart';
+import 'session_store.dart';
 
 /// The three account types. Each one has its own login and sign-up.
 enum UserRole { client, mechanic, shop }
@@ -171,7 +172,26 @@ class AuthService {
     return user;
   }
 
+  Future<AppUser?> restore() async {
+    if (!AppConfig.useServer) return null;
+    final saved = await SessionStore.read();
+    if (saved == null) return null;
+    ApiClient.instance.token = saved;
+    try {
+      final r = await ApiClient.instance.get(ApiEndpoints.me);
+      return await _finishRemote({'token': saved, 'user': r['user']});
+    } on ApiException catch (e) {
+      ApiClient.instance.token = null;
+      if (e.status == 401) await SessionStore.clear();
+      return null;
+    } on AuthException {
+      ApiClient.instance.token = null;
+      return null;
+    }
+  }
+
   void logout() {
+    SessionStore.clear();
     ApiClient.instance.token = null;
     Repo.instance.clearServerData();
     currentUser.value = null;
@@ -209,6 +229,7 @@ class AuthService {
       ApiClient.instance.token = null;
       throw AuthException(e.message);
     }
+    await SessionStore.write(data['token'] as String);
     currentUser.value = user;
     return user;
   }

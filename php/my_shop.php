@@ -2,7 +2,8 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/database/db.php';
 
-// Shop owner: GET = my shop, POST = change it (hours, phone, about, open, delivery, low-stock limit...).
+// Shop owner: GET = my shop, POST = change it (hours, phone, about, open, delivery, payments, low-stock limit...).
+// payments: list or comma text from Cash, CIB card, Edahabia, Bank transfer (at least one, default Cash).
 $u = actor(['shop']);
 $shop = my_shop($u);
 
@@ -19,6 +20,7 @@ if (method() === 'POST') {
             $set[] = "$col = ?"; $args[] = $val;
         }
     }
+    if (input('payments') !== null) { $set[] = 'payments = ?'; $args[] = clean_payments(input('payments')); }
     foreach (['open_now', 'delivers'] as $col) {
         if (input($col) !== null) { $set[] = "$col = ?"; $args[] = input($col) ? 1 : 0; }
     }

@@ -6,7 +6,7 @@ require_once __DIR__ . '/database/db.php';
 // so the client can follow its status, the progress photos and the invoice.
 //
 // GET  appointments.php                                   my appointments (with job status, photos, invoice)
-// POST {action:"create", mechanic_id, service, when, note?, car?}
+// POST {action:"create", mechanic_id, service, when, note?, car?, lat?, lng?}   lat/lng = the client's position (gives the job its km)
 // POST {action:"cancel", id}                              only while the mechanic has not answered (job New)
 $pdo = db();
 $u = actor(['client']);
@@ -60,11 +60,15 @@ if ($action === 'create') {
     if (($p = $sv->fetchColumn()) !== false) $price = (int) $p;
 
     $note = input_str('note', 400);
+    $km = null;
+    if (is_numeric(input('lat')) && is_numeric(input('lng')) && $mech['lat'] !== null && $mech['lng'] !== null) {
+        $km = round(distance_km((float) input('lat'), (float) input('lng'), (float) $mech['lat'], (float) $mech['lng']), 1);
+    }
     $pdo->beginTransaction();
-    $pdo->prepare('INSERT INTO job_requests (mechanic_id, client_id, client_name, car, problem, price, slot, created_at)
-                   VALUES (?,?,?,?,?,?,?,?)')
+    $pdo->prepare('INSERT INTO job_requests (mechanic_id, client_id, client_name, car, problem, price, slot, distance_km, created_at)
+                   VALUES (?,?,?,?,?,?,?,?,?)')
         ->execute([$mid, $u['id'], $u['name'], input_str('car', 120) ?: 'Car not specified',
-                   $note === '' ? $service : "$service. $note", $price, $when, now_sql()]);
+                   $note === '' ? $service : "$service. $note", $price, $when, $km, now_sql()]);
     $jobId = (int) $pdo->lastInsertId();
     $pdo->prepare('INSERT INTO appointments (client_id, mechanic_id, job_id, service, when_at, note, created_at)
                    VALUES (?,?,?,?,?,?,?)')

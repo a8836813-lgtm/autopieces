@@ -42,6 +42,7 @@ CREATE TABLE shops (
   open_now TINYINT DEFAULT 1,
   delivers TINYINT DEFAULT 0,
   low_stock_limit INT DEFAULT 1,
+  payments VARCHAR(120) NOT NULL DEFAULT 'Cash',
   rating DECIMAL(2,1) DEFAULT 0,
   lat DOUBLE NULL,
   lng DOUBLE NULL,
@@ -159,6 +160,7 @@ CREATE TABLE job_requests (
   price INT DEFAULT 0,                   -- quoted price in DZD
   slot DATETIME NOT NULL,                -- when the client wants it done
   urgent TINYINT DEFAULT 0,
+  distance_km DOUBLE NULL,
   status ENUM('New','Accepted','In progress','Done','Declined') DEFAULT 'New',
   completed_at TIMESTAMP NULL DEFAULT NULL,
   labour_cost INT NULL,                  -- invoice

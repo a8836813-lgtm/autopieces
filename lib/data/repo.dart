@@ -1355,6 +1355,13 @@ class Repo extends ChangeNotifier {
 
   String shopHoursOf(Shop s) => s.id == myShopId ? shopHours : s.hours;
 
+  String shopAboutOf(Shop s) => s.id == myShopId ? shopAbout : s.about;
+
+  bool shopDeliversOf(Shop s) => s.id == myShopId ? shopDelivers : s.delivers;
+
+  List<String> shopPaymentsOf(Shop s) =>
+      s.id == myShopId ? shopPayments.toList() : s.payments;
+
   String shopPhoneOf(Shop s) =>
       s.id == myShopId && shopPhone.trim().isNotEmpty ? shopPhone : s.phone;
 
@@ -1386,6 +1393,7 @@ class Repo extends ChangeNotifier {
           'phone': shopPhone,
           'about': shopAbout,
           'delivers': shopDelivers,
+          'payments': shopPayments.toList(),
         }));
   }
 

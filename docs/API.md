@@ -29,14 +29,14 @@ Setup, import order and test accounts are in section "Install" below.
 | `ping.php` | anyone | database check |
 | `auth/register.php`, `auth/login.php`, `auth/me.php` | anyone / signed in | accounts |
 | `shops.php` | anyone | list, `?id=`, `?lat=&lng=` sorted by distance, rating from reviews |
-| `my_shop.php` | shop | read or edit own shop (hours, phone, about, open, delivery, low-stock limit) |
+| `my_shop.php` | shop | read or edit own shop (hours, phone, about, open, delivery, payments, low-stock limit) |
 | `parts.php` | anyone, POST: shop | catalogue, `?id=`, `?category=`; POST adds a part (reuses the serial number) and stock |
 | `parts_search.php` | anyone | `?q=` (name, serial, alternative serial), `&category=`, `&sort=nearest&lat=&lng=` |
 | `stock.php` | GET anyone, POST shop | `upsert`, `adjust` (+/-), `delete`, `bulk_price` (percent, category) |
 | `reservations.php` | client, shop | client: `create`, `cancel`, history. Shop: `?as=shop`, `confirm`, `decline`, `complete` (stock -1) |
 | `mechanics.php` | GET anyone, POST mechanic | list/search/sort, `?id=`, edit own profile and services |
 | `reports.php` | GET anyone, POST mechanic | repair reports: `create`, `update`, `delete`; any user: `helpful` toggle |
-| `appointments.php` | client | `create` (also creates the mechanic's job), list with job status, photos, invoice; `cancel` |
+| `appointments.php` | client | `create` (also creates the mechanic's job; optional `lat`/`lng` store the distance shown as km on the job), list with job status, photos, invoice; `cancel` |
 | `jobs.php` | mechanic | Jobs tab: `accept`, `decline`, `start`, `finish`, `invoice`, `paid`, `photo` (multipart), `remove_photo` |
 | `reviews.php` | GET anyone, POST client | reviews with photos (`photos[]`, max 3); shop needs a picked-up order, mechanic needs a finished job; `reply` by the owner |
 | `favorites.php` | client | list and toggle shop / part / mechanic hearts |

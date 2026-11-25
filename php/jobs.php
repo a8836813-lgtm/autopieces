@@ -25,6 +25,7 @@ function job_json(PDO $pdo, array $j): array {
     return [
         'id' => (int) $j['id'], 'client_name' => $j['client_name'], 'car' => $j['car'], 'problem' => $j['problem'],
         'price' => (int) $j['price'], 'slot' => $j['slot'], 'urgent' => (bool) $j['urgent'], 'status' => $j['status'],
+        'distance_km' => $j['distance_km'] === null ? null : (float) $j['distance_km'],
         'created_at' => $j['created_at'], 'completed_at' => $j['completed_at'],
         'labour_cost' => $labour, 'parts_cost' => (int) $j['parts_cost'],
         'invoice_no' => 'INV-' . $j['id'],

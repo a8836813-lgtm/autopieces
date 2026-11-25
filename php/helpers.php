@@ -141,6 +141,26 @@ function my_mechanic(array $user): array {
     return $m;
 }
 
+function distance_km(float $lat1, float $lng1, float $lat2, float $lng2): float {
+    $r = 6371.0;
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLng = deg2rad($lng2 - $lng1);
+    $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+    return $r * 2 * atan2(sqrt($a), sqrt(1 - $a));
+}
+
+const PAYMENT_OPTIONS = ['Cash', 'CIB card', 'Edahabia', 'Bank transfer'];
+
+function clean_payments($v): string {
+    $list = is_array($v) ? $v : explode(',', (string) $v);
+    $out = [];
+    foreach ($list as $p) {
+        $p = trim((string) $p);
+        if (in_array($p, PAYMENT_OPTIONS, true) && !in_array($p, $out, true)) $out[] = $p;
+    }
+    return implode(', ', $out ?: ['Cash']);
+}
+
 function method(): string { return $_SERVER['REQUEST_METHOD'] ?? 'GET'; }
 
 function require_post(): void {

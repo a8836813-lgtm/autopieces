@@ -18,6 +18,7 @@ dependencies:
   latlong2: ^0.9.1
   onnxruntime: ^1.4.1
   material_ui: ^1.11.1
+  shared_preferences: ^2.3.2
   url_launcher: ^6.3.1
 
 dev_dependencies:

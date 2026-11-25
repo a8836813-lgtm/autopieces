@@ -11,7 +11,7 @@ $lng = isset($_GET['lng']) ? (float) $_GET['lng'] : null;
 $rating = "(SELECT ROUND(AVG(stars),1) FROM reviews r WHERE r.target_kind='shop' AND r.target_id=s.id)";
 $count  = "(SELECT COUNT(*) FROM reviews r WHERE r.target_kind='shop' AND r.target_id=s.id)";
 $parts  = "(SELECT COUNT(*) FROM stock st WHERE st.shop_id=s.id AND st.quantity>0)";
-$sel = "s.id, s.name, s.type, s.address, s.phone, s.hours, s.about, s.open_now, s.delivers, s.lat, s.lng,
+$sel = "s.id, s.name, s.type, s.address, s.phone, s.hours, s.about, s.open_now, s.delivers, s.payments, s.lat, s.lng,
         COALESCE($rating, s.rating) AS rating, $count AS reviews_count, $parts AS parts_count";
 
 if (isset($_GET['id'])) {

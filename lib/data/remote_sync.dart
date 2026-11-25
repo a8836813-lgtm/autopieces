@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import '../config/app_config.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../services/device_location.dart';
 import '../services/notifier.dart';
 import 'models.dart';
 import 'repo.dart';
@@ -240,6 +241,10 @@ class RemoteSync {
         repo.shopPhone = _s(shop['phone']);
         repo.shopAbout = _s(shop['about']);
         repo.shopDelivers = _b(shop['delivers']);
+        final pays = _csv(shop['payments']);
+        repo.shopPayments
+          ..clear()
+          ..addAll(pays.isEmpty ? const ['Cash'] : pays);
         repo.lowStockLimit = _i(shop['low_stock_limit']);
       }
       if (isMechanic) {
@@ -269,6 +274,9 @@ class RemoteSync {
       hours: _s(m['hours']),
       openNow: _b(m['open_now']),
       phone: _s(m['phone']),
+      about: _s(m['about']),
+      delivers: _b(m['delivers']),
+      payments: _csv(m['payments']).isEmpty ? const ['Cash'] : _csv(m['payments']),
       bearing: hasPos ? _bearing(lat, lng) : 0,
     );
   }
@@ -393,7 +401,7 @@ class RemoteSync {
       clientName: _s(j['client_name']),
       car: _s(j['car']),
       problem: _s(j['problem']),
-      distanceKm: 0,
+      distanceKm: _d(j['distance_km']),
       price: _i(j['price']),
       slot: _t(j['slot']),
       urgent: _b(j['urgent']),
@@ -464,16 +472,18 @@ class RemoteSync {
   static Future<void> toggleHelpful(String reportId) => _api.post(
       ApiEndpoints.reports, {'action': 'helpful', 'id': int.parse(reportId)});
 
-  static Future<void> createAppointment(AppointmentRequest a) => _api.post(
-        ApiEndpoints.appointments,
-        {
-          'action': 'create',
-          'mechanic_id': int.parse(a.mechanic.id),
-          'service': a.service,
-          'when': a.when.toIso8601String(),
-          'note': a.note,
-        },
-      );
+  static Future<void> createAppointment(AppointmentRequest a) async {
+    final pos = await DeviceLocation.current();
+    await _api.post(ApiEndpoints.appointments, {
+      'action': 'create',
+      'mechanic_id': int.parse(a.mechanic.id),
+      'service': a.service,
+      'when': a.when.toIso8601String(),
+      'note': a.note,
+      if (pos != null) 'lat': pos.lat,
+      if (pos != null) 'lng': pos.lng,
+    });
+  }
 
   static Future<void> cancelAppointment(AppointmentRequest a) => _api.post(
       ApiEndpoints.appointments, {'action': 'cancel', 'id': int.parse(a.id)});
