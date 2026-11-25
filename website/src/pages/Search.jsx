@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { REFERENCE } from '../config';
+import { BRANDS } from '../vehicles';
 import { Badge, Empty, ErrorBox, Loading, money, useAction } from '../ui';
 
 const CATEGORIES = ['', 'Brakes', 'Filters', 'Battery', 'Engine', 'Electrical', 'Suspension', 'Cooling', 'Body'];
@@ -11,6 +12,9 @@ export default function Search() {
   const [category, setCategory] = useState('');
   const [sort, setSort] = useState('price');
   const [items, setItems] = useState(undefined);
+  const [brandId, setBrandId] = useState('');
+  const [model, setModel] = useState('');
+  const [fitments, setFitments] = useState({});
   const [alerts, setAlerts] = useState([]);
   const [notice, setNotice] = useState('');
   const { busy, error, run, setError } = useAction();
@@ -31,6 +35,21 @@ export default function Search() {
     }
   }
 
+  async function loadFitments() {
+    try {
+      const r = await api.get('parts.php');
+      const map = {};
+      r.parts.forEach((p) => {
+        let list = [];
+        try {
+          list = p.fitments_json ? JSON.parse(p.fitments_json) : [];
+        } catch {}
+        map[p.id] = { list, fits: (p.fits || '').toLowerCase() };
+      });
+      setFitments(map);
+    } catch {}
+  }
+
   async function loadAlerts() {
     try {
       const r = await api.get('price_alerts.php');
@@ -40,10 +59,21 @@ export default function Search() {
 
   useEffect(() => {
     loadAlerts();
+    loadFitments();
     // eslint-disable-next-line
   }, []);
 
-  const sorted = items && sort === 'price' ? [...items].sort((a, b) => a.price - b.price) : items;
+  const brand = BRANDS.find((b) => b.id === brandId);
+  function fitsCar(partId) {
+    if (!brand) return true;
+    const f = fitments[partId];
+    if (!f) return true;
+    if (f.list.length) return f.list.some((x) => x.brandId === brand.id && (!model || x.model === model));
+    if (!f.fits || f.fits.includes('universal')) return true;
+    return f.fits.includes(brand.name.toLowerCase()) && (!model || f.fits.includes(model.toLowerCase()));
+  }
+  const filtered = items ? items.filter((r) => fitsCar(r.part_id)) : items;
+  const sorted = filtered && sort === 'price' ? [...filtered].sort((a, b) => a.price - b.price) : filtered;
   const alertFor = (partId) => alerts.find((a) => a.part_id === partId);
 
   function reserve(r) {
@@ -88,6 +118,18 @@ export default function Search() {
           <option value="nearest">Nearest first</option>
         </select>
         <button className="btn">Search</button>
+        <div className="filters" style={{ width: '100%' }}>
+          <span className="muted small">My car:</span>
+          <select value={brandId} onChange={(e) => { setBrandId(e.target.value); setModel(''); }}>
+            <option value="">Any brand</option>
+            {BRANDS.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+          </select>
+          <select value={model} onChange={(e) => setModel(e.target.value)} disabled={!brand}>
+            <option value="">Any model</option>
+            {(brand ? brand.models : []).map((m) => <option key={m}>{m}</option>)}
+          </select>
+          {brand && <button type="button" className="btn ghost small" onClick={() => { setBrandId(''); setModel(''); }}>Clear</button>}
+        </div>
       </form>
       <ErrorBox error={error} />
       {notice && <div className="ok">{notice}</div>}
@@ -118,6 +160,7 @@ export default function Search() {
                 <button className="btn ghost" disabled={busy} onClick={() => toggleAlert(r)}>
                   {alertFor(r.part_id) ? '🔔 Alert on' : '🔔 Price alert'}
                 </button>
+                <Link className="btn ghost" to={`/part/${r.part_id}`}>Compare prices</Link>
                 <a className="btn ghost" href={`tel:${r.phone}`}>Call</a>
               </div>
             </div>

@@ -180,3 +180,27 @@ textarea { width: 100%; min-height: 80px; resize: vertical; }
   .chat { grid-template-columns: 1fr; }
   h1 { font-size: 22px; }
 }
+.map-box { height: 520px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.legend { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.legend.shop { background: var(--teal); }
+.legend.mech { background: var(--orange); }
+.bell { position: relative; }
+.bell-menu {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 340px;
+  max-width: 90vw;
+  max-height: 420px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.12);
+  z-index: 30;
+}
+.bell-item { padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.bell-item:hover { background: var(--chip); }
+.bell-item.new { background: var(--warn-bg); }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.brand-chip { display: inline-flex; align-items: center; gap: 6px; }

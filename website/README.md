@@ -16,6 +16,12 @@ reports, reviews, messages, profile).
    ```
 4. Open http://localhost:5173 and log in with a demo account (password `demo1234`): `client@demo.dz`, `mechanic@demo.dz`, `shop@demo.dz`.
 
+## Features beyond the app
+- Map of shops and mechanics (OpenStreetMap, needs internet for the map tiles), with open/available filter.
+- "My car" filter (brand and model, same list as the app) on the part search.
+- Price comparison page per part: every shop, cheapest badge, how much you save, reserve and price alert.
+- Notification bell: price alerts reached, new messages, order and appointment updates (client); new orders, low stock (shop); new requests, unpaid invoices (mechanic).
+
 ## Settings (`.env`)
 | Name | Meaning | Default |
 |---|---|---|

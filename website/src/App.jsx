@@ -22,10 +22,14 @@ import MechanicJobs from './pages/MechanicJobs';
 import MechanicReports from './pages/MechanicReports';
 import MechanicProfile from './pages/MechanicProfile';
 import Reviews from './pages/Reviews';
+import MapPage from './pages/MapPage';
+import PartPage from './pages/PartPage';
+import Notifications from './notifications';
 
 const MENUS = {
   client: [
     ['/', 'Search'],
+    ['/map', 'Map'],
     ['/mechanics', 'Mechanics'],
     ['/reports', 'Reports'],
     ['/orders', 'Orders'],
@@ -93,6 +97,7 @@ function Shell() {
               </NavLink>
             ))}
           </nav>
+          <Notifications user={user} />
           <span className="muted small">{user.name}</span>
           <button className="btn ghost small" onClick={logout}>Log out</button>
         </div>
@@ -102,6 +107,8 @@ function Shell() {
           <Routes>
             <Route path="/" element={<Search />} />
             <Route path="/shop/:id" element={<ShopPage />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/part/:id" element={<PartPage />} />
             <Route path="/mechanics" element={<Mechanics />} />
             <Route path="/mechanic/:id" element={<MechanicPage />} />
             <Route path="/reports" element={<Reports />} />
