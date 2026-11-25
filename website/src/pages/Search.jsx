@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { REFERENCE } from '../config';
 import { BRANDS } from '../vehicles';
@@ -8,13 +8,15 @@ import { Badge, Empty, ErrorBox, Loading, money, useAction } from '../ui';
 const CATEGORIES = ['', 'Brakes', 'Filters', 'Battery', 'Engine', 'Electrical', 'Suspension', 'Cooling', 'Body'];
 
 export default function Search() {
-  const [q, setQ] = useState('');
-  const [category, setCategory] = useState('');
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(params.get('q') || '');
+  const [category, setCategory] = useState(params.get('category') || '');
   const [sort, setSort] = useState('price');
   const [items, setItems] = useState(undefined);
-  const [brandId, setBrandId] = useState('');
+  const [brandId, setBrandId] = useState(params.get('brand') || '');
   const [model, setModel] = useState('');
   const [fitments, setFitments] = useState({});
+  const [catalogue, setCatalogue] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [notice, setNotice] = useState('');
   const { busy, error, run, setError } = useAction();
@@ -47,6 +49,7 @@ export default function Search() {
         map[p.id] = { list, fits: (p.fits || '').toLowerCase() };
       });
       setFitments(map);
+      setCatalogue(r.parts);
     } catch {}
   }
 
@@ -60,6 +63,7 @@ export default function Search() {
   useEffect(() => {
     loadAlerts();
     loadFitments();
+    if (q || category) search();
     // eslint-disable-next-line
   }, []);
 
@@ -133,8 +137,17 @@ export default function Search() {
       </form>
       <ErrorBox error={error} />
       {notice && <div className="ok">{notice}</div>}
-      {sorted === undefined ? (
-        <Empty>Type a part name or serial number, or pick a category.</Empty>
+      {sorted === undefined && brand ? (
+        <div className="grid">
+          {catalogue.filter((p) => fitsCar(p.id)).map((p) => (
+            <Link key={p.id} to={`/part/${p.id}`} className="card stack" style={{ color: 'inherit' }}>
+              <div className="row between"><h3>{p.name}</h3><span className="price">{p.cheapest_price ? money(p.cheapest_price) : 'Out of stock'}</span></div>
+              <div className="muted small">{p.category} · {p.fits} · {p.shops_count} shop(s)</div>
+            </Link>
+          ))}
+        </div>
+      ) : sorted === undefined ? (
+        <Empty>Type a part name or serial number, or pick a category or your car.</Empty>
       ) : !sorted ? (
         <Loading />
       ) : sorted.length === 0 ? (

@@ -4,6 +4,7 @@ import { useAuth } from './auth';
 import { api } from './api';
 import { Loading } from './ui';
 import Login from './pages/Login';
+import Home from './pages/Home';
 import Search from './pages/Search';
 import ShopPage from './pages/ShopPage';
 import Mechanics from './pages/Mechanics';
@@ -28,7 +29,8 @@ import Notifications from './notifications';
 
 const MENUS = {
   client: [
-    ['/', 'Search'],
+    ['/', 'Home'],
+    ['/search', 'Search'],
     ['/map', 'Map'],
     ['/mechanics', 'Mechanics'],
     ['/reports', 'Reports'],
@@ -38,20 +40,20 @@ const MENUS = {
     ['/messages', 'Messages'],
   ],
   shop: [
-    ['/', 'Dashboard'],
-    ['/stock', 'Stock'],
-    ['/orders', 'Orders'],
-    ['/reviews', 'Reviews'],
-    ['/messages', 'Messages'],
-    ['/settings', 'My shop'],
+    ['/', 'Dashboard', '📊'],
+    ['/stock', 'Stock', '📦'],
+    ['/orders', 'Orders', '🧾'],
+    ['/reviews', 'Reviews', '⭐'],
+    ['/messages', 'Messages', '💬'],
+    ['/settings', 'My shop', '🏪'],
   ],
   mechanic: [
-    ['/', 'Dashboard'],
-    ['/jobs', 'Jobs'],
-    ['/reports', 'My reports'],
-    ['/reviews', 'Reviews'],
-    ['/messages', 'Messages'],
-    ['/profile', 'Profile'],
+    ['/', 'Dashboard', '📊'],
+    ['/jobs', 'Jobs', '🔧'],
+    ['/reports', 'My reports', '📝'],
+    ['/reviews', 'Reviews', '⭐'],
+    ['/messages', 'Messages', '💬'],
+    ['/profile', 'Profile', '👤'],
   ],
 };
 
@@ -84,28 +86,50 @@ function Shell() {
   const { user, logout } = useAuth();
   const unread = useUnread(user);
   const menu = MENUS[user.role];
+  const side = user.role !== 'client';
+  const badge = (label) => label === 'Messages' && unread > 0 && <span className="dot">{unread}</span>;
   return (
     <>
       <header className="topbar">
         <div className="topbar-in">
           <div className="brand">Auto<span>Pièces</span></div>
-          <nav className="nav">
-            {menu.map(([to, label]) => (
-              <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => (isActive ? 'active' : '')}>
-                {label}
-                {label === 'Messages' && unread > 0 && <span className="dot">{unread}</span>}
-              </NavLink>
-            ))}
-          </nav>
+          {side ? (
+            <div style={{ flex: 1 }} />
+          ) : (
+            <nav className="nav">
+              {menu.map(([to, label]) => (
+                <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => (isActive ? 'active' : '')}>
+                  {label}
+                  {badge(label)}
+                </NavLink>
+              ))}
+            </nav>
+          )}
           <Notifications user={user} />
           <span className="muted small">{user.name}</span>
           <button className="btn ghost small" onClick={logout}>Log out</button>
         </div>
       </header>
-      <main className="page">
+      <div className={side ? 'layout' : ''}>
+        {side && (
+          <aside className="side">
+            <div className="who">
+              <b>{user.role === 'shop' ? 'Shop owner' : 'Mechanic'}</b>
+              <div className="muted small">{user.email}</div>
+            </div>
+            {menu.map(([to, label, icon]) => (
+              <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => (isActive ? 'active' : '')}>
+                <span>{icon}</span> {label}
+                {badge(label)}
+              </NavLink>
+            ))}
+          </aside>
+        )}
+        <main className="page" style={side ? { minWidth: 0 } : undefined}>
         {user.role === 'client' && (
           <Routes>
-            <Route path="/" element={<Search />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/shop/:id" element={<ShopPage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/part/:id" element={<PartPage />} />
@@ -142,6 +166,8 @@ function Shell() {
           </Routes>
         )}
       </main>
+      </div>
+      <footer className="footer">AutoPièces · graduation project prototype</footer>
     </>
   );
 }
