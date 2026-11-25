@@ -70,6 +70,9 @@ standard statements, but run `ping.php` and a login on your XAMPP first and send
 - `flutter run --dart-define=BACKEND=mock` switches back to the built-in demo data (no server).
 - The login token is kept in memory only, so the app asks for the login again after a restart.
 
+## The website uses this API too
+`website/` (React) calls the same endpoints with the same token, so the phone app and the website share accounts and data. See `website/README.md`.
+
 ## Not done yet (planned)
 - Push notifications (the chat polls), Supabase Realtime / Storage (placeholders stay in `config.php`).
 - Rate limiting and e-mail verification.
