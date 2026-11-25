@@ -57,6 +57,7 @@ class SavedScreen extends StatelessWidget {
           stars: stars,
           comment: comment,
           photos: photos,
+          reservation: r,
         );
         Repo.instance.markReviewed(r);
       },

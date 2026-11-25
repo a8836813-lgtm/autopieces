@@ -2,7 +2,7 @@
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/database/db.php';
 
-// GET  stock.php?shop_id=1        public: what a shop holds
+// GET  stock.php?shop_id=1        public: what a shop holds (all=1: every shop)
 // POST stock.php  (shop owner, own shop only), field "action":
 //   upsert     {part_id, price, quantity, condition}
 //   adjust     {part_id, delta}            quick +/- buttons
@@ -12,13 +12,17 @@ $pdo = db();
 
 if (method() === 'GET') {
     $shopId = input_int('shop_id');
-    if ($shopId <= 0) json_error('shop_id required');
-    $st = $pdo->prepare(
-        'SELECT st.id AS stock_id, st.price, st.quantity, st.part_condition,
-                p.id AS part_id, p.name, p.oem, p.category, p.fits
-         FROM stock st JOIN parts p ON p.id = st.part_id
-         WHERE st.shop_id = ? ORDER BY p.name');
-    $st->execute([$shopId]);
+    $sql = 'SELECT st.id AS stock_id, st.shop_id, st.price, st.quantity, st.part_condition,
+                   p.id AS part_id, p.name, p.oem, p.category, p.fits
+            FROM stock st JOIN parts p ON p.id = st.part_id';
+    if ($shopId > 0) {
+        $st = $pdo->prepare("$sql WHERE st.shop_id = ? ORDER BY p.name");
+        $st->execute([$shopId]);
+    } elseif (input('all')) {
+        $st = $pdo->query("$sql ORDER BY st.shop_id, p.name");
+    } else {
+        json_error('shop_id or all=1 required');
+    }
     json_out(['ok' => true, 'stock' => $st->fetchAll()]);
 }
 

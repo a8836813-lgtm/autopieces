@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/app_config.dart';
 import '../data/repo.dart';
+import 'api_client.dart';
 import 'auth_service.dart';
 
 /// Who is using the chat right now and which side of a conversation they are.
@@ -221,7 +222,9 @@ class _PhpChatService extends ChatService {
       queryParameters: query,
     );
     try {
-      final res = await http.get(uri).timeout(AppConfig.requestTimeout);
+      final res = await http
+          .get(uri, headers: ApiClient.instance.headers)
+          .timeout(AppConfig.requestTimeout);
       return _decode(res.body, res.statusCode);
     } on TimeoutException {
       throw const ChatException(_offline);
@@ -312,6 +315,7 @@ class _PhpChatService extends ChatService {
   }) async {
     final req = http.MultipartRequest(
         'POST', Uri.parse(ApiEndpoints.url(ApiEndpoints.chatSend)))
+      ..headers.addAll(ApiClient.instance.headers)
       ..fields.addAll({
         'client_ref': thread.clientRef,
         'client_name': me.isClient ? me.clientName : thread.clientName,

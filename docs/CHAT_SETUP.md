@@ -23,7 +23,7 @@ The server address is `PHP_BASE_URL` (placeholder in `lib/config/app_config.dart
 Find `<PC-IP>` with `ipconfig` (IPv4 address, e.g. 192.168.1.20). Allow Apache in the Windows firewall
 (private network) or the phone cannot reach it.
 
-No server? `flutter run --dart-define=CHAT_PHP=false` keeps messages in memory on one phone (demo).
+No server? `flutter run --dart-define=BACKEND=mock` runs the whole app on built-in demo data (chat stays in memory on one phone).
 
 ## 3. Test with two devices
 1. Phone/emulator A: sign in as **client** (client@demo.dz / demo1234), open **Mechanics**, tap **Chat** on

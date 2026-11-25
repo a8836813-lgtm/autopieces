@@ -62,7 +62,14 @@ photo upload, invoices, reports, favorites, alerts, stats, chat, tokens, tampere
 SQLite stand-in for MySQL, because MySQL was not available where it was written. The SQL uses only plain
 standard statements, but run `ping.php` and a login on your XAMPP first and send any error text if something differs.
 
+## The Flutter app uses this API
+- `lib/services/api_client.dart` sends the requests with the login token. `lib/services/auth_service.dart` logs in and signs up through `auth/*.php`.
+- After login `lib/data/remote_sync.dart` loads shops, parts, stock, mechanics, reports, reviews and the user's own data into `Repo`
+  (and reloads it every 20 s). Every change in the app (reserve, stock, favorites, alerts, reviews, reports, jobs, photos,
+  appointments, shop and mechanic settings) is sent to the server; if the server refuses, the app shows the message and reloads the real data.
+- `flutter run --dart-define=BACKEND=mock` switches back to the built-in demo data (no server).
+- The login token is kept in memory only, so the app asks for the login again after a restart.
+
 ## Not done yet (planned)
-- Flutter side: `Repo` and `AuthService` still use local demo data; the chat is the only feature that already calls the server.
 - Push notifications (the chat polls), Supabase Realtime / Storage (placeholders stay in `config.php`).
 - Rate limiting and e-mail verification.

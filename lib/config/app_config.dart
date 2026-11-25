@@ -27,8 +27,14 @@ enum BackendMode {
 class AppConfig {
   AppConfig._();
 
-  /// Change to [BackendMode.php] or [BackendMode.supabase] once connected.
-  static const BackendMode backendMode = BackendMode.mock;
+  /// php = data comes from the XAMPP server. For offline demo data run:
+  ///   flutter run --dart-define=BACKEND=mock
+  static const BackendMode backendMode =
+      String.fromEnvironment('BACKEND', defaultValue: 'php') == 'mock'
+          ? BackendMode.mock
+          : BackendMode.php;
+
+  static bool get useServer => backendMode == BackendMode.php;
 
   // ───────────────────────── SUPABASE (PLACEHOLDER) ─────────────────────────
   // Dashboard → Project Settings → API
@@ -88,14 +94,7 @@ class AppConfig {
   static bool get aiScannerConfigured =>
       aiScannerUrl.startsWith('http') && !aiScannerUrl.contains('YOUR_');
 
-  // ───────────────────── CHAT (client <-> mechanic / shop) ──────────────────
-  // true  = messages go through the PHP/XAMPP server (works between 2 phones).
-  // false = messages stay in memory on this phone (demo, no server needed).
-  //   flutter run --dart-define=CHAT_PHP=false
-  // The server address is PHP_BASE_URL above. XAMPP needs Apache AND MySQL
-  // started, and the table chat_messages from php/database/schema.sql.
-  static const bool chatViaPhp =
-      bool.fromEnvironment('CHAT_PHP', defaultValue: true);
+  static bool get chatViaPhp => useServer;
 
   static const Duration requestTimeout = Duration(seconds: 12);
 

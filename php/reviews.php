@@ -3,6 +3,7 @@ require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/database/db.php';
 
 // GET  reviews.php?target_kind=shop|mechanic&target_id=1     reviews with photos, replies and the average
+// GET  reviews.php?all=1                                     every review (the app loads them at start)
 // POST (client, multipart/form-data so photos can be attached):
 //        target_kind, target_id, stars (1-5), comment, photos[] (up to 3 images),
 //        reservation_id   (required for a shop: a Completed reservation of yours, one review each)
@@ -22,6 +23,19 @@ function review_list(PDO $pdo, string $kind, int $id): array {
         $r['stars'] = (int) $r['stars'];
     }
     return $rows;
+}
+
+if (method() === 'GET' && input('all')) {
+    $st = $pdo->query('SELECT id, target_kind, target_id, author_name, stars, comment, reply, created_at
+                       FROM reviews ORDER BY id DESC LIMIT 1000');
+    $rows = $st->fetchAll();
+    foreach ($rows as &$r) {
+        $ph = $pdo->prepare('SELECT path FROM review_photos WHERE review_id = ? ORDER BY id');
+        $ph->execute([$r['id']]);
+        $r['photos'] = array_map(fn($p) => photo_url('reviews', $p['path']), $ph->fetchAll());
+        $r['stars'] = (int) $r['stars'];
+    }
+    json_out(['ok' => true, 'reviews' => $rows]);
 }
 
 if (method() === 'GET') {

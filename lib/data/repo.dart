@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 
+import '../config/app_config.dart';
 import '../models/search_query.dart';
 import '../services/auth_service.dart';
 import 'models.dart';
+import 'remote_sync.dart';
 import 'vehicles.dart';
 
 enum SortMode { bestMatch, nearest, cheapest }
@@ -10,15 +12,14 @@ enum SortMode { bestMatch, nearest, cheapest }
 enum MechanicSort { topRated, nearest, mostReports }
 
 enum ReportSort { mostHelpful, lowestCost, fastest }
-
 class Repo extends ChangeNotifier {
   Repo._();
   static final Repo instance = Repo._();
 
   /// The shop that the "shop mode" demo is logged in as.
-  static const String myShopId = 's1';
+  static String myShopId = 's1';
 
-  final List<Shop> shops = const [
+  final List<Shop> shops = [
     Shop(
       id: 's1',
       name: 'Hamid Grossiste Auto',
@@ -233,8 +234,8 @@ class Repo extends ChangeNotifier {
   }
 
   /// The mechanic that the "mechanic mode" demo is logged in as.
-  static const String myMechanicId = 'm1';
-  static const String myMechanicName = 'Garage El Amel';
+  static String myMechanicId = 'm1';
+  static String myMechanicName = 'Garage El Amel';
 
   /// Saved by the client (demo has a single client).
   final Set<String> favoriteShopIds = {};
@@ -294,7 +295,7 @@ class Repo extends ChangeNotifier {
     'Diagnostics',
   ];
 
-  final List<Mechanic> mechanics = const [
+  final List<Mechanic> mechanics = [
     Mechanic(
       id: 'm1',
       name: 'Garage El Amel',
@@ -797,6 +798,40 @@ class Repo extends ChangeNotifier {
 
   final Set<String> _helpfulIds = {};
 
+  Set<String> get helpfulIds => _helpfulIds;
+
+  void touch() => notifyListeners();
+
+  Future<void> loadFromServer(AppUser user) => RemoteSync.load(this, user);
+
+  void _server(Future<void> Function() call, {bool reload = false}) {
+    if (AppConfig.useServer) RemoteSync.push(this, call, reload: reload);
+  }
+
+  void clearServerData() {
+    if (!AppConfig.useServer) return;
+    RemoteSync.stop();
+    shops.clear();
+    parts.clear();
+    stock.clear();
+    mechanics.clear();
+    reports.clear();
+    reviews.clear();
+    reviewReplies.clear();
+    reservations.clear();
+    appointments.clear();
+    jobs.clear();
+    sales.clear();
+    activity.clear();
+    favoriteShopIds.clear();
+    favoritePartIds.clear();
+    priceAlerts.clear();
+    _helpfulIds.clear();
+    myShopId = '';
+    myMechanicId = '';
+    notifyListeners();
+  }
+
   // ---------------------------------------------------------------- lookups
 
   Shop shopById(String id) => shops.firstWhere((s) => s.id == id);
@@ -1007,6 +1042,9 @@ class Repo extends ChangeNotifier {
   void toggleHelpful(String reportKey) {
     if (!_helpfulIds.add(reportKey)) _helpfulIds.remove(reportKey);
     notifyListeners();
+    if (RemoteSync.isServerId(reportKey)) {
+      _server(() => RemoteSync.toggleHelpful(reportKey));
+    }
   }
 
   AppointmentRequest requestAppointment({
@@ -1023,7 +1061,7 @@ class Repo extends ChangeNotifier {
     );
     // The demo mechanic receives it in the Jobs tab, so the client can follow
     // the status and the progress photos.
-    if (mechanic.id == myMechanicId) {
+    if (!AppConfig.useServer && mechanic.id == myMechanicId) {
       var price = 0;
       for (final s in mechanic.services) {
         if (s.name == service) price = s.priceFrom;
@@ -1042,6 +1080,7 @@ class Repo extends ChangeNotifier {
     }
     appointments.insert(0, request);
     notifyListeners();
+    _server(() => RemoteSync.createAppointment(request), reload: true);
     return request;
   }
 
@@ -1050,6 +1089,9 @@ class Repo extends ChangeNotifier {
     final job = request.job;
     if (job != null && job.status == 'New') jobs.remove(job);
     notifyListeners();
+    if (request.id.isNotEmpty) {
+      _server(() => RemoteSync.cancelAppointment(request));
+    }
   }
 
   // ---------------------------------------------------------------- changes
@@ -1083,17 +1125,23 @@ class Repo extends ChangeNotifier {
       );
     }
     notifyListeners();
+    final saved = stockFor(shopId, partId);
+    if (saved != null && shopId == myShopId) {
+      _server(() => RemoteSync.upsertStock(this, saved), reload: true);
+    }
   }
 
   void reserve(SearchResult result) {
     reservations.insert(0, Reservation(item: result));
     notifyListeners();
+    _server(() => RemoteSync.reserve(this, result), reload: true);
   }
 
   void confirmReservation(Reservation reservation) {
     reservation.status = 'Confirmed';
     logActivity('Confirmed ${reservation.item.part.name} for ${reservation.clientName}');
     notifyListeners();
+    _server(() => RemoteSync.reservationAction('confirm', reservation));
   }
 
   // -------------------------------------------------------------- favorites
@@ -1104,11 +1152,15 @@ class Repo extends ChangeNotifier {
   void toggleFavoriteShop(String shopId) {
     if (!favoriteShopIds.remove(shopId)) favoriteShopIds.add(shopId);
     notifyListeners();
+    _server(() => RemoteSync.toggleFavorite('shop', shopId));
   }
 
   void toggleFavoritePart(String partId) {
     if (!favoritePartIds.remove(partId)) favoritePartIds.add(partId);
     notifyListeners();
+    if (RemoteSync.isServerId(partId)) {
+      _server(() => RemoteSync.toggleFavorite('part', partId));
+    }
   }
 
   // ---------------------------------------------------------------- reviews
@@ -1130,6 +1182,7 @@ class Repo extends ChangeNotifier {
     required String comment,
     String author = 'You',
     List<String> photos = const [],
+    Reservation? reservation,
   }) {
     reviews.add(
       Review(
@@ -1141,6 +1194,17 @@ class Repo extends ChangeNotifier {
       ),
     );
     notifyListeners();
+    _server(
+      () => RemoteSync.addReview(
+        this,
+        targetId: targetId,
+        stars: stars,
+        comment: comment.trim(),
+        photos: photos,
+        reservation: reservation,
+      ),
+      reload: true,
+    );
   }
 
   // ------------------------------------------------------------ price alerts
@@ -1158,11 +1222,17 @@ class Repo extends ChangeNotifier {
     priceAlerts.removeWhere((a) => a.partId == partId);
     priceAlerts.add(PriceAlert(partId: partId, targetPrice: targetPrice));
     notifyListeners();
+    if (RemoteSync.isServerId(partId)) {
+      _server(() => RemoteSync.setAlert(partId, targetPrice));
+    }
   }
 
   void removePriceAlert(String partId) {
     priceAlerts.removeWhere((a) => a.partId == partId);
     notifyListeners();
+    if (RemoteSync.isServerId(partId)) {
+      _server(() => RemoteSync.removeAlert(partId));
+    }
   }
 
   /// Cheapest in-stock offer for the part, or null when nobody has it.
@@ -1192,6 +1262,7 @@ class Repo extends ChangeNotifier {
     if (!r.isActive) return;
     r.status = 'Cancelled';
     notifyListeners();
+    _server(() => RemoteSync.reservationAction('cancel', r));
   }
 
   /// The shop owner marks the part as picked up. One unit leaves the stock.
@@ -1214,6 +1285,7 @@ class Repo extends ChangeNotifier {
       logActivity('${r.clientName} picked up ${r.item.part.name} (${item.price} DZD)');
     }
     notifyListeners();
+    _server(() => RemoteSync.reservationAction('complete', r));
   }
 
   void markReviewed(Reservation r) {
@@ -1224,7 +1296,7 @@ class Repo extends ChangeNotifier {
   /// Reservations made by the demo client (the other ones belong to shop
   /// customers and only show in shop mode).
   List<Reservation> get clientReservations =>
-      reservations.where((r) => r.clientName == 'Client (demo)').toList();
+      reservations.where((r) => r.mine).toList();
 
   /// Reviews are only allowed for completed reservations.
   Reservation? reviewableReservationAt(String shopId) {
@@ -1258,6 +1330,7 @@ class Repo extends ChangeNotifier {
   void addReport(RepairReport report) {
     reports.insert(0, report);
     notifyListeners();
+    _server(() => RemoteSync.createReport(report), reload: true);
   }
 
   /// Replaces [old] by an edited copy (same position in the list).
@@ -1266,6 +1339,9 @@ class Repo extends ChangeNotifier {
     if (i == -1) return;
     reports[i] = updated;
     notifyListeners();
+    if (RemoteSync.isServerId(old.id)) {
+      _server(() => RemoteSync.updateReport(updated), reload: true);
+    }
   }
 
   // ------------------------------------------------------- shop owner tools
@@ -1286,6 +1362,7 @@ class Repo extends ChangeNotifier {
     shopOpen = value;
     logActivity(value ? 'Shop set to open' : 'Shop set to closed');
     notifyListeners();
+    _server(() => RemoteSync.saveShop({'open_now': value}));
   }
 
   void updateShopInfo({
@@ -1304,11 +1381,18 @@ class Repo extends ChangeNotifier {
       ..addAll(payments);
     logActivity('Shop information updated');
     notifyListeners();
+    _server(() => RemoteSync.saveShop({
+          'hours': shopHours,
+          'phone': shopPhone,
+          'about': shopAbout,
+          'delivers': shopDelivers,
+        }));
   }
 
   void setLowStockLimit(int value) {
     lowStockLimit = value.clamp(0, 20);
     notifyListeners();
+    _server(() => RemoteSync.saveShop({'low_stock_limit': lowStockLimit}));
   }
 
   /// Adds [delta] units (can be negative) to a stock item, never below 0.
@@ -1319,6 +1403,7 @@ class Repo extends ChangeNotifier {
       '${partById(item.partId).name}: ${delta >= 0 ? '+' : ''}$delta, now ${item.quantity} units',
     );
     notifyListeners();
+    _server(() => RemoteSync.adjustStock(this, item, delta));
   }
 
   void removeStock(StockItem item) {
@@ -1326,6 +1411,7 @@ class Repo extends ChangeNotifier {
     stock.remove(item);
     logActivity('Removed $name from stock');
     notifyListeners();
+    _server(() => RemoteSync.removeStock(item));
   }
 
   /// Raises or lowers prices of the shop stock by [percent]. When [category]
@@ -1346,6 +1432,7 @@ class Repo extends ChangeNotifier {
         '(${category ?? 'all parts'}, $changed items)',
       );
       notifyListeners();
+      _server(() => RemoteSync.bulkPrice(category, percent));
     }
     return changed;
   }
@@ -1356,6 +1443,7 @@ class Repo extends ChangeNotifier {
     r.status = 'Cancelled';
     logActivity('Declined ${r.item.part.name} for ${r.clientName}');
     notifyListeners();
+    _server(() => RemoteSync.reservationAction('decline', r));
   }
 
   List<Reservation> shopReservations() =>
@@ -1432,6 +1520,9 @@ class Repo extends ChangeNotifier {
       logActivity('Replied to ${r.author}');
     }
     notifyListeners();
+    if (RemoteSync.isServerId(r.id)) {
+      _server(() => RemoteSync.replyToReview(r, trimmed));
+    }
   }
 
   // ------------------------------------------------------- mechanic mode
@@ -1439,11 +1530,15 @@ class Repo extends ChangeNotifier {
   void deleteReport(RepairReport report) {
     reports.remove(report);
     notifyListeners();
+    if (RemoteSync.isServerId(report.id)) {
+      _server(() => RemoteSync.deleteReport(report));
+    }
   }
 
   void setMechanicAvailable(bool value) {
     mechanicAvailable = value;
     notifyListeners();
+    _server(() => RemoteSync.setMechanicAvailable(value));
   }
 
   void setMechanicPro(bool value) {
@@ -1462,44 +1557,55 @@ class Repo extends ChangeNotifier {
   void acceptJob(JobRequest job) {
     job.status = 'Accepted';
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'accept'));
   }
 
   void declineJob(JobRequest job) {
     job.status = 'Declined';
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'decline'));
   }
 
   void startJob(JobRequest job) {
     job.status = 'In progress';
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'start'));
   }
 
   void finishJob(JobRequest job) {
     job.status = 'Done';
     job.completedAt = DateTime.now();
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'finish'));
   }
 
   void addJobPhoto(JobRequest job, String path) {
     job.photos.add(path);
     notifyListeners();
+    _server(() => RemoteSync.uploadJobPhoto(job, path), reload: true);
   }
 
   void removeJobPhoto(JobRequest job, String path) {
     job.photos.remove(path);
     notifyListeners();
+    final photoId = job.photoIds[path];
+    if (photoId != null) {
+      _server(() => RemoteSync.jobAction(job, 'remove_photo', {'photo_id': photoId}));
+    }
   }
 
   void saveInvoice(JobRequest job, {required int labour, required int parts}) {
     job.labourCost = labour;
     job.partsCost = parts;
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'invoice', {'labour': labour, 'parts': parts}));
   }
 
   void setJobPaid(JobRequest job, bool paid) {
     job.paid = paid;
     job.paidAt = paid ? DateTime.now() : null;
     notifyListeners();
+    _server(() => RemoteSync.jobAction(job, 'paid', {'paid': paid}));
   }
 
   List<JobRequest> jobsWithStatus(Set<String> statuses) {

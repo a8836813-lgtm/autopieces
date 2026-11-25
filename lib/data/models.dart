@@ -65,6 +65,7 @@ class Part {
 
 /// One part held by one shop. Mutable so the shop owner can edit it.
 class StockItem {
+  final String id;
   final String shopId;
   final String partId;
   int quantity;
@@ -72,6 +73,7 @@ class StockItem {
   String condition; // 'New' or 'Used'
 
   StockItem({
+    this.id = '',
     required this.shopId,
     required this.partId,
     required this.quantity,
@@ -105,6 +107,7 @@ class SearchResult {
 }
 
 class Reservation {
+  final String id;
   final SearchResult item;
   final DateTime createdAt;
 
@@ -120,14 +123,21 @@ class Reservation {
   /// Set when the shop marks the part as picked up.
   DateTime? completedAt;
 
+  final bool? _mine;
+
+  bool get mine => _mine ?? clientName == 'Client (demo)';
+
   Reservation({
+    this.id = '',
+    bool? mine,
     required this.item,
     DateTime? createdAt,
     this.status = 'Pending',
     this.reviewed = false,
     this.clientName = 'Client (demo)',
     this.completedAt,
-  }) : createdAt = createdAt ?? DateTime.now();
+  })  : _mine = mine,
+        createdAt = createdAt ?? DateTime.now();
 
   bool get isActive => status == 'Pending' || status == 'Confirmed';
 }
@@ -280,6 +290,7 @@ class RepairReport {
 
 /// A rating and comment about a shop or a mechanic ([targetId]).
 class Review {
+  final String id;
   final String targetId;
   final String author;
   final int stars; // 1 to 5
@@ -290,6 +301,7 @@ class Review {
   final List<String> photos;
 
   Review({
+    this.id = '',
     required this.targetId,
     required this.author,
     required this.stars,
@@ -312,6 +324,7 @@ class PriceAlert {
 
 /// An appointment the client asked a mechanic for (demo, kept in memory).
 class AppointmentRequest {
+  String id = '';
   final Mechanic mechanic;
   final String service;
   final DateTime when;
@@ -357,6 +370,7 @@ class JobRequest {
 
   /// Photos of the job taken by the mechanic (file paths).
   final List<String> photos = <String>[];
+  final Map<String, int> photoIds = <String, int>{};
 
   // Invoice (filled in by the mechanic once the job is done).
   int? labourCost;

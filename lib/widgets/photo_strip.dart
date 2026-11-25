@@ -6,6 +6,17 @@ import '../theme.dart';
 
 /// Row of small photo thumbnails with an optional "add" tile.
 /// Tap a photo to see it full screen. Long press removes it (if [onRemove]).
+Widget _image(
+  String path, {
+  required BoxFit fit,
+  required ImageErrorWidgetBuilder errorBuilder,
+}) {
+  if (path.startsWith('http')) {
+    return Image.network(path, fit: fit, errorBuilder: errorBuilder);
+  }
+  return Image.file(File(path), fit: fit, errorBuilder: errorBuilder);
+}
+
 class PhotoStrip extends StatelessWidget {
   final List<String> paths;
   final VoidCallback? onAdd;
@@ -40,8 +51,8 @@ class PhotoStrip extends StatelessWidget {
           backgroundColor: Colors.black,
           insetPadding: const EdgeInsets.all(12),
           child: InteractiveViewer(
-            child: Image.file(
-              File(path),
+            child: _image(
+              path,
               fit: BoxFit.contain,
               errorBuilder: (_, __, ___) => const Padding(
                 padding: EdgeInsets.all(40),
@@ -78,8 +89,8 @@ class PhotoStrip extends StatelessWidget {
         child: SizedBox(
           width: size,
           height: size,
-          child: Image.file(
-            File(path),
+          child: _image(
+            path,
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => Container(
               color: AppColors.chipBg,

@@ -34,6 +34,7 @@ class _ShopScreenState extends State<ShopScreen> {
           stars: stars,
           comment: comment,
           photos: photos,
+          reservation: r,
         );
         Repo.instance.markReviewed(r);
       },

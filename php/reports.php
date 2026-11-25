@@ -39,6 +39,13 @@ if (method() === 'GET') {
         $row = $st->fetch() ?: json_error('Report not found', 404);
         json_out(['ok' => true, 'report' => $row]);
     }
+    $me = actor_optional();
+    $mine = [];
+    if ($me) {
+        $v = $pdo->prepare('SELECT report_id FROM report_helpful WHERE user_id = ?');
+        $v->execute([$me['id']]);
+        $mine = array_map('intval', array_column($v->fetchAll(), 'report_id'));
+    }
     $where = ['1=1']; $args = [];
     if (input_int('mechanic_id') > 0) { $where[] = 'r.mechanic_id = ?'; $args[] = input_int('mechanic_id'); }
     if (input_str('category', 60) !== '') { $where[] = 'r.category = ?'; $args[] = input_str('category', 60); }
@@ -55,7 +62,9 @@ if (method() === 'GET') {
     };
     $st = $pdo->prepare("$SEL WHERE " . implode(' AND ', $where) . " ORDER BY $order LIMIT 100");
     $st->execute($args);
-    json_out(['ok' => true, 'reports' => $st->fetchAll()]);
+    $rows = $st->fetchAll();
+    foreach ($rows as &$r) $r['voted'] = in_array((int) $r['id'], $mine, true);
+    json_out(['ok' => true, 'reports' => $rows]);
 }
 
 $action = input_str('action', 10);

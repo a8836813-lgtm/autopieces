@@ -497,7 +497,9 @@ class _MechanicShellState extends State<MechanicShell> {
           ),
           const SizedBox(height: 2),
           Text(
-            '${j.clientName} · ${j.distanceKm.toStringAsFixed(1)} km away',
+            j.distanceKm > 0
+                ? '${j.clientName} · ${j.distanceKm.toStringAsFixed(1)} km away'
+                : j.clientName,
             style: const TextStyle(fontSize: 13, color: AppColors.muted),
           ),
           const SizedBox(height: 8),
