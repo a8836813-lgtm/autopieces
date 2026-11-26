@@ -3,7 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { REFERENCE } from '../config';
 import { BRANDS } from '../vehicles';
-import { Badge, Empty, ErrorBox, Loading, money, useAction } from '../ui';
+import { PartArt } from '../art';
+import { Badge, Empty, ErrorBox, Loading, money, useAction, useToast } from '../ui';
 
 const CATEGORIES = ['', 'Brakes', 'Filters', 'Battery', 'Engine', 'Electrical', 'Suspension', 'Cooling', 'Body'];
 
@@ -18,7 +19,7 @@ export default function Search() {
   const [fitments, setFitments] = useState({});
   const [catalogue, setCatalogue] = useState([]);
   const [alerts, setAlerts] = useState([]);
-  const [notice, setNotice] = useState('');
+  const toast = useToast();
   const { busy, error, run, setError } = useAction();
 
   async function search() {
@@ -83,7 +84,7 @@ export default function Search() {
   function reserve(r) {
     run(async () => {
       await api.post('reservations.php', { action: 'create', stock_id: r.stock_id });
-      setNotice(`Reserved ${r.name} at ${r.shop_name}. Follow it in Orders.`);
+      toast(`${r.name} reserved at ${r.shop_name}. Follow it in Orders.`);
       search();
     });
   }
@@ -136,7 +137,6 @@ export default function Search() {
         </div>
       </form>
       <ErrorBox error={error} />
-      {notice && <div className="ok">{notice}</div>}
       {sorted === undefined && brand ? (
         <div className="grid">
           {catalogue.filter((p) => fitsCar(p.id)).map((p) => (
@@ -156,11 +156,12 @@ export default function Search() {
         <div className="grid">
           {sorted.map((r) => (
             <div className="card stack" key={r.stock_id}>
-              <div className="row between">
-                <h3>{r.name}</h3>
+              <div className="item">
+                <PartArt category={r.category} size={46} />
+                <div className="grow"><h3 style={{ margin: 0 }}>{r.name}</h3><div className="muted small">{r.oem}</div></div>
                 <span className="price">{money(r.price)}</span>
               </div>
-              <div className="muted small">Serial {r.oem || '—'} · {r.category} · {r.fits}</div>
+              <div className="muted small">{r.category} · {r.fits}</div>
               <div className="row">
                 <Link to={`/shop/${r.shop_id}`}>{r.shop_name}</Link>
                 <Badge tone={r.open_now ? 'good' : 'bad'}>{r.open_now ? 'Open' : 'Closed'}</Badge>

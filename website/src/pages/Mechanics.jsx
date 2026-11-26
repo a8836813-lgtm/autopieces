@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { REFERENCE } from '../config';
+import { Monogram } from '../art';
 import { Badge, Empty, ErrorBox, Loading, Stars, useLoad } from '../ui';
 
 export default function Mechanics() {
@@ -41,19 +42,22 @@ export default function Mechanics() {
       ) : (
         <div className="grid">
           {data.mechanics.map((m) => (
-            <div className="card stack" key={m.id}>
-              <div className="row between">
-                <h3><Link to={`/mechanic/${m.id}`}>{m.name}</Link></h3>
-                <Stars value={m.rating} count={m.reviews_count} />
+            <div className="card item" key={m.id} style={{ alignItems: 'flex-start' }}>
+              <Monogram name={m.name} size={52} />
+              <div className="grow stack">
+                <div className="row between">
+                  <h3 style={{ margin: 0 }}><Link to={`/mechanic/${m.id}`}>{m.name}</Link></h3>
+                  <Stars value={m.rating} count={m.reviews_count} />
+                </div>
+                <div className="muted">{m.specialties}</div>
+                <div className="row">
+                  {m.verified ? <Badge tone="good">Verified</Badge> : null}
+                  {m.premium ? <Badge tone="info">Premium</Badge> : null}
+                  <Badge tone={m.available ? 'good' : 'bad'}>{m.available ? 'Available' : 'Busy'}</Badge>
+                  {m.distance_km != null && <span className="muted small">{Number(m.distance_km).toFixed(1)} km</span>}
+                </div>
+                <div className="muted small">{m.years_experience} years · {m.reports_count} report{m.reports_count === 1 ? '' : 's'} · {m.address}</div>
               </div>
-              <div className="muted">{m.specialties}</div>
-              <div className="row">
-                {m.verified ? <Badge tone="good">Verified</Badge> : null}
-                {m.premium ? <Badge tone="info">Premium</Badge> : null}
-                <Badge tone={m.available ? 'good' : 'bad'}>{m.available ? 'Available' : 'Busy'}</Badge>
-                {m.distance_km != null && <span className="muted small">{Number(m.distance_km).toFixed(1)} km</span>}
-              </div>
-              <div className="muted small">{m.years_experience} years · {m.reports_count} reports · {m.address}</div>
             </div>
           ))}
         </div>

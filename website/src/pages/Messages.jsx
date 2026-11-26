@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api, photoUrl } from '../api';
 import { useAuth } from '../auth';
+import { Monogram } from '../art';
 import { Empty, ErrorBox } from '../ui';
 
 function useSelf(user) {
@@ -94,7 +95,10 @@ function Conversation({ thread, self, user }) {
       <ErrorBox error={error} />
       <form className="composer" onSubmit={send}>
         <input type="text" placeholder="Write a message" value={body} onChange={(e) => setBody(e.target.value)} />
-        <input type="file" accept="image/*" style={{ maxWidth: 110 }} onChange={(e) => setFile(e.target.files[0] || null)} />
+        <label className="attach" title={file ? file.name : 'Attach a photo'} style={file ? { borderColor: 'var(--cobalt)' } : undefined}>
+          {file ? '✔' : '📎'}
+          <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0] || null)} />
+        </label>
         <button className="btn">Send</button>
       </form>
     </div>
@@ -155,11 +159,16 @@ export default function Messages() {
           {list.length === 0 && <Empty>No conversation yet.</Empty>}
           {list.map((t) => (
             <div key={keyOf(t)} className={`thread ${current && keyOf(current) === keyOf(t) ? 'on' : ''}`} onClick={() => setActive(t)}>
-              <div className="row between">
-                <b>{self.side === 'client' ? t.peer_name || `${t.peer_kind} #${t.peer_id}` : t.client_name || t.client_ref}</b>
-                {t.unread > 0 && <span className="dot">{t.unread}</span>}
+              <div className="item">
+                <Monogram name={self.side === 'client' ? t.peer_name || t.peer_kind : t.client_name || t.client_ref} size={38} />
+                <div className="grow">
+                  <div className="row between">
+                    <b>{self.side === 'client' ? t.peer_name || `${t.peer_kind} #${t.peer_id}` : t.client_name || t.client_ref}</b>
+                    {t.unread > 0 && <span className="dot">{t.unread}</span>}
+                  </div>
+                  <div className="muted small">{t.last ? t.last.body || 'Photo' : 'New conversation'}</div>
+                </div>
               </div>
-              <div className="muted small">{t.last ? t.last.body || 'Photo' : 'New conversation'}</div>
             </div>
           ))}
         </div>

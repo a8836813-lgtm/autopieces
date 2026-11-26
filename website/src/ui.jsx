@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { photoUrl } from './api';
 
 export function Stars({ value, count }) {
@@ -37,7 +37,36 @@ export function Empty({ children }) {
 }
 
 export function Loading() {
-  return <div className="empty">Loading…</div>;
+  return (
+    <div className="skeleton" aria-busy="true" aria-label="Loading">
+      <i style={{ width: '38%', height: 30 }} />
+      <i style={{ width: '100%', height: 90 }} />
+      <i style={{ width: '100%', height: 90 }} />
+      <i style={{ width: '70%', height: 20 }} />
+    </div>
+  );
+}
+
+const ToastCtx = createContext(() => {});
+export const useToast = () => useContext(ToastCtx);
+
+export function ToastProvider({ children }) {
+  const [items, setItems] = useState([]);
+  const push = useCallback((text, tone = 'good') => {
+    const id = Math.random().toString(36).slice(2);
+    setItems((l) => [...l, { id, text, tone }]);
+    setTimeout(() => setItems((l) => l.filter((x) => x.id !== id)), 4200);
+  }, []);
+  return (
+    <ToastCtx.Provider value={push}>
+      {children}
+      <div className="toasts" role="status" aria-live="polite">
+        {items.map((i) => (
+          <div key={i.id} className={`toast ${i.tone}`}>{i.text}</div>
+        ))}
+      </div>
+    </ToastCtx.Provider>
+  );
 }
 
 export function ErrorBox({ error }) {

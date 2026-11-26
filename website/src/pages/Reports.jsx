@@ -22,31 +22,38 @@ export default function Reports() {
         <Empty>No report found.</Empty>
       ) : (
         list.map((r) => (
-          <div className="card stack" key={r.id}>
-            <div className="row between">
-              <h3>{r.title}</h3>
-              <span className="price">{money(r.cost)}</span>
+          <div className="ticket" key={r.id} style={{ marginBottom: 12 }}>
+            <div className="ticket-stub">
+              <div>
+                <div className="small" style={{ fontWeight: 600 }}>{r.car}</div>
+                <div className="small">{r.mechanic_name}</div>
+                <div className="small">{r.category}</div>
+              </div>
+              <div>
+                <span className="price">{money(r.cost)}</span>
+                <div className="small">{r.warranty_months} months warranty · {r.duration_hours} h</div>
+              </div>
             </div>
-            <div className="muted small">{r.car} · {r.category} · by {r.mechanic_name}</div>
-            <div><b>Problem:</b> {r.problem}</div>
-            <div><b>Diagnosis:</b> {r.diagnosis}</div>
-            <div><b>Work done:</b> {r.work_done}</div>
-            <div className="muted small">
-              Labour {money(r.labour_cost)} · Parts {money(r.parts_cost)} ({r.parts_text}) · {r.duration_hours} h · {r.warranty_months} months warranty
-            </div>
-            <div>
-              <button
-                className="btn ghost small"
-                onClick={() =>
-                  run(async () => {
-                    await api.post('reports.php', { action: 'helpful', id: r.id });
-                    reload();
-                  })
-                }
-              >
-                {r.voted ? '👍 Helpful' : '👍 Mark helpful'} · {r.helpful}
-              </button>
-            </div>
+            <dl className="ticket-body" style={{ margin: 0 }}>
+              <div><h3>{r.title}</h3></div>
+              <div><dt>Problem</dt><dd>{r.problem}</dd></div>
+              <div><dt>Diagnosis</dt><dd>{r.diagnosis}</dd></div>
+              <div><dt>Work done</dt><dd>{r.work_done}</dd></div>
+              <div className="row between">
+                <span className="muted small">Labour {money(r.labour_cost)} · Parts {money(r.parts_cost)} ({r.parts_text})</span>
+                <button
+                  className="btn ghost small"
+                  onClick={() =>
+                    run(async () => {
+                      await api.post('reports.php', { action: 'helpful', id: r.id });
+                      reload();
+                    })
+                  }
+                >
+                  {r.voted ? '👍 Helpful' : '👍 Mark helpful'} · {r.helpful}
+                </button>
+              </div>
+            </dl>
           </div>
         ))
       )}

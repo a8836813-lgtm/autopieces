@@ -9,13 +9,16 @@ import '@fontsource/instrument-sans/500.css';
 import '@fontsource/instrument-sans/600.css';
 import App from './App';
 import { AuthProvider } from './auth';
+import { ToastProvider } from './ui';
 import './theme.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HashRouter>
       <AuthProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </AuthProvider>
     </HashRouter>
   </React.StrictMode>

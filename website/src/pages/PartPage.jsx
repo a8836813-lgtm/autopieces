@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
+import { PartArt } from '../art';
 import { Badge, Empty, ErrorBox, Loading, money, useAction, useLoad } from '../ui';
 
 export default function PartPage() {
@@ -44,7 +45,7 @@ export default function PartPage() {
   return (
     <>
       <div className="row between">
-        <h1>{p.name}</h1>
+        <div className="item"><PartArt category={p.category} size={64} /><h1 style={{ margin: 0 }}>{p.name}</h1></div>
         <button className="btn ghost" onClick={toggleAlert}>{alert ? '🔔 Alert on' : '🔔 Price alert'}</button>
       </div>
       <div className="card stack">

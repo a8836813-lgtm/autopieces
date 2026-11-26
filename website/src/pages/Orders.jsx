@@ -1,4 +1,5 @@
 import { api } from '../api';
+import { Monogram } from '../art';
 import { Empty, ErrorBox, Loading, StatusBadge, money, useAction, useLoad } from '../ui';
 import ReviewForm from './ReviewForm';
 
@@ -17,8 +18,9 @@ export default function Orders() {
       ) : (
         data.reservations.map((r) => (
           <div className="card stack" key={r.id}>
-            <div className="row between">
-              <h3>{r.part_name}</h3>
+            <div className="item">
+              <Monogram name={r.shop_name} size={44} />
+              <div className="grow"><h3 style={{ margin: 0 }}>{r.part_name}</h3><div className="muted small">{r.shop_name}</div></div>
               <StatusBadge status={r.status} />
             </div>
             <div className="muted small">{r.shop_name} · {r.shop_phone} · {r.created_at}</div>

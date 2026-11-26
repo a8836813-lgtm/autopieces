@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useAuth } from '../auth';
+import { PartArt } from '../art';
 import { Badge, Empty, ErrorBox, Field, Loading, Modal, money, useAction, useLoad } from '../ui';
 
 const CATEGORIES = ['Brakes', 'Filters', 'Battery', 'Engine', 'Electrical', 'Suspension', 'Cooling', 'Body', 'Other'];
@@ -96,7 +97,12 @@ export default function ShopStock() {
             <tbody>
               {list.map((i) => (
                 <tr key={i.stock_id}>
-                  <td>{i.name}<div className="muted small">{i.category}</div></td>
+                  <td>
+                    <div className="item">
+                      <PartArt category={i.category} size={40} />
+                      <div className="grow">{i.name}<div className="muted small">{i.category}</div></div>
+                    </div>
+                  </td>
                   <td>{i.oem}</td>
                   <td>{i.part_condition}</td>
                   <td>

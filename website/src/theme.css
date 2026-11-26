@@ -219,3 +219,36 @@ textarea { width: 100%; min-height: 80px; resize: vertical; }
   .hit { grid-template-columns: 1fr auto; }
   .hit .btn { grid-column: 1 / -1; }
 }
+
+html, body, #root { min-height: 100vh; }
+#root { display: flex; flex-direction: column; }
+#root > .footer { margin-top: auto; }
+.layout { flex: 1; }
+.art { display: inline-grid; place-items: center; flex: none; background: var(--cobalt-soft); border-radius: 12px; }
+.mono { display: inline-grid; place-items: center; flex: none; border-radius: 12px; font-family: var(--display); font-weight: 800; }
+.skeleton { display: grid; gap: 14px; padding: 10px 0; }
+.skeleton i { display: block; border-radius: 12px; background: linear-gradient(90deg, #e1e6ee 25%, #eef1f5 50%, #e1e6ee 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.toasts { position: fixed; right: 18px; bottom: 18px; display: grid; gap: 8px; z-index: 80; max-width: min(380px, calc(100vw - 36px)); }
+.toast { background: var(--ink); color: #fff; padding: 11px 15px; border-radius: 10px; box-shadow: 0 8px 24px rgba(14, 23, 38, 0.25); border-left: 4px solid var(--tag); }
+.toast.bad { border-left-color: #ff6b5e; }
+.profile-head { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.profile-head .mono { border-radius: 16px; }
+.profile-head h1 { margin: 0 0 4px; }
+.profile-head .grow { flex: 1; min-width: 220px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+.aside { position: sticky; top: 76px; }
+.aside .card { margin-bottom: 12px; }
+.facts { display: grid; gap: 12px; margin: 0; }
+.facts dt { font-size: 12px; font-weight: 600; color: var(--muted); }
+.facts dd { margin: 1px 0 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: #e9edf3; border-radius: 6px; padding: 2px 9px; font-size: 13px; font-weight: 500; }
+.item { display: flex; gap: 12px; align-items: center; }
+.item .grow { flex: 1; min-width: 0; }
+.service { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.service:last-child { border-bottom: 0; }
+.attach { cursor: pointer; display: inline-grid; place-items: center; width: 40px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.attach:hover { border-color: var(--cobalt); }
+.attach input { display: none; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; } .aside { position: static; } }

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { BRANDS } from '../vehicles';
 import { fitsCar, indexFitments } from '../carfilter';
-import { Stars, money, useAction, useLoad } from '../ui';
+import { Stars, money, useAction, useLoad, useToast } from '../ui';
 
 const CATEGORIES = ['Brakes', 'Filters', 'Battery', 'Engine', 'Electrical', 'Suspension', 'Cooling', 'Body'];
 const EXAMPLES = ['Brake pads', 'Oil filter', 'Battery', 'Alternator'];
@@ -13,7 +13,7 @@ export default function Home() {
   const [model, setModel] = useState('');
   const [q, setQ] = useState('');
   const [hits, setHits] = useState(null);
-  const [notice, setNotice] = useState('');
+  const toast = useToast();
   const act = useAction();
   const shops = useLoad(() => api.get('shops.php'), []);
   const mechs = useLoad(() => api.get('mechanics.php', { sort: 'rating' }), []);
@@ -48,7 +48,7 @@ export default function Home() {
   function reserve(r) {
     act.run(async () => {
       await api.post('reservations.php', { action: 'create', stock_id: r.stock_id });
-      setNotice(`${r.name} reserved at ${r.shop_name}. You can follow it in Orders.`);
+      toast(`${r.name} reserved at ${r.shop_name}. Follow it in Orders.`);
       const again = await api.get('parts_search.php', { q: q.trim() });
       setHits(again.results);
     });
@@ -89,11 +89,10 @@ export default function Home() {
             </label>
             <label>
               <span>Part name or serial number</span>
-              <input value={q} onChange={(e) => { setQ(e.target.value); setNotice(''); }} placeholder="Brake pads, 04465-02220" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Brake pads, 04465-02220" />
             </label>
           </div>
           <div className="counter-results">
-            {notice && <div className="ok" style={{ margin: 12 }}>{notice}</div>}
             {hits === null && (
               <div className="empty" style={{ padding: '22px 18px' }}>
                 Start typing, or try{' '}
