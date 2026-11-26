@@ -49,23 +49,20 @@ export default function Login() {
   return (
     <div className="auth-split">
       <aside className="auth-promo">
-        <div className="brand" style={{ color: '#fff' }}>Auto<span style={{ color: '#fbbf91' }}>Pièces</span></div>
-        <h1>Car parts, shops and mechanics. One place.</h1>
-        <ul>
-          <li>🔎 Search parts by name, serial number or your car</li>
-          <li>💸 Compare prices between local shops</li>
-          <li>🔧 Book verified mechanics and follow the repair with photos</li>
-          <li>💬 Chat with shops and mechanics, no phone call needed</li>
-        </ul>
-        <div className="promo-stats">
-          <div><b>3</b><span>roles</span></div>
-          <div><b>100%</b><span>local</span></div>
-          <div><b>24/7</b><span>online</span></div>
+        <div className="brand">Auto<span>Pièces</span></div>
+        <div>
+          <h1>The part you need is already on a shelf near you.</h1>
+          <p>Search local shops by car and serial number, reserve in one tap, then book a mechanic and follow the repair.</p>
+        </div>
+        <div className="part-tag">
+          <small>04465-02220</small>
+          <b>Front brake pads</b>
+          <span>3 500 DA</span>
         </div>
       </aside>
       <div className="auth-wrap">
-      <h2 style={{ margin: '0 0 4px', display: 'block' }}>Welcome back</h2>
-      <p className="muted" style={{ marginTop: 0 }}>Choose your role to continue.</p>
+      <h2>Log in or create an account</h2>
+      <p className="muted" style={{ marginTop: 0 }}>Choose how you use AutoPièces.</p>
       <div className="tabs">
         {ROLES.map(([k, l]) => (
           <button key={k} className={role === k ? 'on' : ''} onClick={() => setRole(k)} type="button">{l}</button>
