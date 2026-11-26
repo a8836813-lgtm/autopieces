@@ -143,6 +143,16 @@ export default function Home() {
         ))}
       </div>
 
+      <h2>Browse by car brand</h2>
+      <div className="brand-row">
+        {BRANDS.filter((b) => b.type === 'car').slice(0, 14).map((b) => (
+          <Link key={b.id} className="brand-tile" to={`/search?brand=${b.id}`}>
+            <i>{b.name.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()}</i>
+            {b.name}
+          </Link>
+        ))}
+      </div>
+
       <div className="two">
         <section>
           <h2>Shops <Link to="/map">Show on map</Link></h2>

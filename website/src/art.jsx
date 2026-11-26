@@ -1,5 +1,5 @@
 const S = { fill: 'none', stroke: 'var(--cobalt-deep)', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' };
-const Y = { fill: 'var(--tag)', stroke: 'var(--cobalt-deep)', strokeWidth: 2.2, strokeLinejoin: 'round' };
+const Y = { fill: 'var(--tag-light)', stroke: 'var(--cobalt-deep)', strokeWidth: 2.2, strokeLinejoin: 'round' };
 
 const SHAPES = {
   Brakes: (
@@ -76,10 +76,10 @@ export function PartArt({ category, size = 48 }) {
 }
 
 const TONES = [
-  ['#e6ecfd', '#1639a8'],
-  ['#fff3c4', '#7a4a00'],
-  ['#dcf3e7', '#0b6b44'],
-  ['#e9e4fb', '#4b3aa8'],
+  ['#e1edf0', '#0f4c5c'],
+  ['#fde7d9', '#c2410c'],
+  ['#ddefe3', '#14532d'],
+  ['#eceae4', '#14181f'],
 ];
 
 export function Monogram({ name = '', size = 44 }) {
