@@ -20,7 +20,7 @@ reports, reviews, messages, profile).
 - Map of shops and mechanics (OpenStreetMap, needs internet for the map tiles), with open/available filter.
 - "My car" filter (brand and model, same list as the app) on the part search.
 - Price comparison page per part: every shop, cheapest badge, how much you save, reserve and price alert.
-- "See inside" page: 2D cutaway of the car (side and front). Hover a part, click to zoom, and a card shows how it works, prices and mechanic reports.
+- "See inside" page: 3D (Three.js) or 2D cutaway of the car. Turn the car, hover a part, click to zoom, and a card shows how it works, prices and mechanic reports. Run `npm install` again after pulling (adds `three`).
 - Notification bell: price alerts reached, new messages, order and appointment updates (client); new orders, low stock (shop); new requests, unpaid invoices (mechanic).
 
 ## Settings (`.env`)

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { BRANDS } from '../vehicles';
 import { fitsCar, indexFitments } from '../carfilter';
 import { KINDS } from '../explorer/kinds';
 import { VIEWS } from '../explorer/views';
+import { PARTS_3D } from '../explorer/parts3d';
 import { Badge, Loading, money } from '../ui';
 
 const CAR_NOTES = {
@@ -170,11 +171,17 @@ function ReportsList({ kind }) {
   );
 }
 
+const Car3D = lazy(() => import('../explorer/Car3D'));
+
 export default function Explorer() {
   const [params] = useSearchParams();
   const [brandId, setBrandId] = useState(params.get('brand') || 'audi');
   const [model, setModel] = useState(params.get('model') || 'RS3');
+  const [mode, setMode] = useState(params.get('mode') === '2d' ? '2d' : '3d');
   const [viewId, setViewId] = useState('side');
+  const [angle, setAngle] = useState('angle');
+  const carRef = useRef(null);
+  const is3d = mode === '3d';
   const [selected, setSelected] = useState(null);
   const [hover, setHover] = useState(null);
   const [fitments, setFitments] = useState({});
@@ -187,19 +194,38 @@ export default function Explorer() {
     api.get('parts.php').then((r) => setFitments(indexFitments(r.parts))).catch(() => {});
   }, []);
 
-  const byId = useMemo(() => Object.fromEntries(view.parts.map((p) => [p.id, p])), [view]);
+  const list = is3d ? PARTS_3D : view.parts;
+  const byId = useMemo(() => Object.fromEntries(list.map((p) => [p.id, p])), [list]);
   const chosen = selected ? byId[selected] : null;
   const kind = chosen ? KINDS[chosen.kind] : null;
   const note = chosen && CAR_NOTES[`${brandId}:${model}`]?.[chosen.kind];
 
   function pick(id) {
+    if (!id) {
+      clear();
+      return;
+    }
     setSelected(id);
-    cam.focus(svgRef.current?.querySelector(`[data-part="${id}"]`));
+    if (is3d) carRef.current?.focus(id);
+    else cam.focus(svgRef.current?.querySelector(`[data-part="${id}"]`));
   }
 
   function clear() {
     setSelected(null);
-    cam.reset();
+    if (is3d) carRef.current?.preset(angle);
+    else cam.reset();
+  }
+
+  function changeMode(m) {
+    setMode(m);
+    setSelected(null);
+    setHover(null);
+  }
+
+  function changeAngle(a) {
+    setAngle(a);
+    setSelected(null);
+    carRef.current?.preset(a);
   }
 
   function changeView(v) {
@@ -209,7 +235,7 @@ export default function Explorer() {
   }
 
   const labelOf = (id) => (id ? byId[id]?.name : '');
-  const chips = view.parts.filter((p, i, all) => all.findIndex((x) => x.kind === p.kind) === i);
+  const chips = list.filter((p, i, all) => all.findIndex((x) => x.kind === p.kind) === i);
   const carName = brand ? `${brand.name}${model ? ` ${model}` : ''}` : 'Your car';
   const searchLink = kind ? `/search?q=${encodeURIComponent(kind.q)}&brand=${brandId}&model=${encodeURIComponent(model)}` : '/search';
 
@@ -226,19 +252,36 @@ export default function Explorer() {
           {(brand ? brand.models : []).map((m) => <option key={m}>{m}</option>)}
         </select>
         <div className="grow" />
-        <div className="seg" role="tablist" aria-label="View">
-          <button role="tab" aria-selected={viewId === 'side'} className={viewId === 'side' ? 'on' : ''} onClick={() => changeView('side')}>Side</button>
-          <button role="tab" aria-selected={viewId === 'front'} className={viewId === 'front' ? 'on' : ''} onClick={() => changeView('front')}>Front</button>
+        <div className="seg" role="tablist" aria-label="Style">
+          <button role="tab" aria-selected={is3d} className={is3d ? 'on' : ''} onClick={() => changeMode('3d')}>3D</button>
+          <button role="tab" aria-selected={!is3d} className={!is3d ? 'on' : ''} onClick={() => changeMode('2d')}>2D</button>
         </div>
+        {is3d ? (
+          <div className="seg" role="tablist" aria-label="Camera">
+            {[['angle', 'Angle'], ['side', 'Side'], ['front', 'Front'], ['top', 'Top']].map(([k, l]) => (
+              <button key={k} role="tab" aria-selected={angle === k} className={angle === k ? 'on' : ''} onClick={() => changeAngle(k)}>{l}</button>
+            ))}
+          </div>
+        ) : (
+          <div className="seg" role="tablist" aria-label="View">
+            <button role="tab" aria-selected={viewId === 'side'} className={viewId === 'side' ? 'on' : ''} onClick={() => changeView('side')}>Side</button>
+            <button role="tab" aria-selected={viewId === 'front'} className={viewId === 'front' ? 'on' : ''} onClick={() => changeView('front')}>Front</button>
+          </div>
+        )}
       </div>
 
       <div className="explorer">
         <div>
           <div className="card xstage">
             <div className="xhint" aria-live="polite">
-              {hover ? labelOf(hover) : selected ? labelOf(selected) : 'Hover a part, then click it to zoom in'}
+              {hover ? labelOf(hover) : selected ? labelOf(selected) : is3d ? 'Drag to turn the car, scroll to zoom, click a part' : 'Hover a part, then click it to zoom in'}
             </div>
-            {cam.zoomed && <button className="btn ghost small xreset" onClick={clear}>Show whole car</button>}
+            {(is3d ? !!selected : cam.zoomed) && <button className="btn ghost small xreset" onClick={clear}>Show whole car</button>}
+            {is3d ? (
+              <Suspense fallback={<div className="x3d xloading">Loading the 3D car...</div>}>
+                <Car3D ref={carRef} selected={selected} hover={hover} onHover={setHover} onPick={pick} />
+              </Suspense>
+            ) : (
             <svg
               ref={svgRef}
               className={`xr${selected ? ' has-sel' : ''}`}
@@ -278,6 +321,7 @@ export default function Explorer() {
                 </g>
               ))}
             </svg>
+            )}
           </div>
           <div className="xchips">
             {chips.map((p) => (
@@ -286,7 +330,7 @@ export default function Explorer() {
               </button>
             ))}
           </div>
-          <p className="muted small">The drawing is a generic hatchback cutaway. Part names, prices and reports are for the car you choose above.</p>
+          <p className="muted small">The car is a generic hatchback cutaway. Part names, prices and reports are for the car you choose above.</p>
         </div>
 
         <aside className="card xcard">
