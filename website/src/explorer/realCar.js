@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { ORANGE, TEAL, helix } from './car3d';
+import { ORANGE, TEAL, helix } from './carScene.js';
 
 const GHOST = '#c9c7c0';
 const GLASS = '#a9c0c8';

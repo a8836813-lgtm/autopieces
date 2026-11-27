@@ -1,11 +1,11 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Component, Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api } from '../api';
 import { BRANDS } from '../vehicles';
 import { fitsCar, indexFitments } from '../carfilter';
-import { KINDS } from '../explorer/kinds';
-import { VIEWS } from '../explorer/views';
-import { PARTS_3D } from '../explorer/parts3d';
+import { KINDS } from '../explorer/kinds.js';
+import { VIEWS } from '../explorer/views.jsx';
+import { PARTS_3D } from '../explorer/parts3d.js';
 import { Badge, Loading, money } from '../ui';
 
 const CAR_NOTES = {
@@ -171,7 +171,35 @@ function ReportsList({ kind }) {
   );
 }
 
-const Car3D = lazy(() => import('../explorer/Car3D'));
+// The explicit .jsx matters on Windows and macOS: their file systems ignore
+// case, and Vite tries .js before .jsx.
+const Car3D = lazy(() => import('../explorer/Car3D.jsx'));
+
+// If the 3D view fails (no WebGL, old phone), show a message instead of a
+// blank page and let the user switch to the 2D view.
+class Boundary3D extends Component {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error) {
+    console.error('3D view failed:', error);
+  }
+
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className="x3d xloading">
+          The 3D view could not start on this device.{' '}
+          <button className="btn ghost small" onClick={this.props.onFallback}>Use the 2D view</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function Explorer() {
   const [params] = useSearchParams();
@@ -298,9 +326,11 @@ export default function Explorer() {
             </div>
             {(is3d ? !!selected : cam.zoomed) && <button className="btn ghost small xreset" onClick={clear}>Show whole car</button>}
             {is3d ? (
-              <Suspense fallback={<div className="x3d xloading">Loading the 3D car...</div>}>
-                <Car3D ref={carRef} modelUrl={modelUrl} selected={selected} hover={hover} onHover={setHover} onPick={pick} onReady={carReady} />
-              </Suspense>
+              <Boundary3D onFallback={() => changeMode('2d')}>
+                <Suspense fallback={<div className="x3d xloading">Loading the 3D car...</div>}>
+                  <Car3D ref={carRef} modelUrl={modelUrl} selected={selected} hover={hover} onHover={setHover} onPick={pick} onReady={carReady} />
+                </Suspense>
+              </Boundary3D>
             ) : (
             <svg
               ref={svgRef}

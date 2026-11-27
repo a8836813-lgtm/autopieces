@@ -1,10 +1,5 @@
 <?php
-/**
- * GET the list of conversations with last message and unread count.
- *   Client: ?as=client&client_ref=<email>
- *   Mechanic/shop: ?as=peer&peer_kind=mechanic|shop&peer_id=m1
- * "unread" = messages written by the OTHER side that are not read yet.
- */
+
 require_once __DIR__ . '/_chat.php';
 
 $as = $_GET['as'] ?? '';
@@ -29,7 +24,7 @@ if ($as === 'client') {
     json_error('as must be client or peer');
 }
 
-// Latest message id per conversation, then fetch those rows.
+
 $st = db()->prepare(
     "SELECT m.* FROM chat_messages m
        JOIN (SELECT MAX(id) AS last_id FROM chat_messages WHERE $where

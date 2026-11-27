@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PARTS_3D } from './parts3d';
+import { PARTS_3D } from './parts3d.js';
 
 const X = (x) => (x - 547) / 100;
 const Y = (y) => (392 - y) / 100;
