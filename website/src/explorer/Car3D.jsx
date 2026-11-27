@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { ORANGE, createCar } from './car3d';
+import { ORANGE, createCar } from './carScene.js';
 
 const TARGET = new THREE.Vector3(0, 1.3, 0);
 const PRESETS = {

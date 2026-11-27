@@ -54,7 +54,7 @@ class AppConfig {
   // Flutter web / Windows → http://localhost/autopieces/api
   static const String phpBaseUrl = String.fromEnvironment(
     'PHP_BASE_URL',
-    defaultValue: 'http://10.0.2.2/autopieces/api',
+    defaultValue: 'http://192.168.1.162/autopieces/api',
   );
 
   // ─────────────── GOOGLE PLACES (PLACEHOLDER, live opening hours) ───────────

@@ -1,9 +1,5 @@
 <?php
-/**
- * GET messages of ONE conversation (used for polling).
- * ?client_ref=&peer_kind=&peer_id=&reader=client|peer&after_id=0
- * Returns messages with id > after_id and marks the other side's messages as read.
- */
+
 require_once __DIR__ . '/_chat.php';
 
 [$client, $kind, $peer] = conv_from($_GET);
