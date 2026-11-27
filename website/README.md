@@ -40,3 +40,7 @@ Before a public demo, set `ALLOWED_ORIGIN` in `php/config.php` to the website ad
 ## Files
 - `src/api.js` requests with the login token (kept in the browser), `src/auth.jsx` login and sign-up, `src/config.js` settings.
 - `src/pages/` one file per page, `src/App.jsx` menus by role.
+
+## 3D model licence
+
+The Audi RS3 in `public/models/rs3.glb` is by Ddiaz Design, CC BY-NC-SA 4.0 (non-commercial, credit required). See `public/models/CREDITS.md`. Remove the file and the page falls back to the generic coded car.

@@ -181,6 +181,8 @@ export default function Explorer() {
   const [viewId, setViewId] = useState('side');
   const [angle, setAngle] = useState('angle');
   const carRef = useRef(null);
+  const [rig, setRig] = useState({ meta: PARTS_3D, caps: { explode: true }, real: false });
+  const [fx, setFx] = useState({ explode: false, doors: false, spin: false });
   const is3d = mode === '3d';
   const [selected, setSelected] = useState(null);
   const [hover, setHover] = useState(null);
@@ -194,7 +196,7 @@ export default function Explorer() {
     api.get('parts.php').then((r) => setFitments(indexFitments(r.parts))).catch(() => {});
   }, []);
 
-  const list = is3d ? PARTS_3D : view.parts;
+  const list = is3d ? rig.meta : view.parts;
   const byId = useMemo(() => Object.fromEntries(list.map((p) => [p.id, p])), [list]);
   const chosen = selected ? byId[selected] : null;
   const kind = chosen ? KINDS[chosen.kind] : null;
@@ -214,6 +216,24 @@ export default function Explorer() {
     setSelected(null);
     if (is3d) carRef.current?.preset(angle);
     else cam.reset();
+  }
+
+  const modelUrl = brandId === 'audi' && model === 'RS3' ? `${import.meta.env.BASE_URL}models/rs3.glb` : null;
+
+  function toggleFx(key) {
+    const on = !fx[key];
+    setFx({ ...fx, [key]: on });
+    carRef.current?.set(key, on);
+    if (key === 'explode') {
+      setSelected(null);
+      carRef.current?.preset(on ? 'explode' : angle);
+    }
+  }
+
+  function carReady(r) {
+    setRig(r);
+    setFx({ explode: false, doors: false, spin: false });
+    setSelected(null);
   }
 
   function changeMode(m) {
@@ -279,7 +299,7 @@ export default function Explorer() {
             {(is3d ? !!selected : cam.zoomed) && <button className="btn ghost small xreset" onClick={clear}>Show whole car</button>}
             {is3d ? (
               <Suspense fallback={<div className="x3d xloading">Loading the 3D car...</div>}>
-                <Car3D ref={carRef} selected={selected} hover={hover} onHover={setHover} onPick={pick} />
+                <Car3D ref={carRef} modelUrl={modelUrl} selected={selected} hover={hover} onHover={setHover} onPick={pick} onReady={carReady} />
               </Suspense>
             ) : (
             <svg
@@ -323,6 +343,13 @@ export default function Explorer() {
             </svg>
             )}
           </div>
+          {is3d && (
+            <div className="xchips">
+              {rig.caps.explode && <button className={`btn small ${fx.explode ? '' : 'ghost'}`} onClick={() => toggleFx('explode')}>{fx.explode ? 'Put back together' : 'Explode'}</button>}
+              {rig.caps.doors && <button className={`btn small ${fx.doors ? '' : 'ghost'}`} onClick={() => toggleFx('doors')}>{fx.doors ? 'Close doors' : 'Open doors'}</button>}
+              {rig.caps.spin && <button className={`btn small ${fx.spin ? '' : 'ghost'}`} onClick={() => toggleFx('spin')}>{fx.spin ? 'Stop wheels' : 'Spin wheels'}</button>}
+            </div>
+          )}
           <div className="xchips">
             {chips.map((p) => (
               <button key={p.id} className={`btn small ${chosen && chosen.kind === p.kind ? 'orange' : 'ghost'}`} onClick={() => pick(p.id)}>
@@ -330,7 +357,15 @@ export default function Explorer() {
               </button>
             ))}
           </div>
-          <p className="muted small">The car is a generic hatchback cutaway. Part names, prices and reports are for the car you choose above.</p>
+          {is3d && rig.real ? (
+            <p className="muted small">
+              The body, wheels, brakes, lights and doors are the real RS3 model. Engine, gearbox, exhaust and the other inner parts are simple drawings, because the model has no inside.
+              Model: 2018 Audi RS3 Sportback by <a href="https://sketchfab.com/3d-models/2018-audi-rs3-sportback-20fdc17a5b2f4afab096337b5822c170" target="_blank" rel="noreferrer">Ddiaz Design</a>,{' '}
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noreferrer">CC BY-NC-SA 4.0</a>, non-commercial use only.
+            </p>
+          ) : (
+            <p className="muted small">The car is a generic hatchback cutaway. Part names, prices and reports are for the car you choose above.</p>
+          )}
         </div>
 
         <aside className="card xcard">

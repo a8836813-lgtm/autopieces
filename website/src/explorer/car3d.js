@@ -31,7 +31,7 @@ function shellShape() {
   return s;
 }
 
-function helix(radius, height, turns) {
+export function helix(radius, height, turns) {
   class Helix extends THREE.Curve {
     getPoint(t, target = new THREE.Vector3()) {
       const a = t * turns * Math.PI * 2;
@@ -186,5 +186,76 @@ export function createCar() {
     g.add(h);
   }, { opacity: 0.16 });
 
-  return { root, parts, pickables, shell, edges };
+  const OUTER = new Set(['door', 'hood', 'windscreen', 'bumper-f', 'bumper-r']);
+  const DIRS = {
+    engine: [0, 1.4, 0], radiator: [-1.4, 0.4, 0], battery: [-0.4, 1.4, 0.8], airfilter: [-0.2, 1.4, -0.8], alternator: [0, -0.8, 0.9], gearbox: [0, 0.9, 0],
+    exhaust: [0, -1, 0], fuel: [0, -1, 0], 'brakes-f': [0, 0, 1.1], 'brakes-r': [0, 0, 1.1], 'tyres-f': [0, 0, 1.5], 'tyres-r': [0, 0, 1.5],
+    'susp-f': [0, 1.2, 0], 'susp-r': [0, 1.2, 0], headlight: [-1, 0.5, 0], taillight: [1, 0.5, 0], fog: [-1, -0.3, 0], 'bumper-f': [-1.5, 0, 0], 'bumper-r': [1.5, 0, 0],
+    mirror: [0, 0.6, 0.8], windscreen: [0, 1.6, 0], wipers: [0, 1.8, 0], door: [0, 0, 1.6], hood: [0, 1.5, 0],
+  };
+  const out = {};
+  const pickable = [];
+  Object.entries(parts).forEach(([id, g]) => {
+    const meshes = [];
+    g.traverse((o) => o.isMesh && meshes.push(o));
+    const { material, base, baseOpacity } = g.userData;
+    const dir = new THREE.Vector3(...(DIRS[id] || [0, 1, 0]));
+    out[id] = {
+      id,
+      kind: g.userData.kind,
+      name: g.userData.name,
+      meshes,
+      holders: [{ obj: g, dir }],
+      apply(state) {
+        const hot = state === 'hot';
+        material.color.set(hot ? ORANGE : base);
+        material.emissive.set(hot ? ORANGE : '#000000');
+        material.emissiveIntensity = hot ? 0.25 : 0;
+        material.opacity = state === 'dim' ? Math.min(baseOpacity, 0.22) : hot ? Math.max(baseOpacity, 0.55) : baseOpacity;
+        material.transparent = material.opacity < 1;
+        material.needsUpdate = true;
+      },
+    };
+    meshes.forEach((m) => {
+      m.userData.layer = OUTER.has(id) ? 'outer' : 'inner';
+      pickable.push(m);
+    });
+  });
+
+  const explodeT = { v: 0 };
+  return {
+    root,
+    parts: out,
+    pickables: pickable,
+    meta: PARTS_3D,
+    caps: { explode: true, doors: false, spin: false },
+    framing: {
+      target: new THREE.Vector3(0, 1.3, 0),
+      presets: {
+        angle: new THREE.Vector3(-5.4, 3.3, 7.0),
+        side: new THREE.Vector3(0, 1.6, 10.2),
+        front: new THREE.Vector3(-10.2, 1.6, 0.01),
+        top: new THREE.Vector3(0, 11.5, 0.01),
+        explode: new THREE.Vector3(-8, 5.5, 11),
+      },
+      grid: 24,
+      minDistance: 1.2,
+      maxDistance: 22,
+      focusMin: 2.2,
+      focusMax: 11,
+      explodeScale: 1,
+    },
+    setShell(v) {
+      shell.material.opacity = v;
+      edges.material.transparent = true;
+      edges.material.opacity = v > 0.2 ? 1 : 0.25;
+    },
+    anim: { explode: false },
+    update(dt) {
+      const target = this.anim.explode ? 1 : 0;
+      explodeT.v += (target - explodeT.v) * Math.min(1, dt * 4);
+      Object.values(out).forEach((pt) => pt.holders.forEach((h) => h.obj.position.copy(h.dir).multiplyScalar(explodeT.v)));
+      return explodeT.v;
+    },
+  };
 }
