@@ -260,3 +260,44 @@ html, body, #root { min-height: 100vh; }
 .brand-tile i { display: block; font-style: normal; font-weight: 800; font-size: 18px; color: var(--cobalt); margin-bottom: 2px; }
 .nav a.active { font-weight: 500; }
 .legend.mech { background: var(--tag); }
+
+.explorer { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr); gap: 14px; align-items: start; }
+.xstage { position: relative; padding: 0; overflow: hidden; background: linear-gradient(#fbfaf7, #f1efe9); }
+.xr { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.xhint { position: absolute; left: 14px; top: 12px; z-index: 2; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 14px; }
+.xreset { position: absolute; right: 12px; top: 10px; z-index: 2; background: var(--panel); }
+.xr .body { fill: #e3e1db; fill-opacity: 0.9; stroke: #9b9a93; stroke-width: 3; stroke-linejoin: round; }
+.xr .glass { fill: #f4f3ef; stroke: #b7b5ae; stroke-width: 2; }
+.xr .seam { fill: none; stroke: #b7b5ae; stroke-width: 2; }
+.xr .ground { stroke: #cfcdc6; stroke-width: 2; }
+.xr .part { cursor: pointer; outline: none; transition: opacity 0.25s; }
+.xr .part.dim { opacity: 0.28; }
+.xr .hit { fill: transparent; }
+.xr .part:focus-visible .hit { stroke: var(--cobalt); stroke-width: 2; stroke-dasharray: 5 4; }
+.xr .fill { fill: #e1edf0; stroke: var(--cobalt); stroke-width: 2.5; transition: fill 0.15s, stroke 0.15s; }
+.xr .line { fill: none; stroke: var(--cobalt); stroke-width: 2.5; transition: stroke 0.15s; }
+.xr .outline { fill: none; stroke: var(--cobalt); stroke-width: 2.5; transition: stroke 0.15s; }
+.xr .solid { fill: var(--cobalt); fill-opacity: 0.85; stroke: var(--cobalt); stroke-width: 2; transition: fill 0.15s, stroke 0.15s; }
+.xr .solid.light { fill-opacity: 0.1; }
+.xr .solid.dark { fill: #3d4450; stroke: #3d4450; fill-opacity: 1; }
+.xr .ring { fill: none; stroke: #3d4450; stroke-width: 18; transition: stroke 0.15s; }
+.xr .thick { stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.xr .dashed { stroke-dasharray: 9 7; }
+.xr .part.hot .fill, .xr .part.on .fill { fill: var(--tag-soft); stroke: var(--tag); }
+.xr .part.hot .line, .xr .part.on .line, .xr .part.hot .outline, .xr .part.on .outline, .xr .part.hot .ring, .xr .part.on .ring { stroke: var(--tag); }
+.xr .part.hot .solid, .xr .part.on .solid { fill: var(--tag); stroke: var(--tag); fill-opacity: 1; }
+.xr .part.hot .solid.light, .xr .part.on .solid.light { fill-opacity: 0.22; }
+.xchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 8px; }
+.xcard { position: sticky; top: 74px; max-height: calc(100vh - 90px); overflow-y: auto; margin: 0; }
+.xcard section { border-top: 1px solid var(--line); padding-top: 12px; }
+.xcard .note { margin: 8px 0 0; background: var(--cobalt-soft); color: var(--cobalt-deep); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+.xprices { display: flex; gap: 18px; margin-bottom: 8px; flex-wrap: wrap; }
+.xprices div { display: flex; flex-direction: column; }
+.xprices b { font-family: var(--display); font-size: 17px; }
+.xrow { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px dashed var(--line); }
+.xrow.col { flex-direction: column; align-items: stretch; gap: 3px; }
+.seg { display: flex; gap: 3px; background: #e8e6e0; padding: 3px; border-radius: 10px; }
+.seg button { border: 0; background: transparent; border-radius: 8px; padding: 6px 16px; cursor: pointer; font: inherit; font-weight: 500; color: var(--ink); }
+.seg button.on { background: var(--panel); color: var(--cobalt); font-weight: 600; box-shadow: 0 1px 2px rgba(14, 23, 38, 0.12); }
+@media (max-width: 900px) { .explorer { grid-template-columns: minmax(0, 1fr); } .xcard { position: static; max-height: none; } }
+.row > .grow, .xrow .grow { flex: 1; min-width: 0; }

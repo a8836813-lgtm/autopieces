@@ -25,12 +25,14 @@ import MechanicProfile from './pages/MechanicProfile';
 import Reviews from './pages/Reviews';
 import MapPage from './pages/MapPage';
 import PartPage from './pages/PartPage';
+import Explorer from './pages/Explorer';
 import Notifications from './notifications';
 
 const MENUS = {
   client: [
     ['/', 'Home'],
     ['/search', 'Search'],
+    ['/explorer', 'See inside'],
     ['/map', 'Map'],
     ['/mechanics', 'Mechanics'],
     ['/reports', 'Reports'],
@@ -132,6 +134,7 @@ function Shell() {
             <Route path="/search" element={<Search />} />
             <Route path="/shop/:id" element={<ShopPage />} />
             <Route path="/map" element={<MapPage />} />
+            <Route path="/explorer" element={<Explorer />} />
             <Route path="/part/:id" element={<PartPage />} />
             <Route path="/mechanics" element={<Mechanics />} />
             <Route path="/mechanic/:id" element={<MechanicPage />} />

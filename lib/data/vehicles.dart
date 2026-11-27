@@ -58,7 +58,7 @@ const List<VehicleBrand> kCarBrands = [
   VehicleBrand('bmw', 'BMW', VehicleType.car,
       ['Series 1', 'Series 3', 'Series 5', 'X1', 'X3', 'X5']),
   VehicleBrand('audi', 'Audi', VehicleType.car,
-      ['A3', 'A4', 'A6', 'Q3', 'Q5']),
+      ['A3', 'A4', 'A6', 'Q3', 'Q5', 'RS3']),
   VehicleBrand('opel', 'Opel', VehicleType.car,
       ['Corsa', 'Astra', 'Insignia', 'Mokka']),
   VehicleBrand('honda', 'Honda', VehicleType.car,

@@ -17,7 +17,7 @@ export const BRANDS = [
   { id: 'ford', name: 'Ford', type: 'car', models: ['Fiesta', 'Focus', 'Kuga', 'Transit', 'Ranger'] },
   { id: 'mercedes', name: 'Mercedes-Benz', type: 'car', models: ['A-Class', 'C-Class', 'E-Class', 'GLC', 'Vito', 'Sprinter'] },
   { id: 'bmw', name: 'BMW', type: 'car', models: ['Series 1', 'Series 3', 'Series 5', 'X1', 'X3', 'X5'] },
-  { id: 'audi', name: 'Audi', type: 'car', models: ['A3', 'A4', 'A6', 'Q3', 'Q5'] },
+  { id: 'audi', name: 'Audi', type: 'car', models: ['A3', 'A4', 'A6', 'Q3', 'Q5', 'RS3'] },
   { id: 'opel', name: 'Opel', type: 'car', models: ['Corsa', 'Astra', 'Insignia', 'Mokka'] },
   { id: 'honda', name: 'Honda', type: 'car', models: ['Jazz', 'Civic', 'Accord', 'CR-V'] },
   { id: 'mazda', name: 'Mazda', type: 'car', models: ['Mazda2', 'Mazda3', 'CX-5', 'BT-50'] },

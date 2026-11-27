@@ -15,7 +15,7 @@ export default function Search() {
   const [sort, setSort] = useState('price');
   const [items, setItems] = useState(undefined);
   const [brandId, setBrandId] = useState(params.get('brand') || '');
-  const [model, setModel] = useState('');
+  const [model, setModel] = useState(params.get('model') || '');
   const [fitments, setFitments] = useState({});
   const [catalogue, setCatalogue] = useState([]);
   const [alerts, setAlerts] = useState([]);
